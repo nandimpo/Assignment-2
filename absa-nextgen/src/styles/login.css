@@ -1,0 +1,155 @@
+/* PAGE */
+html {
+  scroll-behavior: smooth;
+}
+.login-page {
+  background: black;
+  color: white;
+  min-height: 100vh;
+  font-family: "Inter", sans-serif;
+}
+
+/* NAV */
+.login-nav {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 40px;
+  align-items: center;
+}
+
+.login-nav h1 {
+  font-size: 18px;
+  color: #d6a85a;
+}
+
+.login-nav button {
+  margin-left: 10px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: none;
+  background: #1a1a1a;
+  color: white;
+  cursor: pointer;
+}
+
+/* CONTAINER */
+.login-container {
+  display: flex;
+  height: calc(100vh - 80px);
+}
+
+/* LEFT */
+.login-left {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-left img {
+  width: 70%;
+  transform: rotate(180deg);
+  opacity: 0.9;
+}
+
+.brand {
+  position: absolute;
+  bottom: 60px;
+  text-align: center;
+}
+
+.brand h2 {
+  font-family: "Montserrat";
+}
+
+.brand p {
+  color: #aaa;
+  font-size: 14px;
+}
+
+/* RIGHT */
+.login-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 80px;
+}
+
+.login-right h2 {
+  font-family: "Montserrat";
+  font-size: 28px;
+}
+
+.subtitle {
+  color: #aaa;
+  margin-bottom: 20px;
+}
+
+/* SOCIAL */
+.socials {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.socials button {
+  flex: 1;
+  padding: 10px;
+  border-radius: 20px;
+  background: #1a1a1a;
+  border: none;
+  color: white;
+}
+
+/* DIVIDER */
+.divider {
+  text-align: center;
+  margin: 10px 0;
+  color: #777;
+}
+
+/* INPUTS (LINE STYLE) */
+form input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #444;
+  padding: 10px 0;
+  margin-bottom: 20px;
+  color: white;
+}
+
+/* OPTIONS */
+.options {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #aaa;
+  margin-bottom: 20px;
+}
+
+/* BUTTON */
+.submit {
+  width: 100%;
+  padding: 12px;
+  border-radius: 25px;
+  border: none;
+  background: #84a794;
+  color: black;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* SWITCH */
+.switch {
+  margin-top: 20px;
+  font-size: 13px;
+  color: #aaa;
+}
+
+.switch span {
+  color: white;
+  cursor: pointer;
+}

@@ -1,0 +1,71 @@
+/* OVERLAY */
+.overlay {
+  position: fixed;
+  top: 80px; /* BELOW NAV */
+  left: 0;
+  width: 100%;
+  height: calc(100% - 80px);
+
+  backdrop-filter: blur(8px); /* 🔥 BLUR EFFECT */
+  background: rgba(0, 0, 0, 0.3);
+
+  z-index: 998;
+}
+
+/* PANEL */
+.explainer-panel {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 360px;
+  height: 100%;
+  background: #08110f;
+
+  padding: 25px;
+  border-left: 1px solid rgba(132, 167, 148, 0.2);
+
+  animation: slideIn 0.3s ease;
+  z-index: 999;
+}
+
+/* CLOSE BUTTON */
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+
+  background: none;
+  border: none;
+  color: white;
+  font-size: 18px;
+
+  cursor: pointer;
+}
+
+/* CONTENT */
+.explainer-panel h2 {
+  margin-bottom: 10px;
+}
+
+.explainer-panel p {
+  color: #b2c2c3;
+  margin-bottom: 20px;
+}
+
+/* WHY BOX */
+.why {
+  margin-top: 20px;
+  padding: 15px;
+  background: rgba(132, 167, 148, 0.08);
+  border-radius: 10px;
+}
+
+/* ANIMATION */
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}

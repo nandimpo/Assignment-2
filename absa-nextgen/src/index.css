@@ -1,0 +1,23 @@
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* BODY FIX */
+body {
+  background: #0d0d0d;
+  color: white;
+  font-family: sans-serif;
+
+  /* ❌ REMOVE THESE IF THEY EXIST */
+  /* display: flex; */
+  /* align-items: center; */
+  /* justify-content: center; */
+}
+
+/* ROOT FIX */
+#root {
+  width: 100%;
+}

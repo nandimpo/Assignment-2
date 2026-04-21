@@ -1,0 +1,316 @@
+/* ========================= */
+/* BASE */
+/* ========================= */
+.profile {
+  background: radial-gradient(circle at top, #0b0f0e, #020202);
+  color: white;
+  min-height: 100vh;
+  font-family: "Inter", sans-serif;
+}
+
+.container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 40px 20px;
+}
+
+/* ========================= */
+/* NAVBAR */
+/* ========================= */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #050505;
+  padding: 18px 30px;
+  border-radius: 14px;
+  margin-bottom: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.logo {
+  color: #d6a85a;
+  font-weight: 600;
+}
+
+.nav-links button {
+  margin-left: 10px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.nav-links button:hover {
+  background: rgba(132, 167, 148, 0.2);
+}
+
+.active {
+  background: rgba(132, 167, 148, 0.3);
+}
+
+/* ========================= */
+/* GRID */
+/* ========================= */
+.profile-container {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 30px;
+}
+
+/* ========================= */
+/* GLASS CARD */
+/* ========================= */
+.card {
+  border-radius: 24px;
+  padding: 28px;
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(25px);
+  border: 1px solid rgba(132, 167, 148, 0.15);
+  box-shadow: 0 0 40px rgba(132, 167, 148, 0.08);
+  transition: 0.3s ease;
+}
+
+.glass:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 50px rgba(132, 167, 148, 0.12);
+}
+
+/* ========================= */
+/* PROFILE TOP */
+/* ========================= */
+.profile-top {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.avatar {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #84a794, #2c3a36);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.profile-info h2 {
+  font-size: 22px;
+}
+
+.profile-info p {
+  font-size: 13px;
+  color: #aaa;
+  margin-top: 4px;
+}
+
+.tag {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  background: rgba(132, 167, 148, 0.2);
+  font-size: 12px;
+}
+
+/* EDIT BUTTON */
+.edit-btn {
+  margin-left: auto;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(132, 167, 148, 0.3);
+  background: rgba(132, 167, 148, 0.1);
+  color: #84a794;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.edit-btn:hover {
+  background: rgba(132, 167, 148, 0.25);
+  box-shadow: 0 0 10px rgba(132, 167, 148, 0.4);
+}
+
+/* ========================= */
+/* DONUT */
+/* ========================= */
+.donut-section {
+  text-align: center;
+  margin: 30px 0;
+}
+
+.donut {
+  width: 140px;
+  height: 140px;
+  margin: auto;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.donut-inner {
+  width: 100px;
+  height: 100px;
+  background: #020202;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+/* ========================= */
+/* SNAPSHOT */
+/* ========================= */
+.snapshot {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.snapshot p {
+  color: #aaa;
+  font-size: 13px;
+}
+
+.snapshot h4 {
+  margin-top: 5px;
+}
+
+/* ========================= */
+/* GOALS */
+/* ========================= */
+.section {
+  margin-top: 25px;
+}
+
+.goal-block {
+  margin-top: 12px;
+}
+
+.goal {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.bar {
+  height: 8px;
+  background: #1a1f1e;
+  border-radius: 10px;
+  margin-top: 6px;
+}
+
+.bar-fill {
+  height: 100%;
+  background: linear-gradient(to right, #d6a85a, #84a794);
+  border-radius: 10px;
+  transition: width 0.6s ease;
+}
+
+/* ========================= */
+/* BUTTON */
+/* ========================= */
+.pill {
+  margin-top: 20px;
+  padding: 10px;
+  border-radius: 25px;
+  border: none;
+  background: linear-gradient(135deg, #84a794, #2c3a36);
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.pill:hover {
+  box-shadow: 0 0 15px rgba(132, 167, 148, 0.4);
+}
+
+.wide {
+  width: 100%;
+}
+
+/* ========================= */
+/* SIDE */
+/* ========================= */
+.profile-side {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.side-item {
+  margin-top: 10px;
+  opacity: 0.85;
+  font-size: 13px;
+}
+
+.side-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.side-actions button {
+  flex: 1;
+  padding: 10px;
+  border-radius: 12px;
+  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.side-actions button:hover {
+  background: rgba(132, 167, 148, 0.2);
+}
+
+/* ========================= */
+/* FINANCE SCHOOL */
+/* ========================= */
+.mini-progress {
+  height: 6px;
+  background: #1a1f1e;
+  border-radius: 10px;
+  margin: 12px 0;
+}
+
+.mini-progress div {
+  height: 100%;
+  background: linear-gradient(to right, #d6a85a, #84a794);
+  border-radius: 10px;
+  transition: width 0.6s ease;
+}
+
+/* ========================= */
+/* TEXT */
+/* ========================= */
+.accent {
+  color: #84a794;
+}
+
+/* ========================= */
+/* MOBILE */
+/* ========================= */
+@media (max-width: 900px) {
+  .profile-container {
+    grid-template-columns: 1fr;
+  }
+
+  .snapshot {
+    flex-direction: column;
+    gap: 10px;
+  }
+}

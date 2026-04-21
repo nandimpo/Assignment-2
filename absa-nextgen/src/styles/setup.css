@@ -1,0 +1,171 @@
+/* PAGE */
+.setup-page {
+  min-height: 100vh;
+  background: radial-gradient(circle at top, #0b0f0e, #020202);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* PROGRESS BAR */
+.progress-bar {
+  width: 300px;
+  height: 6px;
+  background: #1a1f1e;
+  border-radius: 10px;
+  margin-bottom: 30px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(to right, #d6a85a, #84a794);
+  transition: width 0.4s ease;
+}
+
+/* SLIDE */
+.slide {
+  width: 100%;
+  max-width: 500px;
+}
+
+.slide.forward {
+  animation: slideIn 0.4s ease;
+}
+
+.slide.back {
+  animation: slideBack 0.4s ease;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideBack {
+  from {
+    transform: translateX(-40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* CONTENT */
+.step-content {
+  text-align: center;
+}
+
+/* FEATURES */
+.features {
+  display: flex;
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.feature-card {
+  flex: 1;
+  padding: 15px;
+  border-radius: 16px;
+  background: rgba(132, 167, 148, 0.08);
+}
+
+/* STRATEGY */
+.strategy-options {
+  margin: 20px 0;
+}
+
+.strategy-card {
+  padding: 20px;
+  border-radius: 20px;
+  background: #1a1f1e;
+  cursor: pointer;
+  position: relative;
+}
+
+.selected-card {
+  border: 1px solid #84a794;
+}
+
+/* CHECKMARK */
+.checkmark {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #84a794;
+  color: black;
+  padding: 4px 6px;
+  border-radius: 50%;
+}
+
+/* INPUT */
+input {
+  width: 100%;
+  padding: 14px;
+  margin: 10px 0;
+  border-radius: 12px;
+  border: none;
+  background: #1a1f1e;
+  color: white;
+}
+
+/* BUTTONS */
+.btn {
+  padding: 14px 20px;
+  border-radius: 25px;
+  border: none;
+  cursor: pointer;
+  margin-top: 15px;
+}
+
+.btn.primary {
+  background: linear-gradient(135deg, #84a794, #2c3a36);
+  color: white;
+}
+
+.btn.secondary {
+  background: transparent;
+  border: 1px solid #84a794;
+  color: #84a794;
+}
+
+/* NAV */
+.nav-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+/* SKIP */
+.skip-btn {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  background: transparent;
+  color: #aaa;
+  border: none;
+}
+
+/* INSIGHT */
+.insight-card {
+  background: #1a1f1e;
+  padding: 20px;
+  border-radius: 20px;
+  margin: 20px 0;
+}
+
+.good {
+  color: #84a794;
+}
+.bad {
+  color: #ff6b6b;
+}
