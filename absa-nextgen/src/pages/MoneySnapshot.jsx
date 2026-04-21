@@ -1,25 +1,41 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AppNav from "../components/AppNav";
 import "../styles/money.css";
 import ExplainerPanel from "../components/ExplainerPanel";
 
 export default function MoneySnapshot() {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user")) || {};
+
+  const storedUser = JSON.parse(sessionStorage.getItem("user")) || {};
+  const [user, setUser] = useState(storedUser);
+
+  const [income, setIncome] = useState(user.salary || 50000);
+  const [expenses, setExpenses] = useState(user.expenses || 20000);
+  const [savings, setSavings] = useState(user.savings || 12000);
+
+  const goal = user.depositAmount || 1000000;
 
   const [showPanel, setShowPanel] = useState(false);
   const [content, setContent] = useState(null);
 
-  const [income, setIncome] = useState(user.salary || 50000);
-  const [expenses, setExpenses] = useState(user.expenses || 20000);
-  const [savings, setSavings] = useState(12000);
-
-  const goal = user.depositGoal || 1000000;
+  const [activeTooltip, setActiveTooltip] = useState(null);
 
   const net = income - expenses;
   const savingsRate = Math.round((savings / income) * 100);
   const progress = Math.min(100, Math.round((savings / goal) * 100));
+
+  useEffect(() => {
+    const updatedUser = {
+      ...user,
+      salary: income,
+      expenses: expenses,
+      savings: savings,
+    };
+
+    setUser(updatedUser);
+    sessionStorage.setItem("user", JSON.stringify(updatedUser));
+  }, [income, expenses, savings]);
 
   const explainers = {
     net: {
@@ -32,7 +48,7 @@ export default function MoneySnapshot() {
     },
     property: {
       title: "Deposit Goal",
-      text: "Saving for your first property deposit.",
+      text: "This is your target deposit for buying your home.",
     },
   };
 
@@ -42,7 +58,10 @@ export default function MoneySnapshot() {
 
       {/* HEADER */}
       <section className="header">
-        <h2>Welcome back, {user?.name || "User"}</h2>
+        <h2>
+          Here’s your snapshot,{" "}
+          <span className="accent">{user?.name || "User"}</span>
+        </h2>
         <p>
           You're on the <span className="accent">{user?.strategy}</span> track
         </p>
@@ -50,68 +69,84 @@ export default function MoneySnapshot() {
 
       {/* STATS */}
       <section className="stats">
+        {/* INCOME */}
         <div className="stat-card">
-          <p>Monthly income</p>
+          <p className="label">Monthly income</p>
           <div className="value-input">
-            <span>R</span>
+            <span className="currency">R</span>
             <input
+              className="input-number"
               type="number"
               value={income}
               onChange={(e) => setIncome(Number(e.target.value))}
             />
           </div>
-          <input
-            type="range"
-            min="0"
-            max="150000"
-            value={income}
-            onChange={(e) => setIncome(Number(e.target.value))}
-          />
         </div>
 
+        {/* EXPENSES */}
         <div className="stat-card">
-          <p>Fixed Costs</p>
+          <p className="label">Fixed Costs</p>
           <div className="value-input">
-            <span>R</span>
+            <span className="currency">R</span>
             <input
+              className="input-number"
               type="number"
               value={expenses}
               onChange={(e) => setExpenses(Number(e.target.value))}
             />
           </div>
-          <input
-            type="range"
-            min="0"
-            max="80000"
-            value={expenses}
-            onChange={(e) => setExpenses(Number(e.target.value))}
-          />
         </div>
 
+        {/* NET */}
         <div className="stat-card highlight">
-          <p>
+          <p className="label">
             Net Position
             <span
               className="info-icon"
+              onMouseEnter={() => setActiveTooltip("net")}
+              onMouseLeave={() => setActiveTooltip(null)}
               onClick={() => {
                 setContent(explainers.net);
                 setShowPanel(true);
               }}
             >
-              💡
+              ⓘ
             </span>
           </p>
-          <h3>R{net.toLocaleString()}</h3>
+
+          {activeTooltip === "net" && (
+            <div className="tooltip-box">{explainers.net.text}</div>
+          )}
+
+          <h3 className="big-number">R{net.toLocaleString()}</h3>
+
           <span className="small">{savingsRate}% saved</span>
         </div>
       </section>
 
-      {/* GRID */}
+      {/* MAIN GRID */}
       <section className="grid">
-        {/* LEFT */}
         <div className="left">
+          {/* DEPOSIT */}
           <div className="card">
-            <h3>Deposit Goal 💡</h3>
+            <h3>
+              Deposit Goal
+              <span
+                className="info-icon"
+                onMouseEnter={() => setActiveTooltip("property")}
+                onMouseLeave={() => setActiveTooltip(null)}
+                onClick={() => {
+                  setContent(explainers.property);
+                  setShowPanel(true);
+                }}
+              >
+                ⓘ
+              </span>
+            </h3>
+
+            {activeTooltip === "property" && (
+              <div className="tooltip-box">{explainers.property.text}</div>
+            )}
 
             <div className="progress">
               <div className="fill" style={{ width: `${progress}%` }} />
@@ -152,7 +187,7 @@ export default function MoneySnapshot() {
             </div>
           </div>
 
-          {/* LEARN TILE */}
+          {/* LEARN */}
           <div
             className="card clickable"
             onClick={() => {
@@ -167,7 +202,6 @@ export default function MoneySnapshot() {
 
         {/* RIGHT */}
         <div className="right">
-          {/* PIE CHART */}
           <div className="card">
             <h3>Spending Breakdown</h3>
 
@@ -182,12 +216,12 @@ export default function MoneySnapshot() {
                   #d6a85a ${((savings + expenses) / income) * 100}% 100%
                 )`,
               }}
-            ></div>
+            />
 
             <div className="legend">
-              <p>🟢 Savings — R{savings.toLocaleString()}</p>
-              <p>🔵 Expenses — R{expenses.toLocaleString()}</p>
-              <p>🟡 Remaining — R{net.toLocaleString()}</p>
+              <p>Savings — R{savings.toLocaleString()}</p>
+              <p>Expenses — R{expenses.toLocaleString()}</p>
+              <p>Remaining — R{net.toLocaleString()}</p>
             </div>
 
             <button
@@ -198,9 +232,8 @@ export default function MoneySnapshot() {
             </button>
           </div>
 
-          {/* SIMULATION */}
           <div
-            className="card center clickable"
+            className="card clickable"
             onClick={() => navigate("/simulation")}
           >
             <h3>Simulation Lab</h3>

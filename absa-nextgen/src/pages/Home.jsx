@@ -96,6 +96,18 @@ export default function Home() {
           </div>
         </section>
 
+        <section className="goal-card fade-in">
+          <p className="muted">Your Deposit Plan</p>
+
+          <h3>R{user?.depositAmount?.toLocaleString()}</h3>
+
+          <span className="muted">{user?.depositPercent}% of home value</span>
+
+          <br />
+
+          <span className="muted">{user?.monthsToGoal} months to reach</span>
+        </section>
+
         {/* NUDGE */}
         <section className={`nudge ${nudgeType} fade-in`}>
           <p>

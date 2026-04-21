@@ -1,102 +1,138 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/setup.css";
 
 export default function Setup() {
   const navigate = useNavigate();
 
-  const [step, setStep] = useState(1);
-  const [selected, setSelected] = useState(null);
+  const [step, setStep] = useState(3); // keep for testing
 
   const [form, setForm] = useState({
     salary: "",
     expenses: "",
     housePrice: "",
-    depositPercent: 10,
   });
+
+  const [suggestedPercent, setSuggestedPercent] = useState(10);
+  const [userPercent, setUserPercent] = useState(10);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const next = () => setStep((s) => s + 1);
-  const back = () => setStep((s) => s - 1);
+  // 🔥 AUTO SUGGESTION ENGINE
+  useEffect(() => {
+    const salary = Number(form.salary);
+    const expenses = Number(form.expenses);
 
-  // ✅ FIX: ALWAYS KEEP SESSION
-  const ensureSession = () => {
-    const session = sessionStorage.getItem("session");
-    if (!session) {
-      sessionStorage.setItem("session", JSON.stringify({ loggedIn: true }));
-    }
-  };
+    if (!salary || !expenses) return;
 
-  const skip = () => {
-    ensureSession();
-    navigate("/home");
-  };
+    const savings = salary - expenses;
+    const rate = (savings / salary) * 100;
+
+    let percent = 10;
+
+    if (rate < 15) percent = 5;
+    else if (rate < 30) percent = 10;
+    else percent = 15;
+
+    setSuggestedPercent(percent);
+    setUserPercent(percent);
+  }, [form.salary, form.expenses]);
+
+  const depositAmount = Math.round(
+    (Number(form.housePrice || 0) * userPercent) / 100,
+  );
+
+  const monthlySavings = Number(form.salary || 0) - Number(form.expenses || 0);
+
+  const monthsToGoal =
+    monthlySavings > 0 ? Math.ceil(depositAmount / monthlySavings) : 0;
 
   const handleSubmit = () => {
-    ensureSession();
-
     const user = JSON.parse(sessionStorage.getItem("user")) || {};
 
     const updatedUser = {
       ...user,
-      strategy: selected,
       salary: Number(form.salary),
       expenses: Number(form.expenses),
-      isSetupComplete: true,
+      housePrice: Number(form.housePrice),
+      depositPercent: userPercent,
+      depositAmount,
+      monthsToGoal,
     };
 
     sessionStorage.setItem("user", JSON.stringify(updatedUser));
-
-    navigate("/home"); // ✅ DIRECT (no step 4 delay)
+    navigate("/home");
   };
 
   return (
     <div className="setup-page">
-      <button className="skip-btn" onClick={skip}>
-        Skip
-      </button>
+      <div className="setup-card">
+        <h2>Set your finances</h2>
 
-      {/* STEP 1 */}
-      {step === 1 && (
-        <div className="step-content">
-          <h1>Welcome to Wealth Studio</h1>
-          <button onClick={next}>Get Started →</button>
-        </div>
-      )}
+        <input
+          name="salary"
+          placeholder="Monthly salary"
+          onChange={handleChange}
+        />
 
-      {/* STEP 2 */}
-      {step === 2 && (
-        <div className="step-content">
-          <h2>Choose Strategy</h2>
+        <input
+          name="expenses"
+          placeholder="Monthly expenses"
+          onChange={handleChange}
+        />
 
-          <div onClick={() => setSelected("Property")}>🏡 Property Track</div>
+        <input
+          name="housePrice"
+          placeholder="Target house price"
+          onChange={handleChange}
+        />
 
-          <button onClick={back}>Back</button>
-          <button onClick={next} disabled={!selected}>
-            Continue →
-          </button>
-        </div>
-      )}
+        {/* 💎 DEPOSIT CARD */}
+        {form.housePrice && (
+          <div className="deposit-card">
+            <div className="deposit-header">
+              <p>Recommended deposit</p>
+              <span className="badge">AI suggestion</span>
+            </div>
 
-      {/* STEP 3 */}
-      {step === 3 && (
-        <div className="step-content">
-          <h2>Financial Setup</h2>
+            <h1>
+              {userPercent}% <span>(R{depositAmount.toLocaleString()})</span>
+            </h1>
 
-          <input name="salary" placeholder="Salary" onChange={handleChange} />
-          <input
-            name="expenses"
-            placeholder="Expenses"
-            onChange={handleChange}
-          />
+            {/* SLIDER */}
+            <input
+              type="range"
+              min="5"
+              max="20"
+              step="1"
+              value={userPercent}
+              onChange={(e) => setUserPercent(Number(e.target.value))}
+              className="slider"
+            />
 
-          <button onClick={back}>Back</button>
-          <button onClick={handleSubmit}>Finish →</button>
-        </div>
-      )}
+            <div className="range-labels">
+              <span>5%</span>
+              <span>20%</span>
+            </div>
+
+            {userPercent !== suggestedPercent && (
+              <p className="muted small">Suggested: {suggestedPercent}%</p>
+            )}
+
+            <p className="timeline">
+              {monthsToGoal > 0
+                ? `${monthsToGoal} months to reach`
+                : "Add income details"}
+            </p>
+          </div>
+        )}
+
+        <button className="btn primary" onClick={handleSubmit}>
+          Finish →
+        </button>
+      </div>
     </div>
   );
 }
