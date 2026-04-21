@@ -80,20 +80,41 @@
 }
 
 /* STRATEGY */
+/* STRATEGY OPTIONS */
 .strategy-options {
-  margin: 20px 0;
+  margin: 30px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px; /* 🔥 THIS ADDS SPACE */
 }
 
+/* STRATEGY CARD */
 .strategy-card {
-  padding: 20px;
+  padding: 22px;
   border-radius: 20px;
   background: #1a1f1e;
   cursor: pointer;
   position: relative;
+  transition: all 0.25s ease;
 }
 
+/* 🔥 HOVER EFFECT */
+.strategy-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+/* SELECTED */
 .selected-card {
   border: 1px solid #84a794;
+  box-shadow: 0 0 20px rgba(132, 167, 148, 0.25);
+}
+
+/* DISABLED */
+.strategy-card.disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 /* CHECKMARK */
@@ -168,4 +189,46 @@ input {
 }
 .bad {
   color: #ff6b6b;
+}
+/* ========================= */
+/* RIPPLE EFFECT */
+/* ========================= */
+
+/* ========================= */
+/* BUTTONS (VISIBLE HOVER) */
+/* ========================= */
+.btn {
+  padding: 14px 24px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  margin-top: 20px;
+  font-weight: 500;
+  transition: all 0.25s ease;
+}
+
+/* PRIMARY */
+.btn.primary {
+  background: linear-gradient(135deg, #84a794, #2c3a36);
+  color: white;
+}
+
+/* 🔥 STRONG HOVER */
+.btn.primary:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 12px 35px rgba(132, 167, 148, 0.45);
+}
+
+/* SECONDARY */
+.btn.secondary {
+  background: transparent;
+  border: 1px solid #84a794;
+  color: #84a794;
+}
+
+/* 🔥 SECONDARY HOVER */
+.btn.secondary:hover {
+  background: rgba(132, 167, 148, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(132, 167, 148, 0.25);
 }

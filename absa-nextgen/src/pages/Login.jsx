@@ -35,11 +35,8 @@ export default function Login() {
     // ✅ create session
     sessionStorage.setItem("session", JSON.stringify({ loggedIn: true }));
 
-    if (user.isSetupComplete) {
-      navigate("/home");
-    } else {
-      navigate("/setup");
-    }
+    // 🔥 ALWAYS GO HOME
+    navigate("/home");
   };
 
   return (

@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import "../styles/register.css";
-import planet from "../assets/planet.png"; // ✅ ADD THIS
+import planet from "../assets/planet.png";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -34,16 +34,20 @@ export default function Register() {
       simulations: [],
     };
 
+    // ✅ Save user (session-based)
     sessionStorage.setItem("user", JSON.stringify(user));
+
+    // ✅ Create session
+    sessionStorage.setItem("session", JSON.stringify({ loggedIn: true }));
+
+    // 🔥 CORRECT FLOW → GO TO SETUP
     navigate("/setup");
   };
 
   return (
     <div className="register-page">
-      {/* LEFT SIDE */}
       <div className="register-left">
         <div className="brand-box">
-          {/* ✅ PLANET IMAGE (REPLACES ORB) */}
           <img src={planet} alt="planet" className="planet" />
 
           <h2>ABSA NextGen Wealth</h2>
@@ -51,7 +55,6 @@ export default function Register() {
         </div>
       </div>
 
-      {/* RIGHT FORM */}
       <div className="register-right">
         <div className="form-box">
           <h1>Create Account</h1>
