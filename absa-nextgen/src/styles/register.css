@@ -24,15 +24,18 @@
   text-align: center;
 }
 
-.logo-circle {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: radial-gradient(circle, #d6a85a, transparent);
-  margin: 0 auto 20px;
-  opacity: 0.8;
+/* PLANET IMAGE */
+.planet {
+  width: 220px;
+  margin-bottom: 20px;
+  opacity: 0.95;
+  transform: rotate(180deg); /* same as login */
+  transition: 0.4s ease;
 }
 
+.planet:hover {
+  transform: rotate(180deg) scale(1.05);
+}
 .brand-box h2 {
   font-family: "Montserrat", sans-serif;
   font-size: 26px;
@@ -118,6 +121,16 @@
 .switch span {
   color: #d6a85a;
   cursor: pointer;
+}
+/* ERROR MESSAGE */
+.error {
+  background: rgba(255, 80, 80, 0.1);
+  border: 1px solid rgba(255, 80, 80, 0.3);
+  padding: 10px;
+  border-radius: 10px;
+  color: #ff6b6b;
+  margin-bottom: 15px;
+  font-size: 13px;
 }
 
 /* ========================= */

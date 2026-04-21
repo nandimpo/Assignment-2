@@ -1,29 +1,50 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import "../styles/register.css";
+import planet from "../assets/planet.png"; // ✅ ADD THIS
 
 export default function Register() {
   const navigate = useNavigate();
-  const [name, setName] = useState("");
+
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+
+  const [error, setError] = useState("");
 
   const handleRegister = () => {
+    if (!form.name || !form.email || !form.password) {
+      setError("Please fill in all fields.");
+      return;
+    }
+
+    if (form.password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
+
     const user = {
-      name,
+      name: form.name,
+      email: form.email,
+      password: form.password,
       isSetupComplete: false,
       strategy: null,
       simulations: [],
     };
 
-    localStorage.setItem("user", JSON.stringify(user));
+    sessionStorage.setItem("user", JSON.stringify(user));
     navigate("/setup");
   };
 
   return (
     <div className="register-page">
-      {/* LEFT BRAND SIDE */}
+      {/* LEFT SIDE */}
       <div className="register-left">
         <div className="brand-box">
-          <div className="logo-circle"></div>
+          {/* ✅ PLANET IMAGE (REPLACES ORB) */}
+          <img src={planet} alt="planet" className="planet" />
 
           <h2>ABSA NextGen Wealth</h2>
           <p>First Five Years Financial Studio</p>
@@ -36,9 +57,26 @@ export default function Register() {
           <h1>Create Account</h1>
           <p className="subtitle">Start your journey to financial clarity</p>
 
+          {error && <div className="error">{error}</div>}
+
           <input
             placeholder="Your Name"
-            onChange={(e) => setName(e.target.value)}
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+          />
+
+          <input
+            type="email"
+            placeholder="Email"
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+          />
+
+          <input
+            type="password"
+            placeholder="Password"
+            value={form.password}
+            onChange={(e) => setForm({ ...form, password: e.target.value })}
           />
 
           <button onClick={handleRegister}>Continue</button>

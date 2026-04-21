@@ -16,9 +16,10 @@ import Support from "./pages/Support";
 
 /* ================= PROTECTED ROUTE ================= */
 function ProtectedRoute({ children }) {
-  const user = JSON.parse(localStorage.getItem("user"));
+  const session = sessionStorage.getItem("session");
 
-  if (!user) {
+  // ❌ not logged in
+  if (!session) {
     return <Navigate to="/login" replace />;
   }
 
@@ -62,7 +63,6 @@ export default function App() {
           }
         />
 
-        {/* 🔥 FIXED: now uses PropertyTrack */}
         <Route
           path="/track"
           element={

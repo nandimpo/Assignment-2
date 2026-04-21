@@ -153,3 +153,13 @@ form input {
   color: white;
   cursor: pointer;
 }
+/* ERROR MESSAGE */
+.error {
+  background: rgba(255, 80, 80, 0.1);
+  border: 1px solid rgba(255, 80, 80, 0.3);
+  padding: 10px;
+  border-radius: 10px;
+  color: #ff6b6b;
+  margin-bottom: 15px;
+  font-size: 13px;
+}

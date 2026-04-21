@@ -1,19 +1,39 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "../styles/login.css";
-import planet from "../assets/planet.png"; // ✅ FIX
+import planet from "../assets/planet.png";
 
 export default function Login() {
   const navigate = useNavigate();
-  const [name, setName] = useState("");
+
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+  });
+
+  const [error, setError] = useState("");
+
+  // 🚫 If already logged in
+  useEffect(() => {
+    const session = sessionStorage.getItem("session");
+    if (session) navigate("/home");
+  }, []);
 
   const handleLogin = () => {
-    const user = JSON.parse(localStorage.getItem("user"));
+    const user = JSON.parse(sessionStorage.getItem("user"));
 
     if (!user) {
-      alert("Please register first");
+      setError("No account found. Please register first.");
       return;
     }
+
+    if (form.email !== user.email || form.password !== user.password) {
+      setError("Invalid email or password.");
+      return;
+    }
+
+    // ✅ create session
+    sessionStorage.setItem("session", JSON.stringify({ loggedIn: true }));
 
     if (user.isSetupComplete) {
       navigate("/home");
@@ -35,7 +55,7 @@ export default function Login() {
       <div className="login-container">
         {/* LEFT */}
         <div className="login-left">
-          <img src={planet} alt="planet" /> {/* ✅ FIXED */}
+          <img src={planet} alt="planet" />
           <div className="brand">
             <h2>ABSA WEALTH</h2>
             <p>Financial clarity for your first 5 years</p>
@@ -47,6 +67,8 @@ export default function Login() {
           <h2>Login</h2>
           <p className="subtitle">Welcome back</p>
 
+          {error && <div className="error">{error}</div>}
+
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -54,8 +76,19 @@ export default function Login() {
             }}
           >
             <input
-              placeholder="Your Name"
-              onChange={(e) => setName(e.target.value)}
+              type="email"
+              placeholder="Email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              required
+            />
+
+            <input
+              type="password"
+              placeholder="Password"
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              required
             />
 
             <button className="submit">Login</button>
