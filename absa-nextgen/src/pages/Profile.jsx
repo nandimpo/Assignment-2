@@ -116,7 +116,7 @@ export default function Profile() {
               </div>
             )}
 
-            {/* ✅ GOALS NOW DIRECTLY UNDER PROPERTY */}
+            {/* GOALS */}
             <div className="card glass">
               <h3>Goals & Progress</h3>
 
@@ -177,6 +177,15 @@ export default function Profile() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* 🔥 FINANCE SCHOOL ORB */}
+      <div
+        className="finance-orb"
+        onClick={() => navigate("/learn")}
+        title="Go to Finance School"
+      >
+        🎓
       </div>
     </div>
   );

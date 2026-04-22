@@ -7,14 +7,22 @@
 }
 
 .learn-container {
-  max-width: 1100px;
-  margin: auto;
-  padding: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 24px 20px 40px;
+}
+
+/* HEADER */
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
 }
 
 .subtitle {
-  color: #aaa;
-  margin-bottom: 20px;
+  color: #84a794;
+  font-size: 14px;
 }
 
 /* CARD */
@@ -27,8 +35,15 @@
   transition: 0.3s;
 }
 
+.card.narrow {
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .card:hover {
-  transform: translateY(-6px);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
 }
 
 /* PROGRESS */
@@ -47,132 +62,91 @@
 /* MODULES */
 .module-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 18px;
 }
 
-.module-card p {
-  color: #aaa;
+/* BUTTONS */
+.module-card button,
+.resume-btn,
+.pill {
+  transition: 0.25s;
 }
 
 .module-card button {
-  margin-top: 10px;
-  padding: 8px 14px;
+  padding: 10px 16px;
   border-radius: 20px;
-  border: none;
-  background: rgba(132, 167, 148, 0.2);
+  background: rgba(132, 167, 148, 0.15);
   color: #84a794;
+  border: none;
 }
 
-.module-card button.done {
-  background: #84a794;
-  color: white;
-}
-
-/* BOTTOM GRID */
-.bottom-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px;
-}
-
-/* QUICK */
-.quick-list {
-  margin-top: 10px;
-  padding-left: 18px;
-  color: #aaa;
-}
-
-/* BADGES */
-.achievements {
-  display: flex;
-  gap: 10px;
-}
-
-.badge {
-  padding: 10px;
-  border-radius: 12px;
-  background: rgba(132, 167, 148, 0.2);
-}
-
-/* RESUME */
 .resume-btn {
-  display: block;
-  margin: 30px auto;
   padding: 12px 24px;
   border-radius: 25px;
   background: linear-gradient(135deg, #d6a85a, #84a794);
   border: none;
-  cursor: pointer;
-}
-
-/* PATH */
-.path-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.path-step {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.path-line {
-  width: 4px;
-  height: 60px;
-  background: #84a794;
-}
-
-.path-node {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  background: #1a1f1e;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.path-node.completed {
-  background: #84a794;
-}
-
-.path-node.locked {
-  opacity: 0.3;
-}
-
-.path-label {
-  font-size: 13px;
-  color: #aaa;
 }
 
 /* QUIZ */
+.quiz-question {
+  font-size: 22px;
+  margin-bottom: 18px;
+}
+
 .options {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .option {
-  padding: 12px;
-  border-radius: 12px;
+  padding: 16px;
+  border-radius: 14px;
   background: #1a1f1e;
+  cursor: pointer;
+}
+
+.option.selected {
+  border: 1px solid #d6a85a;
 }
 
 .option.correct {
-  background: green;
+  background: rgba(132, 167, 148, 0.3);
 }
 
 .option.wrong {
-  background: red;
+  background: rgba(255, 80, 80, 0.25);
+}
+
+/* FEEDBACK */
+.feedback {
+  margin-top: 12px;
+}
+
+.correct-text {
+  color: #84a794;
+}
+.wrong-text {
+  color: #ff6b6b;
+}
+
+/* LEVEL POPUP */
+.level-popup {
+  position: fixed;
+  top: 30%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #111;
+  padding: 24px;
+  border-radius: 16px;
 }
 
 /* MOBILE */
 @media (max-width: 900px) {
-  .module-grid,
-  .bottom-grid {
-    grid-template-columns: 1fr;
+  .header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
   }
 }

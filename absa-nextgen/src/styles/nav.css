@@ -1,8 +1,11 @@
+/* ========================= */
+/* NAV BASE (SHARED) */
+/* ========================= */
 .nav {
   position: fixed;
   top: 0;
   width: 100%;
-  height: 72px; /* 🔥 CONTROL HEIGHT */
+  height: 72px;
 
   display: flex;
   justify-content: space-between;
@@ -14,14 +17,23 @@
   backdrop-filter: blur(14px);
 
   border-bottom: 1px solid rgba(132, 167, 148, 0.1);
+
   z-index: 1000;
+
+  transition: all 0.4s ease; /* 🔥 smooth glow transitions */
 }
 
+/* ========================= */
+/* LOGO */
+/* ========================= */
 .logo {
   color: #d6a85a;
   font-weight: 600;
 }
 
+/* ========================= */
+/* LINKS */
+/* ========================= */
 .nav-links {
   display: flex;
   align-items: center;
@@ -32,16 +44,67 @@
   padding: 6px 14px;
   border-radius: 20px;
   border: none;
+
   background: #1a1a1a;
   color: white;
+
   cursor: pointer;
-  transition: 0.2s;
+  transition: all 0.25s ease;
 }
 
 .nav-links button:hover {
   background: #2a2a2a;
+  transform: translateY(-1px);
 }
 
+/* ========================= */
+/* PRIMARY BUTTON */
+/* ========================= */
 .nav-links .primary {
   background: linear-gradient(135deg, #84a794, #2c3a36);
+}
+
+/* ========================= */
+/* ACTIVE LINK (APP ONLY) */
+/* ========================= */
+.nav-links button.active {
+  background: rgba(132, 167, 148, 0.2);
+  box-shadow: 0 0 12px rgba(132, 167, 148, 0.4);
+}
+
+/* ========================= */
+/* 🌌 PAGE GLOW SYSTEM (APP ONLY) */
+/* ========================= */
+
+/* default (landing safe) */
+.nav-home {
+  box-shadow: 0 0 20px rgba(132, 167, 148, 0.12);
+}
+
+/* snapshot */
+.nav-money {
+  box-shadow: 0 0 25px rgba(100, 180, 255, 0.15);
+}
+
+/* tracks */
+.nav-track {
+  box-shadow: 0 0 25px rgba(132, 167, 148, 0.22);
+}
+
+/* simulation */
+.nav-sim {
+  box-shadow: 0 0 25px rgba(160, 120, 255, 0.18);
+}
+
+/* profile */
+.nav-profile {
+  box-shadow: 0 0 25px rgba(214, 168, 90, 0.18);
+}
+
+/* finance school (🔥 highlight) */
+.nav-learn {
+  box-shadow: 0 0 35px rgba(214, 168, 90, 0.3);
+}
+.nav {
+  backdrop-filter: blur(16px);
 }

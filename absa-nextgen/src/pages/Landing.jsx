@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import LandingNav from "../components/LandingNav";
 import "../styles/landing.css";
+import planet from "../assets/planet.png";
 
 import {
   FaInstagram,
@@ -35,7 +36,6 @@ export default function Landing() {
     elements.forEach((el) => observer.observe(el));
   }, []);
 
-  // 🔥 UNIVERSAL SCROLL FUNCTION
   const scrollToSection = (id) => {
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: "smooth" });
@@ -43,20 +43,27 @@ export default function Landing() {
 
   return (
     <div className="landing">
-      {/* PASS SCROLL FUNCTION TO NAV */}
       <LandingNav scrollTo={scrollToSection} />
 
       {/* HERO */}
       <section id="hero" className="hero">
         <div className="hero-content container">
           <h1>Your First Five Years Start Here</h1>
-          <p>Navigate your financial future with clarity</p>
+
+          {/* ✅ STRONGER VALUE PROP */}
+          <p className="hero-sub">
+            A smart financial system that helps you{" "}
+            <strong>learn, plan, and build wealth</strong> — all in one place.
+          </p>
 
           <button className="primary-btn" onClick={() => navigate("/login")}>
             Start Your Journey
           </button>
+          {/* 🌍 PLANET VISUAL */}
+          <div className="hero-planet">
+            <img src={planet} alt="planet" />
+          </div>
 
-          {/* SCROLL ARROW */}
           <div
             className="scroll-indicator"
             onClick={() => scrollToSection("trust")}
@@ -71,15 +78,22 @@ export default function Landing() {
       {/* TRUST */}
       <section id="trust" className="section container fade-in">
         <div className="text">
-          <h2>Trusted by a new generation of professionals</h2>
+          <h2>More than banking — it’s your financial system</h2>
+
           <p>
-            ABSA Wealth Studio is built specifically for young professionals
-            navigating their first real financial decisions — from salaries and
-            savings to property and long-term investing.
+            ABSA Wealth Studio combines real financial data, structured
+            decision-making, and guided education into one powerful experience.
           </p>
+
           <p>
-            It’s more than banking. It’s a structured system designed to help
-            you understand, plan, and grow your financial future with clarity.
+            From your salary and expenses to property goals and investments —
+            everything connects to help you make smarter decisions.
+          </p>
+
+          {/* ✅ NEW CONTEXTUAL INTRO */}
+          <p className="highlight">
+            Built for young professionals navigating their first real financial
+            chapter.
           </p>
         </div>
 
@@ -89,6 +103,10 @@ export default function Landing() {
       {/* GRAPH */}
       <section className="graph-section container fade-in">
         <h2>Your Financial Growth</h2>
+
+        <p className="graph-sub">
+          Track your progress, simulate outcomes, and see your future evolve.
+        </p>
 
         <div className="graph">
           <div className="line"></div>
@@ -106,29 +124,57 @@ export default function Landing() {
           <p>
             <strong>1. See everything</strong>
             <br />
-            Track income and expenses clearly.
+            Connect your income, expenses, and financial position in one place.
           </p>
+
           <p>
             <strong>2. Choose direction</strong>
             <br />
-            Pick your financial path.
+            Follow structured tracks like property, saving, or investing.
           </p>
+
           <p>
             <strong>3. Make decisions</strong>
             <br />
-            Simulate before you commit.
+            Simulate scenarios before committing in real life.
           </p>
         </div>
+      </section>
+
+      {/* ✅ FINANCE SCHOOL SECTION */}
+      <section className="section container fade-in">
+        <div className="text">
+          <h2>Finance School</h2>
+
+          <p>
+            Learn as you build. Finance School gives you structured lessons,
+            quizzes, and real-world insights tailored to your financial journey.
+          </p>
+
+          <p>
+            Whether you're understanding budgeting, property, or investing — you
+            gain knowledge that directly impacts your decisions inside the app.
+          </p>
+
+          <p className="highlight">
+            Not just theory — applied learning connected to your real finances.
+          </p>
+        </div>
+
+        <img src={house} className="image" alt="learning" />
       </section>
 
       {/* SUPPORT */}
       <section id="support" className="section container fade-in">
         <div className="text">
-          <h2>Support</h2>
+          <h2>Guided every step of the way</h2>
+
           <p>
-            We guide you with clarity at every step — whether you're budgeting,
-            saving, or preparing for major financial milestones.
+            Get intelligent recommendations, next steps, and insights based on
+            your financial situation.
           </p>
+
+          <p>You’re never guessing — the system guides you forward.</p>
         </div>
 
         <img src={house} className="image" alt="house" />
@@ -137,6 +183,8 @@ export default function Landing() {
       {/* CTA */}
       <section className="cta container fade-in">
         <h2>Start your financial freedom today</h2>
+
+        <p className="cta-sub">Learn. Plan. Execute. Grow.</p>
 
         <div className="cta-spacer"></div>
 
@@ -161,7 +209,7 @@ export default function Landing() {
 
           <div className="footer-card">
             <h4>Learn</h4>
-            <p>Budgeting Basics</p>
+            <p>Finance School</p>
             <p>Investing 101</p>
           </div>
 

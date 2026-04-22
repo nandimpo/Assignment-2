@@ -1,17 +1,18 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import AppNav from "../components/AppNav";
 import "../styles/setup.css";
 
 export default function Setup() {
   const navigate = useNavigate();
-
-  const [step, setStep] = useState(3); // keep for testing
 
   const [form, setForm] = useState({
     salary: "",
     expenses: "",
     housePrice: "",
   });
+
+  const [selectedTrack, setSelectedTrack] = useState("Property");
 
   const [suggestedPercent, setSuggestedPercent] = useState(10);
   const [userPercent, setUserPercent] = useState(10);
@@ -20,7 +21,7 @@ export default function Setup() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // 🔥 AUTO SUGGESTION ENGINE
+  /* AUTO SUGGESTION */
   useEffect(() => {
     const salary = Number(form.salary);
     const expenses = Number(form.expenses);
@@ -54,6 +55,7 @@ export default function Setup() {
 
     const updatedUser = {
       ...user,
+      strategy: selectedTrack, // ✅ SAVE TRACK
       salary: Number(form.salary),
       expenses: Number(form.expenses),
       housePrice: Number(form.housePrice),
@@ -68,70 +70,107 @@ export default function Setup() {
 
   return (
     <div className="setup-page">
-      <div className="setup-card">
-        <h2>Set your finances</h2>
+      <AppNav />
 
-        <input
-          name="salary"
-          placeholder="Monthly salary"
-          onChange={handleChange}
-        />
+      <div className="setup-container">
+        <div className="setup-card">
+          <h2>Set your finances</h2>
 
-        <input
-          name="expenses"
-          placeholder="Monthly expenses"
-          onChange={handleChange}
-        />
+          {/* ================= TRACK SELECT ================= */}
+          <div className="track-select">
+            <p className="label">Choose your strategy</p>
 
-        <input
-          name="housePrice"
-          placeholder="Target house price"
-          onChange={handleChange}
-        />
+            <div className="track-options">
+              <div
+                className={`track-card active ${
+                  selectedTrack === "Property" ? "selected" : ""
+                }`}
+                onClick={() => setSelectedTrack("Property")}
+              >
+                <div className="track-title">🏡 First Property Track</div>
+                <div className="track-preview">
+                  Best for first-time buyers building a deposit
+                </div>
+              </div>
 
-        {/* 💎 DEPOSIT CARD */}
-        {form.housePrice && (
-          <div className="deposit-card">
-            <div className="deposit-header">
-              <p>Recommended deposit</p>
-              <span className="badge">AI suggestion</span>
+              <div className="track-card disabled">
+                <div className="track-title">
+                  💼 Balanced Lifestyle & Investing
+                </div>
+                <div className="track-preview">
+                  Coming soon — manage spending + investing together
+                </div>
+              </div>
+
+              <div className="track-card disabled">
+                <div className="track-title">⚡ Catch-Up Wealth</div>
+                <div className="track-preview">
+                  Coming soon — aggressive saving strategy
+                </div>
+              </div>
             </div>
-
-            <h1>
-              {userPercent}% <span>(R{depositAmount.toLocaleString()})</span>
-            </h1>
-
-            {/* SLIDER */}
-            <input
-              type="range"
-              min="5"
-              max="20"
-              step="1"
-              value={userPercent}
-              onChange={(e) => setUserPercent(Number(e.target.value))}
-              className="slider"
-            />
-
-            <div className="range-labels">
-              <span>5%</span>
-              <span>20%</span>
-            </div>
-
-            {userPercent !== suggestedPercent && (
-              <p className="muted small">Suggested: {suggestedPercent}%</p>
-            )}
-
-            <p className="timeline">
-              {monthsToGoal > 0
-                ? `${monthsToGoal} months to reach`
-                : "Add income details"}
-            </p>
           </div>
-        )}
+          {/* ================= INPUTS ================= */}
+          <input
+            name="salary"
+            placeholder="Monthly salary"
+            onChange={handleChange}
+          />
 
-        <button className="btn primary" onClick={handleSubmit}>
-          Finish →
-        </button>
+          <input
+            name="expenses"
+            placeholder="Monthly expenses"
+            onChange={handleChange}
+          />
+
+          <input
+            name="housePrice"
+            placeholder="Target house price"
+            onChange={handleChange}
+          />
+
+          {/* ================= DEPOSIT ================= */}
+          {form.housePrice && (
+            <div className="deposit-card">
+              <div className="deposit-header">
+                <p>Recommended deposit</p>
+                <span className="badge">AI suggestion</span>
+              </div>
+
+              <h1>
+                {userPercent}% <span>(R{depositAmount.toLocaleString()})</span>
+              </h1>
+
+              <input
+                type="range"
+                min="5"
+                max="20"
+                value={userPercent}
+                onChange={(e) => setUserPercent(Number(e.target.value))}
+                className="slider"
+              />
+
+              <div className="range-labels">
+                <span>5%</span>
+                <span>20%</span>
+              </div>
+
+              {userPercent !== suggestedPercent && (
+                <p className="muted small">Suggested: {suggestedPercent}%</p>
+              )}
+
+              <p className="timeline">
+                {monthsToGoal > 0
+                  ? `${monthsToGoal} months to reach`
+                  : "Add income details"}
+              </p>
+            </div>
+          )}
+
+          <button className="btn primary" onClick={handleSubmit}>
+            Finish →
+          </button>
+        </div>
       </div>
     </div>
   );

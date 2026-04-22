@@ -11,12 +11,29 @@
   background: #020202;
   color: #f4f6fc;
   min-height: 100vh;
-  margin-top: 72px;
+
+  padding-top: 12px; /* 🔥 small controlled spacing */
+  margin-top: 0; /* ❌ remove this */
+}
+.home-header {
+  margin-top: 0;
+  margin-bottom: 12px; /* tighter */
+}
+
+.home-header h2 {
+  margin: 0; /* ❌ removes default big gap */
+  font-size: 26px; /* match snapshot */
+  font-weight: 600;
+}
+
+.home-header p {
+  margin: 4px 0 0; /* small gap under title */
+  font-size: 14px;
 }
 
 /* spacing rhythm */
 section {
-  margin-bottom: 24px;
+  margin-bottom: 14px;
 }
 
 /* ========================= */
@@ -245,7 +262,45 @@ section {
     transform: translateY(0);
   }
 }
+.finance-orb {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
 
+  width: 60px;
+  height: 60px;
+
+  border-radius: 50%;
+  background: radial-gradient(circle, #d6a85a, #84a794);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 24px;
+  cursor: pointer;
+
+  box-shadow: 0 0 20px rgba(132, 167, 148, 0.6);
+  animation: pulseOrb 2s infinite;
+
+  z-index: 1000;
+}
+
+.finance-orb:hover {
+  transform: scale(1.1);
+}
+
+@keyframes pulseOrb {
+  0% {
+    box-shadow: 0 0 10px rgba(132, 167, 148, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(132, 167, 148, 0.9);
+  }
+  100% {
+    box-shadow: 0 0 10px rgba(132, 167, 148, 0.4);
+  }
+}
 /* ========================= */
 /* MOBILE */
 /* ========================= */

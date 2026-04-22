@@ -1,9 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom"; // ✅ ADDED
 import "../styles/simulation.css";
 import AppNav from "../components/AppNav";
 import ExplainerPanel from "../components/ExplainerPanel";
 
 export default function SimulationLab() {
+  const navigate = useNavigate(); // ✅ ADDED
+
   const [salary, setSalary] = useState(45000);
   const [rent, setRent] = useState(12000);
   const [price, setPrice] = useState(1800000);
@@ -21,7 +24,6 @@ export default function SimulationLab() {
   const buyTotal = bondMonthly * 12 * years;
   const difference = rentTotal - buyTotal;
 
-  /* ✅ FIX: MOVE THIS HERE (NOT inside JSX) */
   const maxValue = Math.max(rentTotal, buyTotal);
 
   /* ========================= */
@@ -67,9 +69,6 @@ export default function SimulationLab() {
         <h1>Property vs Renting Studio</h1>
         <p className="subtitle">What happens if I buy vs rent?</p>
 
-        {/* ========================= */}
-        {/* GRID */}
-        {/* ========================= */}
         <div className="sim-grid">
           {/* INPUTS */}
           <div className="sim-card">
@@ -120,13 +119,10 @@ export default function SimulationLab() {
             <h3 className="graph-title">Cost Comparison</h3>
 
             <div className="bars">
-              {/* RENT */}
               <div className="bar-container">
                 <div
                   className="bar rent"
-                  style={{
-                    height: `${(rentTotal / maxValue) * 140}px`,
-                  }}
+                  style={{ height: `${(rentTotal / maxValue) * 140}px` }}
                 >
                   <span className="bar-tooltip">
                     R{rentTotal.toLocaleString()}
@@ -135,13 +131,10 @@ export default function SimulationLab() {
                 <span>Rent</span>
               </div>
 
-              {/* BUY */}
               <div className="bar-container">
                 <div
                   className="bar buy"
-                  style={{
-                    height: `${(buyTotal / maxValue) * 140}px`,
-                  }}
+                  style={{ height: `${(buyTotal / maxValue) * 140}px` }}
                 >
                   <span className="bar-tooltip">
                     R{buyTotal.toLocaleString()}
@@ -164,11 +157,8 @@ export default function SimulationLab() {
           </div>
         </div>
 
-        {/* ========================= */}
         {/* BOTTOM */}
-        {/* ========================= */}
         <div className="sim-bottom">
-          {/* VERDICT */}
           <div
             className="sim-card clickable verdict-card"
             onClick={() => {
@@ -180,18 +170,13 @@ export default function SimulationLab() {
             <p>{verdict}</p>
           </div>
 
-          {/* EXPLAINER */}
           <div className="sim-card explainer-aside clickable">
             <h3>💡 Explainer (Mandatory)</h3>
-
             <p className="explainer-text">{explainerText}</p>
-
             <span className="learn-link">Learn more</span>
-
             <div className="tooltip-box">{explainerText}</div>
           </div>
 
-          {/* ACTIONS */}
           <div className="sim-actions">
             <button className="pill">Apply to Strategy Track</button>
             <button className="pill outline">Adjust Inputs</button>
@@ -204,6 +189,15 @@ export default function SimulationLab() {
         onClose={() => setShowPanel(false)}
         content={content}
       />
+
+      {/* 🔥 FINANCE SCHOOL ORB */}
+      <div
+        className="finance-orb"
+        onClick={() => navigate("/learn")}
+        title="Go to Finance School"
+      >
+        🎓
+      </div>
     </div>
   );
 }

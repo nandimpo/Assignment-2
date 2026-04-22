@@ -332,6 +332,15 @@ export default function PropertyTrack() {
         onClose={() => setShowPanel(false)}
         content={content}
       />
+
+      {/* 🔥 FINANCE SCHOOL ORB */}
+      <div
+        className="finance-orb"
+        onClick={() => navigate("/learn")}
+        title="Go to Finance School"
+      >
+        🎓
+      </div>
     </div>
   );
 }

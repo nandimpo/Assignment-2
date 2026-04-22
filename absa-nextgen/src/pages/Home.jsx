@@ -155,6 +155,15 @@ export default function Home() {
           </div>
         </section>
       </div>
+
+      {/* 🔥 FINANCE SCHOOL ORB */}
+      <div
+        className="finance-orb"
+        onClick={() => navigate("/learn")}
+        title="Go to Finance School"
+      >
+        🎓
+      </div>
     </div>
   );
 }
