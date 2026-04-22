@@ -1,20 +1,50 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom"; // ✅ ADDED
+import { useNavigate } from "react-router-dom";
 import "../styles/simulation.css";
 import AppNav from "../components/AppNav";
 import ExplainerPanel from "../components/ExplainerPanel";
 
-export default function SimulationLab() {
-  const navigate = useNavigate(); // ✅ ADDED
+/* ========================= */
+/* DEFAULT VALUES            */
+/* ========================= */
+const DEFAULTS = {
+  salary: 45000,
+  rent: 12000,
+  price: 1800000,
+  interest: 11,
+  years: 5,
+};
 
-  const [salary, setSalary] = useState(45000);
-  const [rent, setRent] = useState(12000);
-  const [price, setPrice] = useState(1800000);
-  const [interest, setInterest] = useState(11);
-  const [years, setYears] = useState(5);
+export default function SimulationLab() {
+  const navigate = useNavigate();
+
+  const [salary, setSalary] = useState(DEFAULTS.salary);
+  const [rent, setRent] = useState(DEFAULTS.rent);
+  const [price, setPrice] = useState(DEFAULTS.price);
+  const [interest, setInterest] = useState(DEFAULTS.interest);
+  const [years, setYears] = useState(DEFAULTS.years);
 
   const [showPanel, setShowPanel] = useState(false);
   const [content, setContent] = useState(null);
+
+  /* ========================= */
+  /* RESET / REBALANCE         */
+  /* ========================= */
+  const [resetting, setResetting] = useState(false);
+
+  const handleReset = () => {
+    setResetting(true);
+    setSalary(DEFAULTS.salary);
+    setRent(DEFAULTS.rent);
+    setPrice(DEFAULTS.price);
+    setInterest(DEFAULTS.interest);
+    setYears(DEFAULTS.years);
+    setShowPanel(false);
+    setContent(null);
+
+    // Brief flash state so user sees feedback
+    setTimeout(() => setResetting(false), 600);
+  };
 
   /* ========================= */
   /* CALCULATIONS */
@@ -27,38 +57,75 @@ export default function SimulationLab() {
   const maxValue = Math.max(rentTotal, buyTotal);
 
   /* ========================= */
-  /* VERDICT */
+  /* AI-STYLE VERDICT */
   /* ========================= */
   let verdict = "";
+  let tone = "";
+
   if (difference > 0) {
-    verdict = `Renting could save you ~R${Math.abs(difference).toLocaleString()} over ${years} years.`;
+    verdict = `Based on your current inputs, renting is the more cost-efficient option, saving approximately R${Math.abs(
+      difference,
+    ).toLocaleString()} over ${years} years.`;
+    tone = "positive";
   } else if (difference < 0) {
-    verdict = `Buying builds equity but costs ~R${Math.abs(difference).toLocaleString()} more short-term.`;
+    verdict = `Buying results in a higher short-term cost of approximately R${Math.abs(
+      difference,
+    ).toLocaleString()}, however it contributes toward long-term asset ownership and equity growth.`;
+    tone = "neutral";
   } else {
-    verdict = `Renting and buying cost roughly the same over ${years} years.`;
+    verdict = `Both renting and buying result in a similar financial outcome over ${years} years, suggesting that non-financial factors should guide your decision.`;
+    tone = "neutral";
+  }
+
+  /* ========================= */
+  /* AI INSIGHTS ENGINE */
+  /* ========================= */
+  const insights = [];
+
+  if (interest > 13) {
+    insights.push(
+      "High interest rates are significantly increasing the cost of ownership. Consider delaying purchase or increasing your deposit.",
+    );
+  }
+
+  if (years <= 3) {
+    insights.push(
+      "Short ownership periods reduce the financial benefit of buying due to upfront costs and interest exposure.",
+    );
+  }
+
+  if (rent > salary * 0.4) {
+    insights.push(
+      "Your rental cost exceeds 40% of your income, which may limit your ability to save effectively.",
+    );
+  }
+
+  if (salary > 60000 && difference < 0) {
+    insights.push(
+      "Your income level suggests you may be well-positioned to absorb higher bond costs and transition into ownership.",
+    );
+  }
+
+  if (insights.length === 0) {
+    insights.push(
+      "Your current scenario is relatively balanced. Optimising either savings or loan terms could improve your outcome.",
+    );
   }
 
   /* ========================= */
   /* EXPLAINER */
   /* ========================= */
-  let explainerText = "";
+  const explainerText = `
+This simulation compares the total cost of renting versus buying over a selected time horizon.
 
-  if (interest > 13) {
-    explainerText =
-      "High interest rates increase the cost of buying significantly.";
-  } else if (years <= 3) {
-    explainerText = "Buying short-term is expensive due to upfront costs.";
-  } else if (rent > salary * 0.4) {
-    explainerText =
-      "High rent relative to income reduces your ability to save.";
-  } else {
-    explainerText =
-      "Buying includes interest and upfront costs, while renting offers flexibility.";
-  }
+Renting provides flexibility and lower upfront costs, while buying introduces interest expenses but enables long-term asset accumulation.
+
+The outcome is highly sensitive to interest rates, time horizon, and your income-to-expense ratio.
+`;
 
   const explainers = {
-    verdict: { title: "Studio Verdict", text: verdict },
-    concept: { title: "Bond vs Rent", text: explainerText },
+    verdict: { title: "AI Financial Verdict", text: verdict },
+    concept: { title: "Understanding the Model", text: explainerText },
   };
 
   return (
@@ -67,7 +134,9 @@ export default function SimulationLab() {
 
       <div className="sim-container">
         <h1>Property vs Renting Studio</h1>
-        <p className="subtitle">What happens if I buy vs rent?</p>
+        <p className="subtitle">
+          Simulate the financial impact of renting versus buying property
+        </p>
 
         <div className="sim-grid">
           {/* INPUTS */}
@@ -105,7 +174,7 @@ export default function SimulationLab() {
               suffix="%"
             />
             <Slider
-              label="Time"
+              label="Time Horizon"
               value={years}
               set={setYears}
               min={1}
@@ -149,16 +218,13 @@ export default function SimulationLab() {
               {buyTotal.toLocaleString()}
             </p>
 
-            <p className="graph-impact">
-              {difference < 0
-                ? `You spend ~R${Math.abs(difference).toLocaleString()} more by buying`
-                : `You save ~R${Math.abs(difference).toLocaleString()} by renting`}
-            </p>
+            <p className="graph-impact">{verdict}</p>
           </div>
         </div>
 
         {/* BOTTOM */}
         <div className="sim-bottom">
+          {/* VERDICT CARD */}
           <div
             className="sim-card clickable verdict-card"
             onClick={() => {
@@ -166,20 +232,63 @@ export default function SimulationLab() {
               setShowPanel(true);
             }}
           >
-            <h3>📊 Studio Verdict</h3>
+            {/* HOVER PREVIEW */}
+            <div className="hover-preview large">
+              <h4>📊 AI Financial Verdict</h4>
+              <p>{verdict}</p>
+              <span>Click to explore in full →</span>
+            </div>
+
+            <h3>📊 AI Financial Verdict</h3>
             <p>{verdict}</p>
           </div>
 
-          <div className="sim-card explainer-aside clickable">
-            <h3>💡 Explainer (Mandatory)</h3>
-            <p className="explainer-text">{explainerText}</p>
-            <span className="learn-link">Learn more</span>
-            <div className="tooltip-box">{explainerText}</div>
+          {/* AI INSIGHTS */}
+          <div className="sim-card">
+            <h3>🤖 Smart Insights</h3>
+
+            {insights.map((item, index) => (
+              <div key={index} className="insight">
+                <p>{item}</p>
+              </div>
+            ))}
           </div>
 
+          {/* EXPLAINER ASIDE */}
+          <div
+            className="sim-card explainer-aside clickable"
+            onClick={() => {
+              setContent(explainers.concept);
+              setShowPanel(true);
+            }}
+          >
+            {/* HOVER PREVIEW */}
+            <div className="hover-preview large">
+              <h4>💡 Understanding the Model</h4>
+              <p>
+                This simulation compares the total cost of renting versus buying
+                over a selected time horizon. The outcome is highly sensitive to
+                interest rates, time horizon, and your income-to-expense ratio.
+              </p>
+              <span>Click to read full breakdown →</span>
+            </div>
+
+            <h3>💡 How this works</h3>
+            <p className="explainer-text">
+              Understand how rent, interest, and time influence your outcome.
+            </p>
+            <span className="learn-link">Learn more</span>
+          </div>
+
+          {/* ACTIONS */}
           <div className="sim-actions">
-            <button className="pill">Apply to Strategy Track</button>
-            <button className="pill outline">Adjust Inputs</button>
+            <button className="pill">Apply insights to my strategy</button>
+            <button
+              className={`pill outline reset-btn${resetting ? " resetting" : ""}`}
+              onClick={handleReset}
+            >
+              {resetting ? "↺ Resetting…" : "↺ Rebalance scenario"}
+            </button>
           </div>
         </div>
       </div>
@@ -190,7 +299,7 @@ export default function SimulationLab() {
         content={content}
       />
 
-      {/* 🔥 FINANCE SCHOOL ORB */}
+      {/* ORB */}
       <div
         className="finance-orb"
         onClick={() => navigate("/learn")}

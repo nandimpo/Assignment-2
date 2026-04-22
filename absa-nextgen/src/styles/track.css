@@ -447,6 +447,28 @@ h1 {
 
   z-index: 1000;
 }
+/* ========================= */
+/* AI INSIGHT BLOCK */
+/* ========================= */
+.insight-block {
+  margin-top: 20px;
+}
+
+.insight-block h4 {
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: #d6a85a;
+}
+
+.insight-block .insight {
+  background: rgba(132, 167, 148, 0.06);
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
 /* RESPONSIVE */
 @media (max-width: 900px) {
   .nudge-impact,

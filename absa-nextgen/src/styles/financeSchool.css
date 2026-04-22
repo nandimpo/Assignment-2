@@ -57,6 +57,8 @@
 .progress-fill {
   height: 100%;
   background: linear-gradient(to right, #d6a85a, #84a794);
+  border-radius: 10px;
+  transition: width 0.4s ease;
 }
 
 /* MODULES */
@@ -79,6 +81,12 @@
   background: rgba(132, 167, 148, 0.15);
   color: #84a794;
   border: none;
+  cursor: pointer;
+  margin-top: 12px;
+}
+
+.module-card button:hover {
+  background: rgba(132, 167, 148, 0.25);
 }
 
 .resume-btn {
@@ -86,6 +94,31 @@
   border-radius: 25px;
   background: linear-gradient(135deg, #d6a85a, #84a794);
   border: none;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.resume-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.pill {
+  margin-top: 16px;
+  padding: 10px 22px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #84a794, #2c3a36);
+  border: none;
+  color: white;
+  font-size: 13px;
+  cursor: pointer;
+  display: inline-block;
+}
+
+.pill:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
 }
 
 /* QUIZ */
@@ -105,41 +138,191 @@
   border-radius: 14px;
   background: #1a1f1e;
   cursor: pointer;
+  border: 1px solid transparent;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.option:hover {
+  background: #222a29;
 }
 
 .option.selected {
   border: 1px solid #d6a85a;
+  background: rgba(214, 168, 90, 0.08);
 }
 
 .option.correct {
-  background: rgba(132, 167, 148, 0.3);
+  background: rgba(132, 167, 148, 0.25);
+  border-color: #84a794;
 }
 
 .option.wrong {
-  background: rgba(255, 80, 80, 0.25);
+  background: rgba(255, 80, 80, 0.2);
+  border-color: rgba(255, 80, 80, 0.5);
 }
 
-/* FEEDBACK */
-.feedback {
-  margin-top: 12px;
+/* ========================= */
+/* FEEDBACK TOAST            */
+/* ========================= */
+
+/*
+  The toast is always rendered in the DOM but starts
+  invisible (opacity 0, translateY(8px)).
+  .feedback-show triggers the visible state.
+  When dismissed (feedbackVisible = false), it fades back out.
+*/
+
+.feedback-toast {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  margin-top: 16px;
+  padding: 12px 16px;
+  border-radius: 12px;
+
+  font-size: 13px;
+  font-weight: 500;
+
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
 }
 
-.correct-text {
+/* VISIBLE STATE */
+.feedback-toast.feedback-show {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* CORRECT VARIANT */
+.feedback-toast.feedback-correct {
+  background: rgba(132, 167, 148, 0.15);
+  border: 1px solid rgba(132, 167, 148, 0.35);
   color: #84a794;
 }
-.wrong-text {
+
+/* WRONG VARIANT */
+.feedback-toast.feedback-wrong {
+  background: rgba(255, 80, 80, 0.12);
+  border: 1px solid rgba(255, 80, 80, 0.35);
   color: #ff6b6b;
 }
 
-/* LEVEL POPUP */
-.level-popup {
+/* ========================= */
+/* TRY AGAIN BUTTON          */
+/* ========================= */
+
+.try-again-btn {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  border-radius: 20px;
+
+  background: rgba(255, 80, 80, 0.2);
+  border: 1px solid rgba(255, 80, 80, 0.4);
+  color: #ff8f8f;
+
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.try-again-btn:hover {
+  background: rgba(255, 80, 80, 0.3);
+  border-color: rgba(255, 80, 80, 0.6);
+  transform: scale(1.04);
+}
+
+.try-again-btn:active {
+  transform: scale(0.97);
+}
+
+/* ========================= */
+/* LEVEL UP OVERLAY          */
+/* ========================= */
+
+/*
+  Full-screen dimmed overlay so the popup renders
+  centred and separate from the card layout —
+  fixes the "Level Up! ... Continue" inline text bug.
+*/
+
+.level-overlay {
   position: fixed;
-  top: 30%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #111;
-  padding: 24px;
-  border-radius: 16px;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 500;
+
+  animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.level-popup {
+  background: linear-gradient(145deg, #0e1614, #141f1c);
+  border: 1px solid rgba(132, 167, 148, 0.35);
+  border-radius: 24px;
+  padding: 36px 44px;
+
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+
+  animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes popIn {
+  from {
+    transform: scale(0.85);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.level-emoji {
+  font-size: 42px;
+  margin-bottom: 8px;
+}
+
+.level-popup h2 {
+  font-size: 26px;
+  font-weight: 700;
+  color: #d6a85a;
+  margin-bottom: 6px;
+}
+
+.level-popup p {
+  font-size: 15px;
+  color: #8fa3a0;
+  margin-bottom: 20px;
 }
 
 /* MOBILE */
@@ -148,5 +331,10 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
+  }
+
+  .level-popup {
+    padding: 28px 24px;
+    margin: 0 20px;
   }
 }

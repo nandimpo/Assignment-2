@@ -7,9 +7,12 @@ export default function FinanceSchool() {
   const [view, setView] = useState("path");
   const [activeLesson, setActiveLesson] = useState(null);
   const [selected, setSelected] = useState(null);
-  const [feedback, setFeedback] = useState(null);
+  const [feedback, setFeedback] = useState(null); // null | "correct" | "wrong"
+  const [feedbackVisible, setFeedbackVisible] = useState(false);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [showLevelUp, setShowLevelUp] = useState(false);
+
+  const feedbackTimer = useRef(null);
 
   const [learning, setLearning] = useState({
     completed: [],
@@ -38,6 +41,11 @@ export default function FinanceSchool() {
       localStorage.setItem(storageKey, JSON.stringify(fresh));
     }
   }, [storageKey]);
+
+  /* Clean up timer on unmount */
+  useEffect(() => {
+    return () => clearTimeout(feedbackTimer.current);
+  }, []);
 
   const updateStreak = (data) => {
     const today = new Date().toDateString();
@@ -113,6 +121,7 @@ export default function FinanceSchool() {
     setView("quiz");
     setSelected(null);
     setFeedback(null);
+    setFeedbackVisible(false);
     setQuestionIndex(0);
   };
 
@@ -121,17 +130,37 @@ export default function FinanceSchool() {
     localStorage.setItem(storageKey, JSON.stringify(data));
   };
 
+  /* ========================= */
+  /* SHOW FEEDBACK THEN FADE   */
+  /* ========================= */
+  const showFeedback = (type) => {
+    clearTimeout(feedbackTimer.current);
+    setFeedback(type);
+    setFeedbackVisible(true);
+
+    /* Correct: auto-dismiss after 1.4s then advance */
+    if (type === "correct") {
+      feedbackTimer.current = setTimeout(() => {
+        setFeedbackVisible(false);
+        setTimeout(() => setFeedback(null), 300); // wait for fade out
+      }, 1400);
+    }
+    /* Wrong: stays visible — user must click Try Again to dismiss */
+  };
+
   const submitAnswer = () => {
+    if (selected === null) return;
     const currentQ = activeLesson.quiz[questionIndex];
 
     if (selected === currentQ.answer) {
-      setFeedback("correct");
+      showFeedback("correct");
 
       const updated = { ...learning, xp: learning.xp + 50 };
 
       if (updated.xp >= updated.level * 100) {
         updated.level += 1;
-        setShowLevelUp(true);
+        // delay level-up popup so it doesn't clash with feedback
+        setTimeout(() => setShowLevelUp(true), 800);
       }
 
       saveLearning(updated);
@@ -142,16 +171,28 @@ export default function FinanceSchool() {
           setQuestionIndex((q) => q + 1);
           setSelected(null);
           setFeedback(null);
+          setFeedbackVisible(false);
         } else {
           updated.completed.push(activeLesson.id);
           saveLearning(updated);
           setView("path");
           setActiveLesson(null);
         }
-      }, 800);
+      }, 1800);
     } else {
-      setFeedback("wrong");
+      showFeedback("wrong");
     }
+  };
+
+  /* ========================= */
+  /* TRY AGAIN                 */
+  /* ========================= */
+  const tryAgain = () => {
+    setFeedbackVisible(false);
+    setTimeout(() => {
+      setFeedback(null);
+      setSelected(null);
+    }, 300); // wait for CSS fade
   };
 
   const resumeLearning = () => {
@@ -164,8 +205,6 @@ export default function FinanceSchool() {
       <AppNav />
 
       <div className="learn-container">
-        {" "}
-        {/* ✅ FIXED WIDTH */}
         {/* HEADER */}
         <div className="header-row">
           <div>
@@ -177,6 +216,7 @@ export default function FinanceSchool() {
             Resume Learning
           </button>
         </div>
+
         {/* PROGRESS */}
         <div className="card">
           <p>Level {learning.level}</p>
@@ -187,6 +227,7 @@ export default function FinanceSchool() {
             />
           </div>
         </div>
+
         {/* MODULES */}
         <div className="module-grid">
           {lessons.map((lesson) => (
@@ -197,6 +238,7 @@ export default function FinanceSchool() {
             </div>
           ))}
         </div>
+
         {/* LESSON */}
         {view === "lesson" && activeLesson && (
           <div className="card narrow">
@@ -208,6 +250,7 @@ export default function FinanceSchool() {
             </button>
           </div>
         )}
+
         {/* QUIZ */}
         {view === "quiz" && activeLesson && (
           <div className="card narrow">
@@ -237,24 +280,42 @@ export default function FinanceSchool() {
               })}
             </div>
 
-            {feedback === "wrong" && (
-              <p className="feedback wrong-text">❌ Incorrect — try again</p>
-            )}
+            {/* FEEDBACK TOAST */}
+            <div
+              className={`feedback-toast ${feedback === "wrong" ? "feedback-wrong" : "feedback-correct"} ${feedbackVisible ? "feedback-show" : ""}`}
+            >
+              {feedback === "wrong" ? (
+                <>
+                  <span>❌ Incorrect — try again</span>
+                  <button className="try-again-btn" onClick={tryAgain}>
+                    Try Again
+                  </button>
+                </>
+              ) : (
+                <span>✅ Correct! +50 XP</span>
+              )}
+            </div>
 
-            {feedback === "correct" && (
-              <p className="feedback correct-text">✅ Correct! +50 XP</p>
+            {/* Only show Submit when no feedback is active */}
+            {!feedback && (
+              <button className="pill" onClick={submitAnswer}>
+                Submit
+              </button>
             )}
-
-            <button className="pill" onClick={submitAnswer}>
-              Submit
-            </button>
           </div>
         )}
-        {/* LEVEL UP */}
+
+        {/* LEVEL UP OVERLAY */}
         {showLevelUp && (
-          <div className="level-popup">
-            🎉 Level Up! You are now Level {learning.level}
-            <button onClick={() => setShowLevelUp(false)}>Continue</button>
+          <div className="level-overlay">
+            <div className="level-popup">
+              <p className="level-emoji">🎉</p>
+              <h2>Level Up!</h2>
+              <p>You are now Level {learning.level}</p>
+              <button className="pill" onClick={() => setShowLevelUp(false)}>
+                Continue
+              </button>
+            </div>
           </div>
         )}
       </div>

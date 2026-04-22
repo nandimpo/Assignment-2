@@ -186,9 +186,6 @@ p {
   width: auto;
   align-self: flex-start;
 }
-.full {
-  width: 100%;
-}
 
 /* CHART */
 .chart {
@@ -281,6 +278,73 @@ p {
 
   z-index: 1000;
 }
+/* ========================= */
+/* 🔥 ADVANCED TOOLTIP (HOVER PREVIEW) */
+/* ========================= */
+
+.tooltip-advanced {
+  position: absolute;
+  margin-top: 10px;
+  width: 240px;
+
+  background: rgba(12, 17, 16, 0.95);
+  backdrop-filter: blur(12px);
+
+  border: 1px solid rgba(132, 167, 148, 0.25);
+  border-radius: 12px;
+
+  padding: 12px;
+
+  font-size: 12px;
+  color: #d7e3e0;
+
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+
+  animation: fadeTooltip 0.2s ease;
+  z-index: 10;
+}
+
+/* TITLE */
+.tooltip-advanced h4 {
+  font-size: 13px;
+  margin-bottom: 6px;
+  color: #84a794;
+}
+
+/* TEXT */
+.tooltip-advanced p {
+  font-size: 11px;
+  color: #a8b5b2;
+  line-height: 1.5;
+}
+
+/* HINT */
+.tooltip-hint {
+  display: block;
+  margin-top: 6px;
+  font-size: 10px;
+  color: #84a794;
+  opacity: 0.8;
+}
+
+/* ANIMATION */
+@keyframes fadeTooltip {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* PREVENT OVERFLOW ISSUES */
+.card,
+.stat-card {
+  position: relative;
+}
+
 /* RESPONSIVE */
 @media (max-width: 1000px) {
   .stats,
