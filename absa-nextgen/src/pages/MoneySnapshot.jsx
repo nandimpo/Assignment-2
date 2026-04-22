@@ -18,7 +18,6 @@ export default function MoneySnapshot() {
 
   const [showPanel, setShowPanel] = useState(false);
   const [content, setContent] = useState(null);
-
   const [activeTooltip, setActiveTooltip] = useState(null);
 
   const net = income - expenses;
@@ -56,192 +55,194 @@ export default function MoneySnapshot() {
     <div className="money">
       <AppNav />
 
-      {/* HEADER */}
-      <section className="header">
-        <h2>
-          Here’s your snapshot,{" "}
-          <span className="accent">{user?.name || "User"}</span>
-        </h2>
-        <p>
-          You're on the <span className="accent">{user?.strategy}</span> track
-        </p>
-      </section>
-
-      {/* STATS */}
-      <section className="stats">
-        {/* INCOME */}
-        <div className="stat-card">
-          <p className="label">Monthly income</p>
-          <div className="value-input">
-            <span className="currency">R</span>
-            <input
-              className="input-number"
-              type="number"
-              value={income}
-              onChange={(e) => setIncome(Number(e.target.value))}
-            />
-          </div>
-        </div>
-
-        {/* EXPENSES */}
-        <div className="stat-card">
-          <p className="label">Fixed Costs</p>
-          <div className="value-input">
-            <span className="currency">R</span>
-            <input
-              className="input-number"
-              type="number"
-              value={expenses}
-              onChange={(e) => setExpenses(Number(e.target.value))}
-            />
-          </div>
-        </div>
-
-        {/* NET */}
-        <div className="stat-card highlight">
-          <p className="label">
-            Net Position
-            <span
-              className="info-icon"
-              onMouseEnter={() => setActiveTooltip("net")}
-              onMouseLeave={() => setActiveTooltip(null)}
-              onClick={() => {
-                setContent(explainers.net);
-                setShowPanel(true);
-              }}
-            >
-              ⓘ
-            </span>
+      {/* ✅ NEW CONTAINER (FIX WIDTH) */}
+      <div className="money-container">
+        {/* HEADER */}
+        <section className="header">
+          <h2>
+            Here’s your snapshot,{" "}
+            <span className="accent">{user?.name || "User"}</span>
+          </h2>
+          <p>
+            You're on the <span className="accent">{user?.strategy}</span> track
           </p>
+        </section>
 
-          {activeTooltip === "net" && (
-            <div className="tooltip-box">{explainers.net.text}</div>
-          )}
+        {/* STATS */}
+        <section className="stats">
+          {/* INCOME */}
+          <div className="stat-card">
+            <p className="label">Monthly income</p>
+            <div className="value-input">
+              <span className="currency">R</span>
+              <input
+                className="input-number"
+                type="number"
+                value={income}
+                onChange={(e) => setIncome(Number(e.target.value))}
+              />
+            </div>
+          </div>
 
-          <h3 className="big-number">R{net.toLocaleString()}</h3>
+          {/* EXPENSES */}
+          <div className="stat-card">
+            <p className="label">Fixed Costs</p>
+            <div className="value-input">
+              <span className="currency">R</span>
+              <input
+                className="input-number"
+                type="number"
+                value={expenses}
+                onChange={(e) => setExpenses(Number(e.target.value))}
+              />
+            </div>
+          </div>
 
-          <span className="small">{savingsRate}% saved</span>
-        </div>
-      </section>
-
-      {/* MAIN GRID */}
-      <section className="grid">
-        <div className="left">
-          {/* DEPOSIT */}
-          <div className="card">
-            <h3>
-              Deposit Goal
+          {/* NET */}
+          <div className="stat-card highlight">
+            <p className="label">
+              Net Position
               <span
                 className="info-icon"
-                onMouseEnter={() => setActiveTooltip("property")}
+                onMouseEnter={() => setActiveTooltip("net")}
                 onMouseLeave={() => setActiveTooltip(null)}
                 onClick={() => {
-                  setContent(explainers.property);
+                  setContent(explainers.net);
                   setShowPanel(true);
                 }}
               >
                 ⓘ
               </span>
-            </h3>
-
-            {activeTooltip === "property" && (
-              <div className="tooltip-box">{explainers.property.text}</div>
-            )}
-
-            <div className="progress">
-              <div className="fill" style={{ width: `${progress}%` }} />
-            </div>
-
-            <p className="small">
-              R{savings.toLocaleString()} / R{goal.toLocaleString()}
             </p>
 
-            <button
-              className="pill"
-              onClick={() => setSavings(Math.round(income * 0.25))}
+            {activeTooltip === "net" && (
+              <div className="tooltip-box">{explainers.net.text}</div>
+            )}
+
+            <h3 className="big-number">R{net.toLocaleString()}</h3>
+            <span className="small">{savingsRate}% saved</span>
+          </div>
+        </section>
+
+        {/* MAIN GRID */}
+        <section className="grid">
+          <div className="left">
+            {/* DEPOSIT */}
+            <div className="card">
+              <h3>
+                Deposit Goal
+                <span
+                  className="info-icon"
+                  onMouseEnter={() => setActiveTooltip("property")}
+                  onMouseLeave={() => setActiveTooltip(null)}
+                  onClick={() => {
+                    setContent(explainers.property);
+                    setShowPanel(true);
+                  }}
+                >
+                  ⓘ
+                </span>
+              </h3>
+
+              {activeTooltip === "property" && (
+                <div className="tooltip-box">{explainers.property.text}</div>
+              )}
+
+              <div className="progress">
+                <div className="fill" style={{ width: `${progress}%` }} />
+              </div>
+
+              <p className="small">
+                R{savings.toLocaleString()} / R{goal.toLocaleString()}
+              </p>
+
+              <button
+                className="pill"
+                onClick={() => setSavings(Math.round(income * 0.25))}
+              >
+                Auto balance to 25%
+              </button>
+            </div>
+
+            {/* INSIGHTS */}
+            <div className="card">
+              <h3>Smart insights</h3>
+
+              <div className="insight">
+                <p>Good progress — keep consistency.</p>
+              </div>
+
+              <div className="insight">
+                <p>Reduce spending by R500</p>
+                <button onClick={() => setExpenses(expenses - 500)}>
+                  Adjust →
+                </button>
+              </div>
+
+              <div className="insight">
+                <p>Increase savings by R1000</p>
+                <button onClick={() => setSavings(savings + 1000)}>
+                  Boost →
+                </button>
+              </div>
+            </div>
+
+            {/* LEARN */}
+            <div
+              className="card clickable"
+              onClick={() => {
+                setContent(explainers.savings);
+                setShowPanel(true);
+              }}
             >
-              Auto balance to 25%
-            </button>
+              <h3>Want to know more?</h3>
+              <p>What is a good savings rate?</p>
+            </div>
           </div>
 
-          {/* INSIGHTS */}
-          <div className="card">
-            <h3>Smart insights</h3>
+          {/* RIGHT */}
+          <div className="right">
+            <div className="card">
+              <h3>Spending Breakdown</h3>
 
-            <div className="insight">
-              <p>Good progress — keep consistency.</p>
-            </div>
+              <div
+                className="chart"
+                style={{
+                  background: `conic-gradient(
+                    #84a794 0% ${(savings / income) * 100}%,
+                    #6faad3 ${(savings / income) * 100}% ${
+                      ((savings + expenses) / income) * 100
+                    }%,
+                    #d6a85a ${((savings + expenses) / income) * 100}% 100%
+                  )`,
+                }}
+              />
 
-            <div className="insight">
-              <p>Reduce spending by R500</p>
-              <button onClick={() => setExpenses(expenses - 500)}>
-                Adjust →
+              <div className="legend">
+                <p>Savings — R{savings.toLocaleString()}</p>
+                <p>Expenses — R{expenses.toLocaleString()}</p>
+                <p>Remaining — R{net.toLocaleString()}</p>
+              </div>
+
+              <button
+                className="pill full"
+                onClick={() => navigate("/simulation")}
+              >
+                Manage finances →
               </button>
             </div>
-
-            <div className="insight">
-              <p>Increase savings by R1000</p>
-              <button onClick={() => setSavings(savings + 1000)}>
-                Boost →
-              </button>
-            </div>
-          </div>
-
-          {/* LEARN */}
-          <div
-            className="card clickable"
-            onClick={() => {
-              setContent(explainers.savings);
-              setShowPanel(true);
-            }}
-          >
-            <h3>Want to know more?</h3>
-            <p>What is a good savings rate?</p>
-          </div>
-        </div>
-
-        {/* RIGHT */}
-        <div className="right">
-          <div className="card">
-            <h3>Spending Breakdown</h3>
 
             <div
-              className="chart"
-              style={{
-                background: `conic-gradient(
-                  #84a794 0% ${(savings / income) * 100}%,
-                  #6faad3 ${(savings / income) * 100}% ${
-                    ((savings + expenses) / income) * 100
-                  }%,
-                  #d6a85a ${((savings + expenses) / income) * 100}% 100%
-                )`,
-              }}
-            />
-
-            <div className="legend">
-              <p>Savings — R{savings.toLocaleString()}</p>
-              <p>Expenses — R{expenses.toLocaleString()}</p>
-              <p>Remaining — R{net.toLocaleString()}</p>
-            </div>
-
-            <button
-              className="pill full"
+              className="card clickable"
               onClick={() => navigate("/simulation")}
             >
-              Manage finances →
-            </button>
+              <h3>Simulation Lab</h3>
+              <p>Test rent vs buy, savings growth, and more</p>
+              <span className="link-arrow">Explore →</span>
+            </div>
           </div>
-
-          <div
-            className="card clickable"
-            onClick={() => navigate("/simulation")}
-          >
-            <h3>Simulation Lab</h3>
-            <p>Test rent vs buy, savings growth, and more</p>
-            <span className="link-arrow">Explore →</span>
-          </div>
-        </div>
-      </section>
+        </section>
+      </div>
 
       <ExplainerPanel
         show={showPanel}

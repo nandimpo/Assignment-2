@@ -14,38 +14,49 @@ export default function SimulationLab() {
   const [content, setContent] = useState(null);
 
   /* ========================= */
-  /* CALCULATIONS (SIMPLE BUT CONSISTENT) */
+  /* CALCULATIONS */
   /* ========================= */
-
   const rentTotal = rent * 12 * years;
-
-  const bondMonthly = price * 0.01; // simplified bond estimate
+  const bondMonthly = (price * (interest / 100)) / 12;
   const buyTotal = bondMonthly * 12 * years;
-
   const difference = rentTotal - buyTotal;
+
+  /* ✅ FIX: MOVE THIS HERE (NOT inside JSX) */
+  const maxValue = Math.max(rentTotal, buyTotal);
 
   /* ========================= */
   /* VERDICT */
   /* ========================= */
-
-  const verdict =
-    difference > 0
-      ? `Renting could save you ~R${Math.abs(difference).toLocaleString()} over ${years} years.`
-      : `Buying builds equity but costs ~R${Math.abs(difference).toLocaleString()} more short-term.`;
+  let verdict = "";
+  if (difference > 0) {
+    verdict = `Renting could save you ~R${Math.abs(difference).toLocaleString()} over ${years} years.`;
+  } else if (difference < 0) {
+    verdict = `Buying builds equity but costs ~R${Math.abs(difference).toLocaleString()} more short-term.`;
+  } else {
+    verdict = `Renting and buying cost roughly the same over ${years} years.`;
+  }
 
   /* ========================= */
-  /* EXPLAINERS */
+  /* EXPLAINER */
   /* ========================= */
+  let explainerText = "";
+
+  if (interest > 13) {
+    explainerText =
+      "High interest rates increase the cost of buying significantly.";
+  } else if (years <= 3) {
+    explainerText = "Buying short-term is expensive due to upfront costs.";
+  } else if (rent > salary * 0.4) {
+    explainerText =
+      "High rent relative to income reduces your ability to save.";
+  } else {
+    explainerText =
+      "Buying includes interest and upfront costs, while renting offers flexibility.";
+  }
 
   const explainers = {
-    verdict: {
-      title: "Studio Verdict",
-      text: "This compares total cost of renting vs buying over time. Renting may allow investing the difference, while buying builds equity.",
-    },
-    concept: {
-      title: "Bond vs Rent",
-      text: "Buying includes interest and upfront costs. Renting is cheaper short-term but does not build ownership.",
-    },
+    verdict: { title: "Studio Verdict", text: verdict },
+    concept: { title: "Bond vs Rent", text: explainerText },
   };
 
   return (
@@ -56,122 +67,135 @@ export default function SimulationLab() {
         <h1>Property vs Renting Studio</h1>
         <p className="subtitle">What happens if I buy vs rent?</p>
 
+        {/* ========================= */}
+        {/* GRID */}
+        {/* ========================= */}
         <div className="sim-grid">
           {/* INPUTS */}
           <div className="sim-card">
-            <label>Monthly Salary</label>
-            <input
-              type="range"
-              min="20000"
-              max="100000"
+            <Slider
+              label="Monthly Salary"
               value={salary}
-              onChange={(e) => setSalary(Number(e.target.value))}
+              set={setSalary}
+              min={20000}
+              max={100000}
+              prefix="R"
             />
-            <p>R{salary.toLocaleString()}</p>
-
-            <label>Monthly Rent</label>
-            <input
-              type="range"
-              min="5000"
-              max="30000"
+            <Slider
+              label="Monthly Rent"
               value={rent}
-              onChange={(e) => setRent(Number(e.target.value))}
+              set={setRent}
+              min={5000}
+              max={30000}
+              prefix="R"
             />
-            <p>R{rent.toLocaleString()}</p>
-
-            <label>Property Price</label>
-            <input
-              type="range"
-              min="500000"
-              max="3000000"
+            <Slider
+              label="Property Price"
               value={price}
-              onChange={(e) => setPrice(Number(e.target.value))}
+              set={setPrice}
+              min={500000}
+              max={3000000}
+              prefix="R"
             />
-            <p>R{price.toLocaleString()}</p>
-
-            <label>Interest Rate</label>
-            <input
-              type="range"
-              min="8"
-              max="15"
+            <Slider
+              label="Interest Rate"
               value={interest}
-              onChange={(e) => setInterest(Number(e.target.value))}
+              set={setInterest}
+              min={8}
+              max={15}
+              suffix="%"
             />
-            <p>{interest}%</p>
-
-            <label>Time</label>
-            <input
-              type="range"
-              min="1"
-              max="10"
+            <Slider
+              label="Time"
               value={years}
-              onChange={(e) => setYears(Number(e.target.value))}
+              set={setYears}
+              min={1}
+              max={10}
+              suffix=" years"
             />
-            <p>{years} years</p>
           </div>
 
-          {/* OUTPUT GRAPH (SIMPLE VISUAL) */}
-          <div className="sim-card center">
-            <h3>Cost Comparison</h3>
+          {/* GRAPH */}
+          <div className="sim-card graph-card">
+            <h3 className="graph-title">Cost Comparison</h3>
 
             <div className="bars">
-              <div
-                className="bar rent"
-                style={{ height: `${rentTotal / 10000}px` }}
-              >
-                Rent
+              {/* RENT */}
+              <div className="bar-container">
+                <div
+                  className="bar rent"
+                  style={{
+                    height: `${(rentTotal / maxValue) * 140}px`,
+                  }}
+                >
+                  <span className="bar-tooltip">
+                    R{rentTotal.toLocaleString()}
+                  </span>
+                </div>
+                <span>Rent</span>
               </div>
 
-              <div
-                className="bar buy"
-                style={{ height: `${buyTotal / 10000}px` }}
-              >
-                Buy
+              {/* BUY */}
+              <div className="bar-container">
+                <div
+                  className="bar buy"
+                  style={{
+                    height: `${(buyTotal / maxValue) * 140}px`,
+                  }}
+                >
+                  <span className="bar-tooltip">
+                    R{buyTotal.toLocaleString()}
+                  </span>
+                </div>
+                <span>Buy</span>
               </div>
             </div>
 
-            <p className="small">
-              Rent: R{rentTotal.toLocaleString()} | Buy: R
+            <p className="graph-values">
+              Rent: R{rentTotal.toLocaleString()} <span>|</span> Buy: R
               {buyTotal.toLocaleString()}
+            </p>
+
+            <p className="graph-impact">
+              {difference < 0
+                ? `You spend ~R${Math.abs(difference).toLocaleString()} more by buying`
+                : `You save ~R${Math.abs(difference).toLocaleString()} by renting`}
             </p>
           </div>
         </div>
 
-        {/* VERDICT */}
-        <div
-          className="sim-card clickable"
-          onClick={() => {
-            setContent(explainers.verdict);
-            setShowPanel(true);
-          }}
-        >
-          <h3>📊 Studio Verdict</h3>
-          <p>{verdict}</p>
-        </div>
-
-        {/* EXPLAINER */}
-        <div
-          className="sim-card clickable"
-          onClick={() => {
-            setContent(explainers.concept);
-            setShowPanel(true);
-          }}
-        >
-          <h3>💡 Explainer (Mandatory)</h3>
-          <p>Property has high upfront costs and interest in early years.</p>
-          <button className="pill">Learn more</button>
-        </div>
-
-        {/* ACTIONS */}
-        <div className="sim-actions">
-          <button
-            className="pill"
-            onClick={() => alert("Applied to your strategy")}
+        {/* ========================= */}
+        {/* BOTTOM */}
+        {/* ========================= */}
+        <div className="sim-bottom">
+          {/* VERDICT */}
+          <div
+            className="sim-card clickable verdict-card"
+            onClick={() => {
+              setContent(explainers.verdict);
+              setShowPanel(true);
+            }}
           >
-            Apply to Strategy Track
-          </button>
+            <h3>📊 Studio Verdict</h3>
+            <p>{verdict}</p>
+          </div>
 
-          <button className="pill outline">Adjust Inputs</button>
+          {/* EXPLAINER */}
+          <div className="sim-card explainer-aside clickable">
+            <h3>💡 Explainer (Mandatory)</h3>
+
+            <p className="explainer-text">{explainerText}</p>
+
+            <span className="learn-link">Learn more</span>
+
+            <div className="tooltip-box">{explainerText}</div>
+          </div>
+
+          {/* ACTIONS */}
+          <div className="sim-actions">
+            <button className="pill">Apply to Strategy Track</button>
+            <button className="pill outline">Adjust Inputs</button>
+          </div>
         </div>
       </div>
 
@@ -179,6 +203,30 @@ export default function SimulationLab() {
         show={showPanel}
         onClose={() => setShowPanel(false)}
         content={content}
+      />
+    </div>
+  );
+}
+
+/* SLIDER */
+function Slider({ label, value, set, min, max, prefix = "", suffix = "" }) {
+  return (
+    <div className="input-group">
+      <div className="input-header">
+        <span>{label}</span>
+        <strong>
+          {prefix}
+          {value.toLocaleString()}
+          {suffix}
+        </strong>
+      </div>
+
+      <input
+        type="range"
+        min={min}
+        max={max}
+        value={value}
+        onChange={(e) => set(Number(e.target.value))}
       />
     </div>
   );

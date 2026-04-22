@@ -6,82 +6,82 @@ import ExplainerPanel from "../components/ExplainerPanel";
 
 export default function PropertyTrack() {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user")) || {};
+
+  const user = JSON.parse(sessionStorage.getItem("user")) || {};
+
+  const income = Number(user.salary) || 0;
+  const expenses = Number(user.expenses) || 0;
+
+  const savings = Number(user.savings) || Math.max(income - expenses, 0);
+
+  const goal =
+    Number(user.depositAmount) ||
+    Number(user.depositGoal) ||
+    Math.round((Number(user.housePrice) || 1000000) * 0.1);
+
+  const progress =
+    goal > 0 ? Math.min(100, Math.round((savings / goal) * 100)) : 0;
+
+  const savingsRate = income > 0 ? Math.round((savings / income) * 100) : 0;
 
   const [showPanel, setShowPanel] = useState(false);
   const [content, setContent] = useState(null);
 
-  const savings = Number(localStorage.getItem("savings")) || 12000;
-  const goal = user.depositGoal || 550000;
+  // 🔥 NEW STATE
+  const [savingFocus, setSavingFocus] = useState(50);
+  const [lifestyle, setLifestyle] = useState(50);
+  const [growth, setGrowth] = useState(50);
+  const [showSuggestion, setShowSuggestion] = useState(false);
 
-  const progress = Math.min(100, Math.round((savings / goal) * 100));
-
-  /* ========================= */
-  /* EXPLAINERS (UPDATED ONLY) */
-  /* ========================= */
   const explainers = {
-    property: {
-      title: "First Property Path",
-      text: "A structured plan to help you save and purchase your first home within 3–5 years.",
-    },
-
-    /* NEW 👇 */
     bond: {
       title: "Bond Pre-Approval",
-      text: "This is when a bank confirms how much they are willing to lend you before you buy a property. It strengthens your offer and shows sellers you're serious.",
+      text: "Bank confirms how much they will lend you before buying.",
     },
-
     transfer: {
       title: "Transfer Duty",
-      text: "A government tax paid when purchasing property. It depends on the property value and can significantly increase your upfront costs.",
-    },
-
-    lifestyle: {
-      title: "Lifestyle Freedom",
-      text: "How much you prioritise spending today vs saving for your future home.",
-    },
-
-    growth: {
-      title: "Wealth Growth",
-      text: "How aggressively you invest to grow your savings.",
-    },
-
-    risk: {
-      title: "Risk Level",
-      text: "Higher risk can grow wealth faster but comes with volatility.",
-    },
-
-    switch: {
-      title: "Switch Track",
-      text: "Switching tracks changes your financial priorities and strategy.",
-    },
-
-    apply: {
-      title: "Apply Plan",
-      text: "This applies smart recommendations to help you reach your goal faster.",
+      text: "Government tax when purchasing property.",
     },
   };
+
+  // 🔥 SIMPLE RULE ENGINE
+  const getSuggestedTrack = () => {
+    if (savingFocus > 70 && lifestyle < 40) {
+      return {
+        title: "Property Track",
+        points: ["Aggressive saving for deposit", "Lower lifestyle spending"],
+        insight: "You're prioritising buying property as quickly as possible.",
+      };
+    }
+
+    if (growth > 70) {
+      return {
+        title: "Investing Track",
+        points: ["Focus on long-term wealth", "Higher growth potential"],
+        insight: "You’re prioritising long-term wealth over immediate goals.",
+      };
+    }
+
+    return {
+      title: "Balanced Lifestyle Track",
+      points: ["Moderate savings", "Balanced lifestyle spending"],
+      insight: "You’re balancing lifestyle and future goals.",
+    };
+  };
+
+  const suggestedTrack = getSuggestedTrack();
 
   return (
     <div className="track-page">
       <AppNav />
 
       <div className="track-container">
-        {/* HEADER */}
-        <h1>
-          First Property Path
-          <span
-            className="info-icon"
-            onClick={() => {
-              setContent(explainers.property);
-              setShowPanel(true);
-            }}
-          >
-            💡
-          </span>
-        </h1>
+        <h1>First Property Path 💡</h1>
 
-        <p className="subtitle">The strategy behind your first home</p>
+        <p className="subtitle">
+          Based on your savings rate{" "}
+          <span className="accent">{savingsRate}%</span>
+        </p>
 
         {/* MAIN CARD */}
         <div className="track-card main">
@@ -91,179 +91,238 @@ export default function PropertyTrack() {
 
           <div className="progress-bar">
             <div className="progress-fill" style={{ width: `${progress}%` }}>
-              <span>{progress}%</span>
+              <span className="progress-text">{progress}%</span>
             </div>
           </div>
 
-          <p className="small">Time to goal ~ 4.2 years</p>
+          <p className="small">
+            Monthly saving: R{(income - expenses).toLocaleString()}
+          </p>
 
           {/* TIMELINE */}
-          <div className="timeline">
-            <div className="step done">
-              Year 1<br />
-              Emergency Fund
+          <div className="timeline-box">
+            <div className="timeline-step active">
+              <h4>Year 1</h4>
+              <p>Emergency Fund</p>
             </div>
-            <div className="step active">
-              Year 2<br />
-              Start Investing
+            <div className="timeline-step">
+              <h4>Year 2</h4>
+              <p>Start Investing</p>
             </div>
-            <div className="step">
-              Year 3<br />
-              Deposit Saved
+            <div className="timeline-step">
+              <h4>Year 3</h4>
+              <p>Deposit Saved</p>
             </div>
-            <div className="step">
-              Year 4<br />
-              Pay Deposit
+            <div className="timeline-step">
+              <h4>Year 4</h4>
+              <p>Pay Deposit</p>
             </div>
-            <div className="step">
-              Year 5<br />
-              Purchase Property
-            </div>
-          </div>
-
-          {/* NUDGES (UPDATED ONLY) */}
-          <div className="nudge-box">
-            <h4>Smart next steps</h4>
-
-            <div
-              className="nudge clickable"
-              onClick={() => {
-                setContent(explainers.bond);
-                setShowPanel(true);
-              }}
-            >
-              💡 You’re getting closer — secure your bond pre-approval
-            </div>
-
-            <div
-              className="nudge clickable"
-              onClick={() => {
-                setContent(explainers.transfer);
-                setShowPanel(true);
-              }}
-            >
-              📄 Estimate transfer duty to avoid unexpected costs
+            <div className="timeline-step">
+              <h4>Year 5</h4>
+              <p>Purchase Property</p>
             </div>
           </div>
 
-          {/* IMPACT */}
-          <div className="impact">
-            <h4>What impacts your goal</h4>
-            <p>💰 Savings +R5,500/month</p>
-            <p>🏠 Rent −R14,000/month</p>
-            <p>🧾 Lifestyle −R8,000/month</p>
+          {/* NUDGES */}
+          <div className="nudge-impact">
+            <div className="nudge-box">
+              <h4>Smart next steps</h4>
 
-            <span className="success">
-              You’re ahead of schedule by 6 months!
-            </span>
+              <div
+                className="nudge clickable"
+                onClick={() => {
+                  setContent(explainers.bond);
+                  setShowPanel(true);
+                }}
+              >
+                💡 Secure your bond pre-approval
+                <div className="tooltip-box">{explainers.bond.text}</div>
+              </div>
+
+              <div
+                className="nudge clickable"
+                onClick={() => {
+                  setContent(explainers.transfer);
+                  setShowPanel(true);
+                }}
+              >
+                📄 Estimate transfer duty
+                <div className="tooltip-box">{explainers.transfer.text}</div>
+              </div>
+            </div>
+
+            <div className="impact">
+              <h4>What impacts your goal</h4>
+              <p>💰 Savings R{(income - expenses).toLocaleString()}/month</p>
+              <p>🏠 Housing affordability based on income</p>
+              <p>🧾 Lifestyle affects savings rate</p>
+
+              <span className="success">
+                {progress > 40
+                  ? "You're ahead of schedule 🚀"
+                  : "Keep building consistency"}
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* COMPARE (UNCHANGED) */}
-        <div className="track-card">
+        {/* COMPARE */}
+        <div className="track-card compare-card">
           <h3>Compare Strategy Tracks</h3>
 
-          <div className="compare">
-            <div></div>
-            <div>Property</div>
-            <div>Balanced</div>
-            <div>Global</div>
+          <p className="compare-sub">
+            You're currently on the{" "}
+            <span className="accent">Property Track</span>
+          </p>
 
-            <div>Saving Focus</div>
-            <div>High</div>
-            <div>Medium</div>
-            <div>Medium</div>
+          <div className="compare-grid">
+            <div className="compare-column active">
+              <h4>Property</h4>
+              <p className="tag">Focused on buying a home</p>
+              <ul>
+                <li>
+                  <strong>Saving Focus:</strong> High
+                </li>
+                <li>
+                  <strong>Spending Flexibility:</strong> Low
+                </li>
+                <li>
+                  <strong>Wealth Growth:</strong> Limited
+                </li>
+              </ul>
+              <p className="insight positive">
+                Fastest way to afford your deposit, but limits lifestyle and
+                long-term growth.
+              </p>
+            </div>
 
-            <div>Lifestyle</div>
-            <div>Low</div>
-            <div>Medium</div>
-            <div>High</div>
+            <div className="compare-column">
+              <h4>Balanced Lifestyle</h4>
+              <p className="tag">Mix of saving + lifestyle</p>
+              <ul>
+                <li>
+                  <strong>Saving Focus:</strong> Medium
+                </li>
+                <li>
+                  <strong>Spending Flexibility:</strong> Medium
+                </li>
+                <li>
+                  <strong>Wealth Growth:</strong> Balanced
+                </li>
+              </ul>
+              <p className="insight neutral">
+                Slower property timeline, but gives you more lifestyle balance.
+              </p>
+            </div>
 
-            <div>Risk Level</div>
-            <div>Low</div>
-            <div>Medium</div>
-            <div>Long-term</div>
+            <div className="compare-column">
+              <h4>Investing Track</h4>
+              <p className="tag">Grow wealth long-term</p>
+              <ul>
+                <li>
+                  <strong>Saving Focus:</strong> Medium
+                </li>
+                <li>
+                  <strong>Spending Flexibility:</strong> High
+                </li>
+                <li>
+                  <strong>Wealth Growth:</strong> High over time
+                </li>
+              </ul>
+              <p className="insight warning">
+                Best for long-term wealth, but delays your property goal the
+                most.
+              </p>
+            </div>
           </div>
+
+          <p className="compare-footer">
+            Switching tracks changes how fast you reach your deposit vs how much
+            you enjoy your lifestyle now.
+          </p>
         </div>
 
-        {/* GRID (UNCHANGED) */}
+        {/* GRID */}
         <div className="track-grid">
           <div className="track-card">
             <h3>Adjust Your Track</h3>
 
-            <label>
-              Lifestyle Freedom
-              <span
-                className="info-icon"
-                onClick={() => {
-                  setContent(explainers.lifestyle);
-                  setShowPanel(true);
-                }}
-              >
-                💡
-              </span>
-            </label>
-            <input type="range" />
+            <div className="slider-group">
+              <label>Saving Focus</label>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={savingFocus}
+                onChange={(e) => setSavingFocus(Number(e.target.value))}
+              />
+              <span className="slider-hint">Higher = faster deposit</span>
+            </div>
 
-            <label>
-              Wealth Growth
-              <span
-                className="info-icon"
-                onClick={() => {
-                  setContent(explainers.growth);
-                  setShowPanel(true);
-                }}
-              >
-                💡
+            <div className="slider-group">
+              <label>Spending Flexibility</label>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={lifestyle}
+                onChange={(e) => setLifestyle(Number(e.target.value))}
+              />
+              <span className="slider-hint">
+                Higher = more lifestyle freedom
               </span>
-            </label>
-            <input type="range" />
+            </div>
 
-            <label>
-              Risk Level
-              <span
-                className="info-icon"
-                onClick={() => {
-                  setContent(explainers.risk);
-                  setShowPanel(true);
-                }}
-              >
-                💡
+            <div className="slider-group">
+              <label>Wealth Growth</label>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={growth}
+                onChange={(e) => setGrowth(Number(e.target.value))}
+              />
+              <span className="slider-hint">
+                Higher = long-term growth focus
               </span>
-            </label>
-            <input type="range" />
+            </div>
 
-            <button className="pill outline disabled">Switch Track</button>
+            <button
+              className="pill outline"
+              onClick={() => setShowSuggestion(true)}
+            >
+              Switch Track
+            </button>
           </div>
 
-          <div className="track-card">
+          <div
+            className={`track-card suggested ${showSuggestion ? "active" : ""}`}
+          >
             <h3>Suggested Track</h3>
-            <p className="accent">Balanced Lifestyle Track</p>
 
-            <ul>
-              <li>Increase savings by R1,500/month</li>
-              <li>Reduce discretionary spending</li>
-            </ul>
+            {!showSuggestion ? (
+              <p className="placeholder">
+                Adjust your track and click <strong>Switch Track</strong> to
+                preview.
+              </p>
+            ) : (
+              <>
+                <p className="accent">{suggestedTrack.title}</p>
 
-            <div className="btn-row">
-              <button
-                className="pill"
-                onClick={() => {
-                  localStorage.setItem("savingsBoost", "1500");
-                  setContent(explainers.apply);
-                  setShowPanel(true);
-                }}
-              >
-                Apply this plan
-              </button>
+                <ul>
+                  {suggestedTrack.points.map((p, i) => (
+                    <li key={i}>{p}</li>
+                  ))}
+                </ul>
 
-              <button
-                className="pill outline"
-                onClick={() => navigate("/simulation")}
-              >
-                Run simulation
-              </button>
-            </div>
+                <p className="insight neutral">{suggestedTrack.insight}</p>
+
+                <div className="btn-row">
+                  <button className="pill disabled">Coming soon</button>
+                  <button className="pill outline disabled">Coming soon</button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>

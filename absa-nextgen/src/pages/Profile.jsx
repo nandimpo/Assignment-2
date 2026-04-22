@@ -1,33 +1,26 @@
 import { useNavigate } from "react-router-dom";
+import AppNav from "../components/AppNav";
 import "../styles/profile.css";
 
 export default function Profile() {
   const navigate = useNavigate();
 
-  // USER DATA
-  const user = JSON.parse(localStorage.getItem("user")) || {};
+  const rawUser = sessionStorage.getItem("user");
+  const user = rawUser ? JSON.parse(rawUser) : {};
 
-  const income = Number(localStorage.getItem("income")) || 45000;
-  const expenses = Number(localStorage.getItem("expenses")) || 29000;
-  const savings = income - expenses;
-
+  const income = Number(user.salary) || 0;
+  const expenses = Number(user.expenses) || 0;
+  const savings = Math.max(income - expenses, 0);
   const savingRate = income > 0 ? Math.round((savings / income) * 100) : 0;
 
-  // LEARNING DATA (Finance School preview)
-  const learning = JSON.parse(localStorage.getItem("learning")) || {
-    completed: ["basics", "spending", "property"],
-    xp: 120,
-    level: 2,
-    streak: 4,
-  };
+  const simulation = user.simulation || {};
 
-  // GOALS (dynamic per strategy)
   const goals =
     user.strategy === "Property"
       ? [
-          { name: "Emergency Fund", value: 60 },
-          { name: "Deposit Saved", value: 25 },
-          { name: "Bond Readiness", value: 10 },
+          { name: "Emergency Fund", value: savingRate > 20 ? 70 : 40 },
+          { name: "Deposit Saved", value: savingRate > 15 ? 40 : 20 },
+          { name: "Bond Readiness", value: savingRate > 25 ? 20 : 10 },
         ]
       : user.strategy === "Catch-Up"
         ? [
@@ -43,160 +36,144 @@ export default function Profile() {
 
   return (
     <div className="profile">
+      <AppNav />
+
       <div className="container">
-        {/* ================= NAV ================= */}
-        <nav className="navbar">
-          <h1 className="logo">ABSA Wealth Studio</h1>
-
-          <div className="nav-links">
-            <button onClick={() => navigate("/money")}>Snapshot</button>
-            <button onClick={() => navigate("/track")}>Tracks</button>
-            <button onClick={() => navigate("/simulation")}>Simulation</button>
-            <button className="active">Profile</button>
-          </div>
-        </nav>
-
-        {/* ================= GRID ================= */}
         <div className="profile-container">
-          {/* ========== LEFT MAIN CARD ========== */}
-          <div className="card glass">
-            {/* TOP */}
-            <div className="profile-top">
-              <div className="avatar">
-                {user.name?.charAt(0)?.toUpperCase() || "U"}
+          {/* LEFT */}
+          <div className="left-column">
+            {/* MAIN CARD */}
+            <div className="card glass">
+              <div className="profile-top">
+                <div className="avatar">
+                  {user.name?.charAt(0)?.toUpperCase() || "U"}
+                </div>
+
+                <div className="profile-info">
+                  <h2>{user.name || "User"}</h2>
+                  <p>Financial growth journey</p>
+                  <span className="tag">
+                    {user.strategy || "No strategy"} Track
+                  </span>
+                </div>
+
+                <button onClick={() => navigate("/setup")}>Edit</button>
               </div>
 
-              <div className="profile-info">
-                <h2>{user.name || "User"}</h2>
-                <p>Financial growth journey</p>
-                <span className="tag">
-                  {user.strategy || "No strategy"} Track
-                </span>
-              </div>
-
-              <button className="edit-btn" onClick={() => navigate("/setup")}>
-                Edit Profile
-              </button>
-            </div>
-
-            {/* DONUT */}
-            <div className="donut-section">
-              <div
-                className="donut"
-                style={{
-                  background: `conic-gradient(
-                    #84a794 ${savingRate * 3.6}deg,
-                    #1a1f1e 0deg
-                  )`,
-                }}
-              >
-                <div className="donut-inner">{savingRate}%</div>
-              </div>
-              <p>Saving Rate</p>
-            </div>
-
-            {/* SNAPSHOT */}
-            <div className="snapshot">
-              <div>
-                <p>Income</p>
-                <h4>R{income.toLocaleString()}</h4>
-              </div>
-
-              <div>
-                <p>Savings</p>
-                <h4>R{savings.toLocaleString()}</h4>
-              </div>
-
-              <div>
-                <p>Expenses</p>
-                <h4>R{expenses.toLocaleString()}</h4>
-              </div>
-            </div>
-
-            {/* GOALS */}
-            <div className="section">
-              <h3>Goals & Progress</h3>
-
-              {goals.map((goal, i) => (
-                <div key={i} className="goal-block">
-                  <div className="goal">
-                    <span>{goal.name}</span>
-                    <span>{goal.value}%</span>
+              <div className="profile-main">
+                <div>
+                  <div
+                    className="donut"
+                    style={{
+                      background: `conic-gradient(#84a794 ${
+                        savingRate * 3.6
+                      }deg, #1a1f1e 0deg)`,
+                    }}
+                  >
+                    <div className="donut-inner">{savingRate}%</div>
                   </div>
+                  <p className="center-text">Saving Rate</p>
+                </div>
 
-                  <div className="bar">
-                    <div
-                      className="bar-fill"
-                      style={{ width: `${goal.value}%` }}
-                    ></div>
+                <div className="snapshot">
+                  <div>
+                    <p>Income</p>
+                    <h4>R {income.toLocaleString()}</h4>
+                  </div>
+                  <div>
+                    <p>Expenses</p>
+                    <h4>R {expenses.toLocaleString()}</h4>
+                  </div>
+                  <div>
+                    <p>Savings</p>
+                    <h4>R {savings.toLocaleString()}</h4>
                   </div>
                 </div>
-              ))}
+              </div>
             </div>
 
-            {/* CTA */}
-            <button className="pill wide" onClick={() => navigate("/track")}>
-              Adjust Strategy →
-            </button>
+            {/* PROPERTY */}
+            {user.housePrice && (
+              <div className="card glass property-box">
+                <h3>Property Goal</h3>
+
+                <div className="property-row">
+                  <span>Target</span>
+                  <strong>R {Number(user.housePrice).toLocaleString()}</strong>
+                </div>
+
+                <div className="property-row">
+                  <span>Deposit</span>
+                  <strong>
+                    R {Number(user.depositAmount || 0).toLocaleString()}
+                  </strong>
+                </div>
+
+                <div className="property-row">
+                  <span>Deposit %</span>
+                  <strong>{user.depositPercent || 0}%</strong>
+                </div>
+              </div>
+            )}
+
+            {/* ✅ GOALS NOW DIRECTLY UNDER PROPERTY */}
+            <div className="card glass">
+              <h3>Goals & Progress</h3>
+
+              <div className="goals-grid">
+                {goals.map((goal, i) => (
+                  <div key={i} className="goal-card">
+                    <div className="goal">
+                      <span>{goal.name}</span>
+                      <span>{goal.value}%</span>
+                    </div>
+
+                    <div className="bar">
+                      <div
+                        className="bar-fill"
+                        style={{ width: `${goal.value}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
 
-          {/* ========== RIGHT SIDE ========== */}
+          {/* RIGHT */}
           <div className="profile-side">
-            {/* INSIGHTS */}
             <div className="card glass">
               <h3>Insights</h3>
 
-              <div className="side-item">
+              <p>
                 {savingRate > 25
-                  ? "You're building strong financial momentum"
-                  : "Increase your savings to improve growth"}
-              </div>
+                  ? "You're in a strong financial position"
+                  : "Increase your savings to improve your position"}
+              </p>
 
-              <div className="side-item">
-                Based on your track:{" "}
-                <span className="accent">{user.strategy}</span>
-              </div>
+              <p>
+                Strategy:{" "}
+                <span className="accent">
+                  {user.strategy || "Not selected"}
+                </span>
+              </p>
+
+              <button onClick={() => navigate("/learn")} className="pill">
+                Go to Finance School →
+              </button>
             </div>
 
-            {/* NEXT ACTIONS */}
             <div className="card glass">
               <h3>Next Actions</h3>
-
-              <div className="side-item">Update financial details</div>
-              <div className="side-item">Run a simulation</div>
+              <p>Update financial details</p>
+              <p>Run simulation</p>
 
               <div className="side-actions">
                 <button onClick={() => navigate("/setup")}>Edit</button>
-
                 <button onClick={() => navigate("/simulation")}>
                   Simulate
                 </button>
               </div>
-            </div>
-
-            {/* FINANCE SCHOOL PREVIEW */}
-            <div className="card glass">
-              <h3>Finance School</h3>
-
-              <p>Continue building your financial knowledge</p>
-
-              <div className="mini-progress">
-                <div
-                  style={{
-                    width: `${(learning.completed.length / 10) * 100}%`,
-                  }}
-                ></div>
-              </div>
-
-              <div className="side-item">
-                {learning.completed.length} / 10 modules completed
-              </div>
-
-              <div className="side-item">🔥 {learning.streak} day streak</div>
-
-              <button className="pill" onClick={() => navigate("/learn")}>
-                Open Finance School →
-              </button>
             </div>
           </div>
         </div>
