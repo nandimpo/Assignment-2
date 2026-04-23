@@ -154,6 +154,165 @@ export default function Home() {
             <p>Test decisions</p>
           </div>
         </section>
+
+        {/* ── STRATEGY TRACKS PREVIEW ── */}
+        <section className="preview-section fade-in">
+          <div className="preview-header">
+            <div>
+              <h3>Strategy Tracks</h3>
+              <p className="muted">
+                Pathways built around your goals & life stage
+              </p>
+            </div>
+            <button className="primary-btn" onClick={() => navigate("/track")}>
+              View Tracks →
+            </button>
+          </div>
+
+          <div className="preview-grid">
+            {/* AVAILABLE */}
+            <div
+              className="preview-card available"
+              onClick={() => navigate("/track")}
+            >
+              <div className="preview-card-icon">🏠</div>
+              <div className="preview-card-body">
+                <div className="preview-card-title-row">
+                  <span className="preview-card-name">First Property Path</span>
+                  <span className="badge available-badge">Active</span>
+                </div>
+                <p className="preview-card-sub">
+                  Save for a home deposit in 3–5 years
+                </p>
+                <p className="preview-card-focus">
+                  <span className="label">Focus</span> Saving &amp; Stability
+                </p>
+              </div>
+            </div>
+
+            {/* COMING SOON */}
+            <div className="preview-card coming-soon">
+              <div className="preview-card-icon muted-icon">⚖️</div>
+              <div className="preview-card-body">
+                <div className="preview-card-title-row">
+                  <span className="preview-card-name">
+                    Balanced Lifestyle &amp; Investing
+                  </span>
+                  <span className="badge soon-badge">Coming Soon</span>
+                </div>
+                <p className="preview-card-sub">
+                  Maintain your lifestyle while building wealth
+                </p>
+                <p className="preview-card-focus">
+                  <span className="label">Focus</span> Flexibility &amp;
+                  Investing
+                </p>
+              </div>
+            </div>
+
+            <div className="preview-card coming-soon">
+              <div className="preview-card-icon muted-icon">🛡️</div>
+              <div className="preview-card-body">
+                <div className="preview-card-title-row">
+                  <span className="preview-card-name">Foundation Builder</span>
+                  <span className="badge soon-badge">Coming Soon</span>
+                </div>
+                <p className="preview-card-sub">
+                  Build financial stability from scratch
+                </p>
+                <p className="preview-card-focus">
+                  <span className="label">Focus</span> Emergency Funds &amp;
+                  Basics
+                </p>
+              </div>
+            </div>
+
+            <div className="preview-card coming-soon">
+              <div className="preview-card-icon muted-icon">🔄</div>
+              <div className="preview-card-body">
+                <div className="preview-card-title-row">
+                  <span className="preview-card-name">
+                    Lifestyle Correction
+                  </span>
+                  <span className="badge soon-badge">Coming Soon</span>
+                </div>
+                <p className="preview-card-sub">
+                  Rebalance spending and reduce debt
+                </p>
+                <p className="preview-card-focus">
+                  <span className="label">Focus</span> Behavioural Change
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── SIMULATIONS PREVIEW ── */}
+        <section className="preview-section fade-in">
+          <div className="preview-header">
+            <div>
+              <h3>Simulation Lab</h3>
+              <p className="muted">
+                Test financial decisions before you make them
+              </p>
+            </div>
+            <button
+              className="primary-btn"
+              onClick={() => navigate("/simulation")}
+            >
+              Open Lab →
+            </button>
+          </div>
+
+          <div className="sim-preview-grid">
+            {/* AVAILABLE */}
+            <div
+              className="sim-card available"
+              onClick={() => navigate("/simulation")}
+            >
+              <div className="sim-card-top">
+                <span className="sim-icon">🏘️</span>
+                <span className="badge available-badge">Available</span>
+              </div>
+              <h4>Buy vs Rent</h4>
+              <p className="muted">
+                Compare the true long-term cost of buying a home vs renting
+              </p>
+            </div>
+
+            {/* COMING SOON × 3 */}
+            <div className="sim-card coming-soon">
+              <div className="sim-card-top">
+                <span className="sim-icon muted-icon">📈</span>
+                <span className="badge soon-badge">Coming Soon</span>
+              </div>
+              <h4>Investment Growth</h4>
+              <p className="muted">
+                Project returns across different asset classes over time
+              </p>
+            </div>
+
+            <div className="sim-card coming-soon">
+              <div className="sim-card-top">
+                <span className="sim-icon muted-icon">💳</span>
+                <span className="badge soon-badge">Coming Soon</span>
+              </div>
+              <h4>Debt Payoff Planner</h4>
+              <p className="muted">Find the fastest path to being debt-free</p>
+            </div>
+
+            <div className="sim-card coming-soon">
+              <div className="sim-card-top">
+                <span className="sim-icon muted-icon">🎯</span>
+                <span className="badge soon-badge">Coming Soon</span>
+              </div>
+              <h4>Retirement Readiness</h4>
+              <p className="muted">
+                See if you're on track for the retirement you want
+              </p>
+            </div>
+          </div>
+        </section>
       </div>
 
       {/* 🔥 FINANCE SCHOOL ORB */}

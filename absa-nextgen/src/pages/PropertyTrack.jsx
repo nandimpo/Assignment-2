@@ -214,6 +214,40 @@ export default function PropertyTrack() {
             </div>
           </div>
         </div>
+        {/* COMPARE STRATEGY TRACKS */}
+        <div className="track-card compare-card">
+          <h3>Compare Strategy Tracks</h3>
+          <p className="compare-sub">
+            See how the three paths differ at a glance
+          </p>
+
+          <div className="compare-grid">
+            <div className="compare-column active">
+              <p className="tag">First Property Path</p>
+              <ul>
+                <li>Saving Focus — High</li>
+                <li>Lifestyle — Low</li>
+                <li>Wealth Growth — Long-term</li>
+              </ul>
+            </div>
+            <div className="compare-column">
+              <p className="tag">Balanced Lifestyle</p>
+              <ul>
+                <li>Saving Focus — Medium</li>
+                <li>Lifestyle — High</li>
+                <li>Wealth Growth — Medium</li>
+              </ul>
+            </div>
+            <div className="compare-column">
+              <p className="tag">Catch-Up Wealth</p>
+              <ul>
+                <li>Saving Focus — High</li>
+                <li>Lifestyle — Low</li>
+                <li>Wealth Growth — Accelerated</li>
+              </ul>
+            </div>
+          </div>
+        </div>
 
         {/* TRACK ADJUST */}
         <div className="track-grid">
