@@ -21,6 +21,11 @@ export default function Setup() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  /* ================= EMAIL VALIDATION (ADDED) ================= */
+  const isValidEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
   /* AUTO SUGGESTION */
   useEffect(() => {
     const salary = Number(form.salary);
@@ -52,6 +57,15 @@ export default function Setup() {
 
   const handleSubmit = () => {
     const user = JSON.parse(sessionStorage.getItem("user")) || {};
+
+    /* ================= EMAIL CHECK (ADDED) ================= */
+    if (!user.email || !isValidEmail(user.email)) {
+      alert(
+        "Invalid email detected. Please register with a valid email (must include @ and .)",
+      );
+      navigate("/register");
+      return;
+    }
 
     const updatedUser = {
       ...user,
@@ -110,6 +124,7 @@ export default function Setup() {
               </div>
             </div>
           </div>
+
           {/* ================= INPUTS ================= */}
           <input
             name="salary"
