@@ -20,6 +20,14 @@ export default function Register() {
       return;
     }
 
+    // ✅ Simple email check (allows fake emails but enforces @)
+    const emailValid = /^[^\s@]+@[^\s@]+$/.test(form.email);
+
+    if (!emailValid) {
+      setError("Please enter a valid email (must include @).");
+      return;
+    }
+
     if (form.password.length < 6) {
       setError("Password must be at least 6 characters.");
       return;
@@ -27,20 +35,19 @@ export default function Register() {
 
     const user = {
       name: form.name,
-      email: form.email,
+      email: form.email.toLowerCase(), // ✅ normalize
       password: form.password,
       isSetupComplete: false,
       strategy: null,
       simulations: [],
     };
 
-    // Save user (session-based)
+    // Save user
     sessionStorage.setItem("user", JSON.stringify(user));
 
-    //  Create session
+    // Create session
     sessionStorage.setItem("session", JSON.stringify({ loggedIn: true }));
 
-    //  CORRECT FLOW → GO TO SETUP
     navigate("/setup");
   };
 

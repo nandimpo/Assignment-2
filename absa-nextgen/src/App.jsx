@@ -1,5 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
+/* ================= SCROLL FIX ================= */
+import ScrollToTop from "./components/ScrollToTop";
+
 /* ================= PAGES ================= */
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
@@ -18,7 +21,7 @@ import Support from "./pages/Support";
 function ProtectedRoute({ children }) {
   const session = sessionStorage.getItem("session");
 
-  //  not logged in
+  // not logged in
   if (!session) {
     return <Navigate to="/login" replace />;
   }
@@ -30,6 +33,9 @@ function ProtectedRoute({ children }) {
 export default function App() {
   return (
     <BrowserRouter basename={import.meta.env.BASE_URL}>
+      {/* 🔥 THIS FIXES YOUR SCROLL ISSUE */}
+      <ScrollToTop />
+
       <Routes>
         {/* ================= PUBLIC ================= */}
         <Route path="/" element={<Landing />} />
