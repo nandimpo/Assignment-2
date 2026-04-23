@@ -42,7 +42,7 @@ export default function Login() {
   return (
     <div className="login-page">
       <div className="login-nav">
-        <h1>ABSA Wealth</h1>
+        <h1>ABSA Wealth Studio</h1>
         <div>
           <button onClick={() => navigate("/")}>Home</button>
           <button onClick={() => navigate("/register")}>Register</button>

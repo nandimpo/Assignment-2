@@ -1,5 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import "../styles/nav.css";
+import logo from "../assets/logo.png"; // ✅ ADD THIS
 
 export default function AppNav() {
   const navigate = useNavigate();
@@ -7,7 +8,7 @@ export default function AppNav() {
 
   const isActive = (path) => location.pathname === path;
 
-  // 🔥 NEW: page-based class
+  // 🔥 page-based class
   const getPageClass = () => {
     if (location.pathname.includes("learn")) return "nav-learn";
     if (location.pathname.includes("money")) return "nav-money";
@@ -19,7 +20,11 @@ export default function AppNav() {
 
   return (
     <div className={`nav ${getPageClass()}`}>
-      <h1 className="logo">ABSA Wealth Studio</h1>
+      {/* ✅ LOGO (UPDATED) */}
+      <div className="logo" onClick={() => navigate("/home")}>
+        <img src={logo} alt="logo" className="logo-img" />
+        <span className="logo-text">ABSA Wealth Studio</span>
+      </div>
 
       <div className="nav-links">
         <button

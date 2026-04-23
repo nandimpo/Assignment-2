@@ -15,7 +15,7 @@ import {
 import coins from "../assets/coins.png";
 import magnifier from "../assets/magnifier.png";
 import house from "../assets/house.png";
-import settings from "../assets/settings.png"; // ✅ FIXED
+import settings from "../assets/settings.png";
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -60,8 +60,11 @@ export default function Landing() {
             Start Your Journey
           </button>
 
+          {/* PLANET */}
           <div className="hero-planet">
-            <img src={planet} alt="planet" />
+            <div className="hero-planet-inner">
+              <img src={planet} alt="planet" />
+            </div>
           </div>
 
           <div

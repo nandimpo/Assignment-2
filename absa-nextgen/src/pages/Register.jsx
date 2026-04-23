@@ -34,13 +34,13 @@ export default function Register() {
       simulations: [],
     };
 
-    // ✅ Save user (session-based)
+    // Save user (session-based)
     sessionStorage.setItem("user", JSON.stringify(user));
 
-    // ✅ Create session
+    //  Create session
     sessionStorage.setItem("session", JSON.stringify({ loggedIn: true }));
 
-    // 🔥 CORRECT FLOW → GO TO SETUP
+    //  CORRECT FLOW → GO TO SETUP
     navigate("/setup");
   };
 
@@ -48,7 +48,7 @@ export default function Register() {
     <div className="login-page">
       {/* NAV */}
       <div className="login-nav">
-        <h1>ABSA Wealth</h1>
+        <h1>ABSA Wealth Studio</h1>
 
         <div>
           <button onClick={() => navigate("/")}>Home</button>

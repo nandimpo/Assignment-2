@@ -1,6 +1,5 @@
-/* ========================= */
 /* PAGE */
-/* ========================= */
+
 .setup-page {
   background: radial-gradient(circle at top, #0b0f0e, #020202);
   min-height: 100vh;
@@ -14,9 +13,8 @@
   justify-content: center;
 }
 
-/* ========================= */
 /* CARD */
-/* ========================= */
+
 .setup-card {
   width: 100%;
   max-width: 420px;
@@ -43,9 +41,8 @@
   color: #8fa3a0;
 }
 
-/* ========================= */
 /* TRACK SELECT — PREMIUM */
-/* ========================= */
+
 .track-options {
   display: flex;
   flex-direction: column;
@@ -118,9 +115,8 @@
   cursor: not-allowed;
 }
 
-/* ========================= */
 /* INPUTS */
-/* ========================= */
+
 .setup-card input {
   padding: 12px;
   border-radius: 10px;
@@ -138,9 +134,8 @@
   box-shadow: 0 0 10px rgba(132, 167, 148, 0.2);
 }
 
-/* ========================= */
 /* DEPOSIT CARD */
-/* ========================= */
+
 .deposit-card {
   padding: 16px;
   border-radius: 14px;
@@ -194,9 +189,8 @@
   color: #84a794;
 }
 
-/* ========================= */
 /* BUTTON */
-/* ========================= */
+
 .btn.primary {
   margin-top: 12px;
   padding: 12px;
@@ -214,9 +208,8 @@
   box-shadow: 0 0 20px rgba(132, 167, 148, 0.35);
 }
 
-/* ========================= */
 /* ANIMATIONS */
-/* ========================= */
+
 @keyframes pulseGlow {
   0% {
     opacity: 0.4;

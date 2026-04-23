@@ -1,6 +1,5 @@
-/* ========================= */
 /* NAV BASE (SHARED) */
-/* ========================= */
+
 .nav {
   position: fixed;
   top: 0;
@@ -23,17 +22,15 @@
   transition: all 0.4s ease; /* 🔥 smooth glow transitions */
 }
 
-/* ========================= */
 /* LOGO */
-/* ========================= */
+
 .logo {
   color: #d6a85a;
   font-weight: 600;
 }
 
-/* ========================= */
 /* LINKS */
-/* ========================= */
+
 .nav-links {
   display: flex;
   align-items: center;
@@ -57,54 +54,90 @@
   transform: translateY(-1px);
 }
 
-/* ========================= */
 /* PRIMARY BUTTON */
-/* ========================= */
+
 .nav-links .primary {
   background: linear-gradient(135deg, #84a794, #2c3a36);
 }
 
-/* ========================= */
 /* ACTIVE LINK (APP ONLY) */
-/* ========================= */
+
 .nav-links button.active {
   background: rgba(132, 167, 148, 0.2);
   box-shadow: 0 0 12px rgba(132, 167, 148, 0.4);
 }
 
-/* ========================= */
 /* 🌌 PAGE GLOW SYSTEM (APP ONLY) */
-/* ========================= */
 
 /* default (landing safe) */
+
+/* 🌌 ENHANCED NAV GLOW SYSTEM */
+
+/* base glow (always on slightly) */
+.nav {
+  box-shadow:
+    0 0 20px rgba(132, 167, 148, 0.08),
+    0 0 40px rgba(132, 167, 148, 0.04);
+}
+
+/* HOME */
 .nav-home {
-  box-shadow: 0 0 20px rgba(132, 167, 148, 0.12);
+  box-shadow:
+    0 0 25px rgba(132, 167, 148, 0.18),
+    0 0 60px rgba(132, 167, 148, 0.08);
 }
 
-/* snapshot */
+/* SNAPSHOT (blue glow) */
 .nav-money {
-  box-shadow: 0 0 25px rgba(100, 180, 255, 0.15);
+  box-shadow:
+    0 0 30px rgba(100, 180, 255, 0.22),
+    0 0 70px rgba(100, 180, 255, 0.1);
 }
 
-/* tracks */
+/* TRACKS (green glow stronger) */
 .nav-track {
-  box-shadow: 0 0 25px rgba(132, 167, 148, 0.22);
+  box-shadow:
+    0 0 35px rgba(132, 167, 148, 0.28),
+    0 0 80px rgba(132, 167, 148, 0.12);
 }
 
-/* simulation */
+/* SIMULATION (purple glow) */
 .nav-sim {
-  box-shadow: 0 0 25px rgba(160, 120, 255, 0.18);
+  box-shadow:
+    0 0 35px rgba(160, 120, 255, 0.25),
+    0 0 80px rgba(160, 120, 255, 0.12);
 }
 
-/* profile */
+/* PROFILE (gold glow) */
 .nav-profile {
-  box-shadow: 0 0 25px rgba(214, 168, 90, 0.18);
+  box-shadow:
+    0 0 35px rgba(214, 168, 90, 0.25),
+    0 0 80px rgba(214, 168, 90, 0.12);
 }
 
-/* finance school (🔥 highlight) */
+/* 🔥 FINANCE SCHOOL (hero glow) */
 .nav-learn {
-  box-shadow: 0 0 35px rgba(214, 168, 90, 0.3);
+  box-shadow:
+    0 0 45px rgba(214, 168, 90, 0.4),
+    0 0 100px rgba(214, 168, 90, 0.18);
 }
 .nav {
   backdrop-filter: blur(16px);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.logo-img {
+  height: 70px; /* was 28px → slightly bigger */
+  width: auto;
+}
+
+.logo-text {
+  font-size: 16px;
+  font-weight: 600;
 }

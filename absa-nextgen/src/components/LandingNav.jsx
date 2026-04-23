@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import "../styles/nav.css";
+import logo from "../assets/logo.png"; // ✅ ADD
 
 export default function LandingNav() {
   const navigate = useNavigate();
@@ -13,10 +14,15 @@ export default function LandingNav() {
 
   return (
     <nav className="nav">
-      <h1 className="logo">ABSA Wealth Studio</h1>
+      {/* ✅ LOGO (UPDATED) */}
+      <div className="logo" onClick={() => navigate("/")}>
+        <img src={logo} alt="logo" className="logo-img" />
+        <span className="logo-text">ABSA Wealth Studio</span>
+      </div>
 
       <div className="nav-links">
         <button onClick={() => scrollTo("how")}>How it works</button>
+
         <button onClick={() => scrollTo("support")}>Support</button>
 
         <button onClick={() => navigate("/login")}>Login</button>

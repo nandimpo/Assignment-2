@@ -1,6 +1,5 @@
-/* ========================= */
 /* PAGE */
-/* ========================= */
+
 .register-page {
   display: flex;
   min-height: 100vh;
@@ -9,9 +8,8 @@
   font-family: "Inter", sans-serif;
 }
 
-/* ========================= */
 /* LEFT SIDE */
-/* ========================= */
+
 .register-left {
   flex: 1;
   background: linear-gradient(135deg, #020202, #1a2a26);
@@ -47,9 +45,8 @@
   font-size: 14px;
 }
 
-/* ========================= */
 /* RIGHT SIDE */
-/* ========================= */
+
 .register-right {
   flex: 1;
   display: flex;
@@ -133,9 +130,8 @@
   font-size: 13px;
 }
 
-/* ========================= */
 /* MOBILE */
-/* ========================= */
+
 @media (max-width: 900px) {
   .register-page {
     flex-direction: column;

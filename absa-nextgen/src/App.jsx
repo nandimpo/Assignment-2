@@ -18,7 +18,7 @@ import Support from "./pages/Support";
 function ProtectedRoute({ children }) {
   const session = sessionStorage.getItem("session");
 
-  // ❌ not logged in
+  //  not logged in
   if (!session) {
     return <Navigate to="/login" replace />;
   }

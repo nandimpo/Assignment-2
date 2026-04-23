@@ -143,7 +143,7 @@ body {
   box-shadow: 0 10px 30px rgba(132, 167, 148, 0.3);
 }
 
-/* PLANET */
+/* PLANET (FIXED - NO JUMPING) */
 .hero-planet {
   position: absolute;
   top: 50%;
@@ -151,10 +151,16 @@ body {
   transform: translate(-50%, -50%);
   z-index: 0;
   pointer-events: none;
+
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+/* animation now happens on INNER layer */
+.hero-planet-inner {
   animation: floatPlanet 10s ease-in-out infinite;
+  will-change: transform;
 }
 
 .hero-planet img {
@@ -162,10 +168,44 @@ body {
   opacity: 0.14;
   filter: blur(10px) saturate(110%);
   mix-blend-mode: screen;
+
+  /* 🔥 smoother rendering */
+  backface-visibility: hidden;
+  transform: translateZ(0);
+
   box-shadow:
     0 0 60px rgba(0, 255, 150, 0.08),
     0 0 100px rgba(0, 120, 255, 0.06);
+
   animation: planetPulse 8s ease-in-out infinite;
+}
+
+/* CLEAN animation (no translate reset) */
+@keyframes floatPlanet {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes planetPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.14;
+  }
+  50% {
+    transform: scale(1.02);
+    opacity: 0.18;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.14;
+  }
 }
 
 @keyframes floatPlanet {
