@@ -137,7 +137,7 @@ export default function PropertyTrack() {
 
           {/* AI INSIGHTS */}
           <div className="insight-block">
-            <h4>🤖 AI Insights</h4>
+            <h4> AI Insights</h4>
             {insights.map((item, i) => (
               <div key={i} className="insight">
                 {item}
