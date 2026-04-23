@@ -36,9 +36,7 @@ export default function MoneySnapshot() {
     sessionStorage.setItem("user", JSON.stringify(updatedUser));
   }, [income, expenses, savings]);
 
-  /* ========================= */
-  /* 🔥 AI INSIGHT ENGINE */
-  /* ========================= */
+  /*  AI INSIGHT ENGINE */
 
   const generateInsights = () => {
     const insights = [];
@@ -91,9 +89,7 @@ export default function MoneySnapshot() {
 
   const aiInsights = generateInsights();
 
-  /* ========================= */
   /* EXPLAINERS */
-  /* ========================= */
 
   const explainers = {
     net: {

@@ -6,22 +6,19 @@ import "../styles/home.css";
 export default function Home() {
   const navigate = useNavigate();
 
-  /* ========================= */
   /* SAFE USER (NO CRASH) */
-  /* ========================= */
+
   const user = JSON.parse(sessionStorage.getItem("user") || "{}");
 
-  /* ========================= */
   /* EXISTING DATA (UNCHANGED) */
-  /* ========================= */
+
   const income = user?.salary || 55000;
   const expenses = user?.expenses || 29000;
   const net = income - expenses;
   const savingsRate = Math.round((net / income) * 100);
 
-  /* ========================= */
   /* SMART NEXT STEP */
-  /* ========================= */
+
   let nextStep = "Move closer to your 5-year goal";
 
   if (!user?.strategy) {
@@ -32,9 +29,8 @@ export default function Home() {
     nextStep = "Track your monthly expenses";
   }
 
-  /* ========================= */
   /* NUDGE */
-  /* ========================= */
+
   const [nudgeType, setNudgeType] = useState("positive");
 
   useEffect(() => {
@@ -42,9 +38,8 @@ export default function Home() {
     else setNudgeType("positive");
   }, [savingsRate]);
 
-  /* ========================= */
   /* UI (UNCHANGED) */
-  /* ========================= */
+
   return (
     <div className="home">
       <AppNav />

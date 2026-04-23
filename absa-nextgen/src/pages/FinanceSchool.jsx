@@ -130,9 +130,8 @@ export default function FinanceSchool() {
     localStorage.setItem(storageKey, JSON.stringify(data));
   };
 
-  /* ========================= */
   /* SHOW FEEDBACK THEN FADE   */
-  /* ========================= */
+
   const showFeedback = (type) => {
     clearTimeout(feedbackTimer.current);
     setFeedback(type);
@@ -184,9 +183,8 @@ export default function FinanceSchool() {
     }
   };
 
-  /* ========================= */
   /* TRY AGAIN                 */
-  /* ========================= */
+
   const tryAgain = () => {
     setFeedbackVisible(false);
     setTimeout(() => {

@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import "../styles/nav.css";
-import logo from "../assets/logo.png"; // ✅ ADD
+import logo from "../assets/logo.png";
 
 export default function LandingNav() {
   const navigate = useNavigate();

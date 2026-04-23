@@ -13,7 +13,7 @@ export default function Login() {
 
   const [error, setError] = useState("");
 
-  // 🚫 If already logged in
+  //  If already logged in
   useEffect(() => {
     const session = sessionStorage.getItem("session");
     if (session) navigate("/home");
@@ -32,10 +32,10 @@ export default function Login() {
       return;
     }
 
-    // ✅ create session
+    //  create session
     sessionStorage.setItem("session", JSON.stringify({ loggedIn: true }));
 
-    // 🔥 ALWAYS GO HOME
+    // ALWAYS GO HOME
     navigate("/home");
   };
 

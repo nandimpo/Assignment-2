@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import "../styles/nav.css";
-import logo from "../assets/logo.png"; // ✅ ADD THIS
+import logo from "../assets/logo.png";
 
 export default function AppNav() {
   const navigate = useNavigate();
