@@ -20,7 +20,7 @@ export default function Register() {
       return;
     }
 
-    // ✅ Simple email check (allows fake emails but enforces @)
+    // Simple email check (allows fake emails but enforces @)
     const emailValid = /^[^\s@]+@[^\s@]+$/.test(form.email);
 
     if (!emailValid) {

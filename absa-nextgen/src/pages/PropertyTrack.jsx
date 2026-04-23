@@ -31,9 +31,8 @@ export default function PropertyTrack() {
   const [growth, setGrowth] = useState(50);
   const [showSuggestion, setShowSuggestion] = useState(false);
 
-  /* ========================= */
   /* 🔥 AI INSIGHT ENGINE */
-  /* ========================= */
+
   const insights = [];
 
   if (savingsRate < 15) {
@@ -66,9 +65,8 @@ export default function PropertyTrack() {
     );
   }
 
-  /* ========================= */
-  /* 🔥 TRACK LOGIC */
-  /* ========================= */
+  /*  TRACK LOGIC */
+
   const getSuggestedTrack = () => {
     if (savingFocus > 70 && lifestyle < 40) {
       return {
@@ -95,9 +93,8 @@ export default function PropertyTrack() {
 
   const suggestedTrack = getSuggestedTrack();
 
-  /* ========================= */
   /* EXPLAINERS */
-  /* ========================= */
+
   const explainers = {
     bond: {
       title: "Bond Pre-Approval",

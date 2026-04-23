@@ -4,9 +4,8 @@ import "../styles/simulation.css";
 import AppNav from "../components/AppNav";
 import ExplainerPanel from "../components/ExplainerPanel";
 
-/* ========================= */
 /* DEFAULT VALUES            */
-/* ========================= */
+
 const DEFAULTS = {
   salary: 45000,
   rent: 12000,
@@ -27,9 +26,8 @@ export default function SimulationLab() {
   const [showPanel, setShowPanel] = useState(false);
   const [content, setContent] = useState(null);
 
-  /* ========================= */
   /* RESET / REBALANCE         */
-  /* ========================= */
+
   const [resetting, setResetting] = useState(false);
 
   const handleReset = () => {
@@ -46,9 +44,8 @@ export default function SimulationLab() {
     setTimeout(() => setResetting(false), 600);
   };
 
-  /* ========================= */
   /* CALCULATIONS */
-  /* ========================= */
+
   const rentTotal = rent * 12 * years;
   const bondMonthly = (price * (interest / 100)) / 12;
   const buyTotal = bondMonthly * 12 * years;
@@ -56,9 +53,8 @@ export default function SimulationLab() {
 
   const maxValue = Math.max(rentTotal, buyTotal);
 
-  /* ========================= */
   /* AI-STYLE VERDICT */
-  /* ========================= */
+
   let verdict = "";
   let tone = "";
 
@@ -77,9 +73,8 @@ export default function SimulationLab() {
     tone = "neutral";
   }
 
-  /* ========================= */
   /* AI INSIGHTS ENGINE */
-  /* ========================= */
+
   const insights = [];
 
   if (interest > 13) {
@@ -112,9 +107,8 @@ export default function SimulationLab() {
     );
   }
 
-  /* ========================= */
   /* EXPLAINER */
-  /* ========================= */
+
   const explainerText = `
 This simulation compares the total cost of renting versus buying over a selected time horizon.
 

@@ -179,7 +179,7 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* 🔥 FINANCE SCHOOL ORB */}
+      {/* FINANCE SCHOOL ORB */}
       <div
         className="finance-orb"
         onClick={() => navigate("/learn")}
