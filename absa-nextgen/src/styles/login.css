@@ -1,20 +1,49 @@
+/* ========================= */
 /* PAGE */
+/* ========================= */
 html {
   scroll-behavior: smooth;
 }
+
 .login-page {
   background: black;
   color: white;
   min-height: 100vh;
   font-family: "Inter", sans-serif;
+
+  animation: fadePage 0.6s ease;
 }
 
+@keyframes fadePage {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ========================= */
 /* NAV */
+/* ========================= */
 .login-nav {
   display: flex;
   justify-content: space-between;
   padding: 20px 40px;
   align-items: center;
+
+  animation: slideDown 0.6s ease;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 .login-nav h1 {
@@ -30,33 +59,84 @@ html {
   background: #1a1a1a;
   color: white;
   cursor: pointer;
+  transition: 0.3s ease;
 }
 
+.login-nav button:hover {
+  transform: translateY(-2px);
+  background: #222;
+}
+
+/* ========================= */
 /* CONTAINER */
+/* ========================= */
 .login-container {
   display: flex;
   height: calc(100vh - 80px);
 }
 
+/* ========================= */
 /* LEFT */
+/* ========================= */
 .login-left {
   flex: 1;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+
+  animation: slideLeft 0.8s ease;
+}
+
+@keyframes slideLeft {
+  from {
+    transform: translateX(-40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 .login-left img {
   width: 70%;
   transform: rotate(180deg);
   opacity: 0.9;
+
+  /* ✨ FLOAT + ROTATE */
+  animation:
+    floatPlanet 8s ease-in-out infinite,
+    rotatePlanet 40s linear infinite;
+}
+
+@keyframes floatPlanet {
+  0% {
+    transform: rotate(180deg) translateY(0px);
+  }
+  50% {
+    transform: rotate(180deg) translateY(-12px);
+  }
+  100% {
+    transform: rotate(180deg) translateY(0px);
+  }
+}
+
+@keyframes rotatePlanet {
+  0% {
+    transform: rotate(180deg) rotate(0deg);
+  }
+  100% {
+    transform: rotate(180deg) rotate(360deg);
+  }
 }
 
 .brand {
   position: absolute;
   bottom: 60px;
   text-align: center;
+
+  animation: fadeUp 1s ease;
 }
 
 .brand h2 {
@@ -68,13 +148,28 @@ html {
   font-size: 14px;
 }
 
+/* ========================= */
 /* RIGHT */
+/* ========================= */
 .login-right {
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
   padding: 80px;
+
+  animation: slideRight 0.8s ease;
+}
+
+@keyframes slideRight {
+  from {
+    transform: translateX(40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 .login-right h2 {
@@ -87,7 +182,9 @@ html {
   margin-bottom: 20px;
 }
 
+/* ========================= */
 /* SOCIAL */
+/* ========================= */
 .socials {
   display: flex;
   gap: 10px;
@@ -101,16 +198,26 @@ html {
   background: #1a1a1a;
   border: none;
   color: white;
+  transition: 0.3s ease;
 }
 
+.socials button:hover {
+  transform: translateY(-2px);
+  background: #222;
+}
+
+/* ========================= */
 /* DIVIDER */
+/* ========================= */
 .divider {
   text-align: center;
   margin: 10px 0;
   color: #777;
 }
 
-/* INPUTS (LINE STYLE) */
+/* ========================= */
+/* INPUTS */
+/* ========================= */
 form input {
   width: 100%;
   background: transparent;
@@ -119,9 +226,18 @@ form input {
   padding: 10px 0;
   margin-bottom: 20px;
   color: white;
+  transition: 0.3s ease;
 }
 
+form input:focus {
+  outline: none;
+  border-bottom: 1px solid #84a794;
+  box-shadow: 0 6px 20px rgba(132, 167, 148, 0.2);
+}
+
+/* ========================= */
 /* OPTIONS */
+/* ========================= */
 .options {
   display: flex;
   justify-content: space-between;
@@ -130,7 +246,9 @@ form input {
   margin-bottom: 20px;
 }
 
+/* ========================= */
 /* BUTTON */
+/* ========================= */
 .submit {
   width: 100%;
   padding: 12px;
@@ -140,9 +258,17 @@ form input {
   color: black;
   font-weight: 500;
   cursor: pointer;
+  transition: 0.3s ease;
 }
 
+.submit:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 10px 30px rgba(132, 167, 148, 0.3);
+}
+
+/* ========================= */
 /* SWITCH */
+/* ========================= */
 .switch {
   margin-top: 20px;
   font-size: 13px;
@@ -152,8 +278,16 @@ form input {
 .switch span {
   color: white;
   cursor: pointer;
+  transition: 0.2s ease;
 }
-/* ERROR MESSAGE */
+
+.switch span:hover {
+  color: #84a794;
+}
+
+/* ========================= */
+/* ERROR */
+/* ========================= */
 .error {
   background: rgba(255, 80, 80, 0.1);
   border: 1px solid rgba(255, 80, 80, 0.3);
@@ -162,4 +296,38 @@ form input {
   color: #ff6b6b;
   margin-bottom: 15px;
   font-size: 13px;
+
+  animation: shake 0.3s ease;
+}
+
+@keyframes shake {
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  50% {
+    transform: translateX(4px);
+  }
+  75% {
+    transform: translateX(-2px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+/* ========================= */
+/* SHARED ANIM */
+/* ========================= */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

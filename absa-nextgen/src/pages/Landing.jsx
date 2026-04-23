@@ -15,6 +15,7 @@ import {
 import coins from "../assets/coins.png";
 import magnifier from "../assets/magnifier.png";
 import house from "../assets/house.png";
+import settings from "../assets/settings.png"; // ✅ FIXED
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -50,7 +51,6 @@ export default function Landing() {
         <div className="hero-content container">
           <h1>Your First Five Years Start Here</h1>
 
-          {/* ✅ STRONGER VALUE PROP */}
           <p className="hero-sub">
             A smart financial system that helps you{" "}
             <strong>learn, plan, and build wealth</strong> — all in one place.
@@ -59,7 +59,7 @@ export default function Landing() {
           <button className="primary-btn" onClick={() => navigate("/login")}>
             Start Your Journey
           </button>
-          {/* 🌍 PLANET VISUAL */}
+
           <div className="hero-planet">
             <img src={planet} alt="planet" />
           </div>
@@ -90,10 +90,9 @@ export default function Landing() {
             everything connects to help you make smarter decisions.
           </p>
 
-          {/* ✅ NEW CONTEXTUAL INTRO */}
           <p className="highlight">
-            Built for young professionals navigating their first real financial
-            chapter.
+            Built for young South African professionals navigating their first
+            real financial chapter.
           </p>
         </div>
 
@@ -141,7 +140,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ✅ FINANCE SCHOOL SECTION */}
+      {/* FINANCE SCHOOL */}
       <section className="section container fade-in">
         <div className="text">
           <h2>Finance School</h2>
@@ -177,7 +176,7 @@ export default function Landing() {
           <p>You’re never guessing — the system guides you forward.</p>
         </div>
 
-        <img src={house} className="image" alt="house" />
+        <img src={settings} className="image" alt="settings" />
       </section>
 
       {/* CTA */}

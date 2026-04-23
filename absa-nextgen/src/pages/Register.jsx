@@ -45,49 +45,64 @@ export default function Register() {
   };
 
   return (
-    <div className="register-page">
-      <div className="register-left">
-        <div className="brand-box">
-          <img src={planet} alt="planet" className="planet" />
+    <div className="login-page">
+      {/* NAV */}
+      <div className="login-nav">
+        <h1>ABSA Wealth</h1>
 
-          <h2>ABSA NextGen Wealth</h2>
-          <p>First Five Years Financial Studio</p>
+        <div>
+          <button onClick={() => navigate("/")}>Home</button>
+          <button onClick={() => navigate("/login")}>Login</button>
         </div>
       </div>
 
-      <div className="register-right">
-        <div className="form-box">
-          <h1>Create Account</h1>
-          <p className="subtitle">Start your journey to financial clarity</p>
+      {/* REGISTER PAGE */}
+      <div className="register-page">
+        {/* LEFT */}
+        <div className="register-left">
+          <div className="brand-box">
+            <img src={planet} alt="planet" className="planet" />
 
-          {error && <div className="error">{error}</div>}
+            <h2>ABSA NextGen Wealth</h2>
+            <p>First Five Years Financial Studio</p>
+          </div>
+        </div>
 
-          <input
-            placeholder="Your Name"
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-          />
+        {/* RIGHT */}
+        <div className="register-right">
+          <div className="form-box">
+            <h1>Create Account</h1>
+            <p className="subtitle">Start your journey to financial clarity</p>
 
-          <input
-            type="email"
-            placeholder="Email"
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-          />
+            {error && <div className="error">{error}</div>}
 
-          <input
-            type="password"
-            placeholder="Password"
-            value={form.password}
-            onChange={(e) => setForm({ ...form, password: e.target.value })}
-          />
+            <input
+              placeholder="Your Name"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+            />
 
-          <button onClick={handleRegister}>Continue</button>
+            <input
+              type="email"
+              placeholder="Email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+            />
 
-          <p className="switch">
-            Already have an account?{" "}
-            <span onClick={() => navigate("/login")}>Login</span>
-          </p>
+            <input
+              type="password"
+              placeholder="Password"
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+            />
+
+            <button onClick={handleRegister}>Continue</button>
+
+            <p className="switch">
+              Already have an account?{" "}
+              <span onClick={() => navigate("/login")}>Login</span>
+            </p>
+          </div>
         </div>
       </div>
     </div>
