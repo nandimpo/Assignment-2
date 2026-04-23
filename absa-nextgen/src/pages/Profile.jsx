@@ -15,6 +15,13 @@ export default function Profile() {
 
   const simulation = user.simulation || {};
 
+  // ✅ LOGOUT FUNCTION ADDED
+  const handleLogout = () => {
+    sessionStorage.removeItem("session");
+    sessionStorage.removeItem("user"); // optional: remove user data too
+    navigate("/login");
+  };
+
   const goals =
     user.strategy === "Property"
       ? [
@@ -58,6 +65,18 @@ export default function Profile() {
                 </div>
 
                 <button onClick={() => navigate("/setup")}>Edit</button>
+
+                {/* ✅ LOGOUT BUTTON ADDED */}
+                <button
+                  onClick={handleLogout}
+                  style={{
+                    marginLeft: "10px",
+                    background: "#ff4d4f",
+                    color: "white",
+                  }}
+                >
+                  Logout
+                </button>
               </div>
 
               <div className="profile-main">

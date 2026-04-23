@@ -20,11 +20,18 @@ export default function Register() {
       return;
     }
 
-    // Simple email check (allows fake emails but enforces @)
-    const emailValid = /^[^\s@]+@[^\s@]+$/.test(form.email);
+    let email = form.email.trim();
+
+    // ✅ AUTO-ADD DOMAIN if user forgot @
+    if (!email.includes("@")) {
+      email = email + "@example.com";
+    }
+
+    // ✅ STRICT email check (@ and . required)
+    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
     if (!emailValid) {
-      setError("Please enter a valid email (must include @).");
+      setError("Please enter a valid email (must include @ and .)");
       return;
     }
 
@@ -35,7 +42,7 @@ export default function Register() {
 
     const user = {
       name: form.name,
-      email: form.email.toLowerCase(), // ✅ normalize
+      email: email.toLowerCase(), // ✅ uses updated email
       password: form.password,
       isSetupComplete: false,
       strategy: null,
@@ -91,7 +98,7 @@ export default function Register() {
 
             <input
               type="email"
-              placeholder="Email"
+              placeholder="Email (e.g. name or name@email.com)"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
             />
