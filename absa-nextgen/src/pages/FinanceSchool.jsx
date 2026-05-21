@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import "../styles/financeSchool.css";
 import AppNav from "../components/AppNav";
 import confetti from "canvas-confetti";
+import { useUser } from "../context/UserContext";
 
 export default function FinanceSchool() {
   const [view, setView] = useState("path");
@@ -22,12 +23,11 @@ export default function FinanceSchool() {
     lastLogin: null,
   });
 
-  const user = JSON.parse(sessionStorage.getItem("user"));
-  const storageKey = user?.email ? `learning_${user.email}` : "learning_guest";
+  const { user } = useUser();
+  const storageKey = user?.id ? `learning_${user.id}` : "learning_guest";
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem(storageKey));
-
+    const saved = JSON.parse(localStorage.getItem(storageKey) || "null");
     if (saved) updateStreak(saved);
     else {
       const fresh = {
@@ -50,18 +50,20 @@ export default function FinanceSchool() {
   const updateStreak = (data) => {
     const today = new Date().toDateString();
 
-    if (data.lastLogin !== today) {
+    let updated = { ...data };
+
+    if (updated.lastLogin !== today) {
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
 
-      data.streak =
-        data.lastLogin === yesterday.toDateString() ? data.streak + 1 : 1;
+      updated.streak =
+        updated.lastLogin === yesterday.toDateString() ? updated.streak + 1 : 1;
 
-      data.lastLogin = today;
+      updated.lastLogin = today;
     }
 
-    setLearning(data);
-    localStorage.setItem(storageKey, JSON.stringify(data));
+    setLearning(updated);
+    localStorage.setItem(storageKey, JSON.stringify(updated));
   };
 
   const lessons = [
@@ -172,7 +174,9 @@ export default function FinanceSchool() {
           setFeedback(null);
           setFeedbackVisible(false);
         } else {
-          updated.completed.push(activeLesson.id);
+          if (!updated.completed.includes(activeLesson.id)) {
+            updated.completed.push(activeLesson.id);
+          }
           saveLearning(updated);
           setView("path");
           setActiveLesson(null);

@@ -7,7 +7,7 @@ import ExplainerPanel from "../components/ExplainerPanel";
 export default function MoneySnapshot() {
   const navigate = useNavigate();
 
-  const storedUser = JSON.parse(sessionStorage.getItem("user")) || {};
+  const storedUser = JSON.parse(localStorage.getItem("user")) || {};
   const [user, setUser] = useState(storedUser);
 
   const [income, setIncome] = useState(user.salary || 50000);
@@ -21,8 +21,15 @@ export default function MoneySnapshot() {
   const [activeTooltip, setActiveTooltip] = useState(null);
 
   const net = income - expenses;
-  const savingsRate = income > 0 ? Math.round((savings / income) * 100) : 0;
+
+  // ✅ FIX 2: safe calculation (no divide-by-zero crash)
+  const safeIncome = income > 0 ? income : 1;
+  const savingsRate = Math.round((savings / safeIncome) * 100);
   const progress = Math.min(100, Math.round((savings / goal) * 100));
+
+  // ✅ FIX 4: monthsToGoal (matches Home)
+  const monthsToGoal =
+    savings >= goal ? 0 : Math.ceil((goal - savings) / (savings || 1));
 
   useEffect(() => {
     const updatedUser = {
@@ -30,10 +37,12 @@ export default function MoneySnapshot() {
       salary: income,
       expenses: expenses,
       savings: savings,
+      monthsToGoal: monthsToGoal,
     };
 
     setUser(updatedUser);
-    sessionStorage.setItem("user", JSON.stringify(updatedUser));
+    // ✅ FIX 1: localStorage (matches Home)
+    localStorage.setItem("user", JSON.stringify(updatedUser));
   }, [income, expenses, savings]);
 
   /*  AI INSIGHT ENGINE */
@@ -60,7 +69,7 @@ export default function MoneySnapshot() {
       });
     }
 
-    if (expenses / income > 0.7) {
+    if (expenses / safeIncome > 0.7) {
       insights.push({
         text: "A high proportion of your income is allocated to expenses, limiting your ability to build wealth.",
         action: () => setExpenses(expenses - 500),
@@ -175,7 +184,7 @@ export default function MoneySnapshot() {
               </div>
             )}
 
-            <h3 className="big-number">R{net.toLocaleString()}</h3>
+            <h3 className="big-number">R{net.toLocaleString("en-ZA")}</h3>
             <span className="small">
               {savingsRate}% of income allocated to savings
             </span>
@@ -216,9 +225,12 @@ export default function MoneySnapshot() {
               </div>
 
               <p className="small">
-                R{savings.toLocaleString()} saved of R{goal.toLocaleString()}{" "}
-                target
+                R{savings.toLocaleString("en-ZA")} saved of R
+                {goal.toLocaleString("en-ZA")} target
               </p>
+
+              {/* ✅ FIX 4: monthsToGoal displayed */}
+              <p className="small">{monthsToGoal} months to reach goal</p>
 
               <button
                 className="pill"
@@ -277,19 +289,19 @@ export default function MoneySnapshot() {
                 className="chart"
                 style={{
                   background: `conic-gradient(
-                    #84a794 0% ${(savings / income) * 100}%,
-                    #6faad3 ${(savings / income) * 100}% ${
-                      ((savings + expenses) / income) * 100
+                    #84a794 0% ${(savings / safeIncome) * 100}%,
+                    #6faad3 ${(savings / safeIncome) * 100}% ${
+                      ((savings + expenses) / safeIncome) * 100
                     }%,
-                    #d6a85a ${((savings + expenses) / income) * 100}% 100%
+                    #d6a85a ${((savings + expenses) / safeIncome) * 100}% 100%
                   )`,
                 }}
               />
 
               <div className="legend">
-                <p>Savings — R{savings.toLocaleString()}</p>
-                <p>Expenses — R{expenses.toLocaleString()}</p>
-                <p>Remaining — R{net.toLocaleString()}</p>
+                <p>Savings — R{savings.toLocaleString("en-ZA")}</p>
+                <p>Expenses — R{expenses.toLocaleString("en-ZA")}</p>
+                <p>Remaining — R{net.toLocaleString("en-ZA")}</p>
               </div>
 
               <button

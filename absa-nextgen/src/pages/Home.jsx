@@ -2,20 +2,19 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import AppNav from "../components/AppNav";
 import "../styles/home.css";
+import { useUser } from "../context/UserContext";
 
 export default function Home() {
   const navigate = useNavigate();
-
-  const rawUser = sessionStorage.getItem("user");
-  const user = rawUser ? JSON.parse(rawUser) : {};
-
-  const income = user?.salary || 55000;
-  const expenses = user?.expenses || 29000;
+  const { user } = useUser();
+  const income = Number(user?.salary) || 0;
+  const expenses = Number(user?.expenses) || 0;
   const net = income - expenses;
-  const savingsRate = Math.round((net / income) * 100);
+
+  const safeIncome = income > 0 ? income : 1;
+  const savingsRate = Math.round((net / safeIncome) * 100);
 
   let nextStep = "Move closer to your 5-year goal";
-
   if (!user?.strategy) nextStep = "Choose your financial strategy";
   else if (!user?.salary) nextStep = "Add your income details";
   else if (!user?.expenses) nextStep = "Track your monthly expenses";
@@ -27,6 +26,17 @@ export default function Home() {
     else setNudgeType("positive");
   }, [savingsRate]);
 
+  let healthScore = 50;
+  if (savingsRate >= 30) healthScore = 90;
+  else if (savingsRate >= 20) healthScore = 75;
+  else if (savingsRate >= 10) healthScore = 60;
+  else healthScore = 40;
+
+  let healthLabel = "Moderate";
+  if (healthScore >= 80) healthLabel = "Excellent";
+  else if (healthScore >= 65) healthLabel = "Good";
+  else if (healthScore < 50) healthLabel = "Needs Attention";
+
   return (
     <div className="home">
       <AppNav />
@@ -34,7 +44,7 @@ export default function Home() {
       <div className="container">
         {/* HEADER */}
         <section className="home-header fade-in">
-          <h2>{user?.name ? `Welcome back, ${user.name}` : "Welcome"}</h2>
+          <h2>Welcome back, {user?.name || "User"}</h2>
           <p>
             You are on the{" "}
             <span className="accent">{user?.strategy || "Property"}</span> track
@@ -47,7 +57,6 @@ export default function Home() {
             <p className="label">Next Step</p>
             <h3>{nextStep}</h3>
           </div>
-
           <button className="primary-btn" onClick={() => navigate("/track")}>
             Continue →
           </button>
@@ -55,8 +64,7 @@ export default function Home() {
 
         {/* HEALTH */}
         <section className="health-card fade-in">
-          <div className="score-ring">100</div>
-
+          <div className="score-ring">{healthScore}</div>
           <div>
             <h3>
               Financial Health
@@ -70,7 +78,7 @@ export default function Home() {
                 </div>
               </span>
             </h3>
-            <p className="muted">Excellent</p>
+            <p className="muted">{healthLabel}</p>
           </div>
         </section>
 
@@ -78,34 +86,33 @@ export default function Home() {
         <section className="stats fade-in">
           <div className="stat">
             <p>Monthly income</p>
-            <h3>R{income.toLocaleString()}</h3>
+            <h3>R{income.toLocaleString("en-ZA")}</h3>
           </div>
-
           <div className="stat">
             <p>Fixed Costs</p>
-            <h3>R{expenses.toLocaleString()}</h3>
+            <h3>R{expenses.toLocaleString("en-ZA")}</h3>
           </div>
-
           <div
             className="stat highlight clickable"
             onClick={() => navigate("/money")}
           >
             <p>Net Position</p>
-            <h3>R{net.toLocaleString()}</h3>
+            <h3>R{net.toLocaleString("en-ZA")}</h3>
             <span>View breakdown →</span>
           </div>
         </section>
 
+        {/* GOAL */}
         <section className="goal-card fade-in">
           <p className="muted">Your Deposit Plan</p>
-
-          <h3>R{user?.depositAmount?.toLocaleString()}</h3>
-
-          <span className="muted">{user?.depositPercent}% of home value</span>
-
+          <h3>R{user?.depositAmount?.toLocaleString("en-ZA") || 0}</h3>
+          <span className="muted">
+            {user?.depositPercent || 0}% of home value
+          </span>
           <br />
-
-          <span className="muted">{user?.monthsToGoal} months to reach</span>
+          <span className="muted">
+            {user?.monthsToGoal || 0} months to reach
+          </span>
         </section>
 
         {/* NUDGE */}
@@ -113,7 +120,7 @@ export default function Home() {
           <p>
             {nudgeType === "positive"
               ? `You're saving ${savingsRate}% — strong position`
-              : "Your savings rate is low — consider reducing expenses"}
+              : `Your savings rate is ${savingsRate}% — consider reducing expenses`}
           </p>
         </section>
 
@@ -125,7 +132,6 @@ export default function Home() {
               Track, simulate, and move forward with clarity.
             </p>
           </div>
-
           <button className="primary-btn" onClick={() => navigate("/money")}>
             View Money →
           </button>
@@ -143,25 +149,23 @@ export default function Home() {
             <h3>Money Snapshot</h3>
             <p>See your financial position</p>
           </div>
-
           <div className="feature-card" onClick={() => navigate("/track")}>
             <h3>Strategy Track</h3>
             <p>Plan your next 5 years</p>
           </div>
-
           <div className="feature-card" onClick={() => navigate("/simulation")}>
             <h3>Simulation Lab</h3>
             <p>Test decisions</p>
           </div>
         </section>
 
-        {/* ── STRATEGY TRACKS PREVIEW ── */}
+        {/* STRATEGY TRACKS PREVIEW */}
         <section className="preview-section fade-in">
           <div className="preview-header">
             <div>
               <h3>Strategy Tracks</h3>
               <p className="muted">
-                Pathways built around your goals & life stage
+                Pathways built around your goals &amp; life stage
               </p>
             </div>
             <button className="primary-btn" onClick={() => navigate("/track")}>
@@ -170,7 +174,6 @@ export default function Home() {
           </div>
 
           <div className="preview-grid">
-            {/* AVAILABLE */}
             <div
               className="preview-card available"
               onClick={() => navigate("/track")}
@@ -190,15 +193,17 @@ export default function Home() {
               </div>
             </div>
 
-            {/* COMING SOON */}
-            <div className="preview-card coming-soon">
-              <div className="preview-card-icon muted-icon">⚖️</div>
+            <div
+              className="preview-card available"
+              onClick={() => navigate("/track")}
+            >
+              <div className="preview-card-icon">⚖️</div>
               <div className="preview-card-body">
                 <div className="preview-card-title-row">
                   <span className="preview-card-name">
                     Balanced Lifestyle &amp; Investing
                   </span>
-                  <span className="badge soon-badge">Coming Soon</span>
+                  <span className="badge available-badge">Available</span>
                 </div>
                 <p className="preview-card-sub">
                   Maintain your lifestyle while building wealth
@@ -210,12 +215,15 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="preview-card coming-soon">
-              <div className="preview-card-icon muted-icon">🛡️</div>
+            <div
+              className="preview-card available"
+              onClick={() => navigate("/track")}
+            >
+              <div className="preview-card-icon">🛡️</div>
               <div className="preview-card-body">
                 <div className="preview-card-title-row">
                   <span className="preview-card-name">Foundation Builder</span>
-                  <span className="badge soon-badge">Coming Soon</span>
+                  <span className="badge available-badge">Available</span>
                 </div>
                 <p className="preview-card-sub">
                   Build financial stability from scratch
@@ -227,14 +235,17 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="preview-card coming-soon">
-              <div className="preview-card-icon muted-icon">🔄</div>
+            <div
+              className="preview-card available"
+              onClick={() => navigate("/track")}
+            >
+              <div className="preview-card-icon">🔄</div>
               <div className="preview-card-body">
                 <div className="preview-card-title-row">
                   <span className="preview-card-name">
                     Lifestyle Correction
                   </span>
-                  <span className="badge soon-badge">Coming Soon</span>
+                  <span className="badge available-badge">Available</span>
                 </div>
                 <p className="preview-card-sub">
                   Rebalance spending and reduce debt
@@ -247,7 +258,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ── SIMULATIONS PREVIEW ── */}
+        {/* SIMULATIONS PREVIEW */}
         <section className="preview-section fade-in">
           <div className="preview-header">
             <div>
@@ -265,7 +276,6 @@ export default function Home() {
           </div>
 
           <div className="sim-preview-grid">
-            {/* AVAILABLE */}
             <div
               className="sim-card available"
               onClick={() => navigate("/simulation")}
@@ -280,11 +290,13 @@ export default function Home() {
               </p>
             </div>
 
-            {/* COMING SOON × 3 */}
-            <div className="sim-card coming-soon">
+            <div
+              className="sim-card available"
+              onClick={() => navigate("/simulation")}
+            >
               <div className="sim-card-top">
-                <span className="sim-icon muted-icon">📈</span>
-                <span className="badge soon-badge">Coming Soon</span>
+                <span className="sim-icon">📈</span>
+                <span className="badge available-badge">Available</span>
               </div>
               <h4>Investment Growth</h4>
               <p className="muted">
@@ -292,19 +304,25 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="sim-card coming-soon">
+            <div
+              className="sim-card available"
+              onClick={() => navigate("/simulation")}
+            >
               <div className="sim-card-top">
-                <span className="sim-icon muted-icon">💳</span>
-                <span className="badge soon-badge">Coming Soon</span>
+                <span className="sim-icon">💳</span>
+                <span className="badge available-badge">Available</span>
               </div>
               <h4>Debt Payoff Planner</h4>
               <p className="muted">Find the fastest path to being debt-free</p>
             </div>
 
-            <div className="sim-card coming-soon">
+            <div
+              className="sim-card available"
+              onClick={() => navigate("/simulation")}
+            >
               <div className="sim-card-top">
-                <span className="sim-icon muted-icon">🎯</span>
-                <span className="badge soon-badge">Coming Soon</span>
+                <span className="sim-icon">🎯</span>
+                <span className="badge available-badge">Available</span>
               </div>
               <h4>Retirement Readiness</h4>
               <p className="muted">
@@ -313,15 +331,15 @@ export default function Home() {
             </div>
           </div>
         </section>
-      </div>
 
-      {/* 🔥 FINANCE SCHOOL ORB */}
-      <div
-        className="finance-orb"
-        onClick={() => navigate("/learn")}
-        title="Go to Finance School"
-      >
-        🎓
+        {/* FINANCE SCHOOL ORB */}
+        <div
+          className="finance-orb"
+          onClick={() => navigate("/learn")}
+          title="Go to Finance School"
+        >
+          🎓
+        </div>
       </div>
     </div>
   );

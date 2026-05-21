@@ -3,15 +3,14 @@ import { useState } from "react";
 import AppNav from "../components/AppNav";
 import "../styles/track.css";
 import ExplainerPanel from "../components/ExplainerPanel";
+import { useUser } from "../context/UserContext";
 
 export default function PropertyTrack() {
   const navigate = useNavigate();
-
-  const user = JSON.parse(sessionStorage.getItem("user")) || {};
-
-  const income = Number(user.salary) || 0;
-  const expenses = Number(user.expenses) || 0;
-  const savings = Number(user.savings) || Math.max(income - expenses, 0);
+  const { user } = useUser();
+  const income = Number(user?.salary) || 0;
+  const expenses = Number(user?.expenses) || 0;
+  const savings = Math.max(income - expenses, 0);
 
   const goal =
     Number(user.depositAmount) ||
@@ -131,8 +130,7 @@ export default function PropertyTrack() {
           </div>
 
           <p className="small">
-            Estimated monthly contribution: R
-            {(income - expenses).toLocaleString()}
+            Estimated monthly contribution: R{savings.toLocaleString()}
           </p>
 
           {/* AI INSIGHTS */}

@@ -1,14 +1,15 @@
 import AppNav from "../components/AppNav";
+import { useUser } from "../context/UserContext";
 
 export default function Dashboard() {
-  const user = JSON.parse(localStorage.getItem("user"));
+  const { user } = useUser();
 
   return (
     <div className="dashboard">
       <AppNav />
 
       <div className="container">
-        <h1>Welcome back, {user?.name}</h1>
+        <h1>Welcome back, {user?.name || "User"}</h1>
 
         <h2>Your Current Strategy</h2>
         <p>{user?.strategy || "Not selected"}</p>

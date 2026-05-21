@@ -19,6 +19,12 @@ import settings from "../assets/settings.png";
 
 export default function Landing() {
   const navigate = useNavigate();
+  useEffect(() => {
+    const session = sessionStorage.getItem("session");
+    if (session) {
+      navigate("/home");
+    }
+  }, [navigate]);
 
   useEffect(() => {
     const elements = document.querySelectorAll(".fade-in");
@@ -35,6 +41,11 @@ export default function Landing() {
     );
 
     elements.forEach((el) => observer.observe(el));
+
+    return () => {
+      elements.forEach((el) => observer.unobserve(el));
+      observer.disconnect();
+    };
   }, []);
 
   const scrollToSection = (id) => {
@@ -56,7 +67,11 @@ export default function Landing() {
             <strong>learn, plan, and build wealth</strong> — all in one place.
           </p>
 
-          <button className="primary-btn" onClick={() => navigate("/login")}>
+          <button
+            type="button"
+            className="primary-btn"
+            onClick={() => navigate("/login")}
+          >
             Start Your Journey
           </button>
 

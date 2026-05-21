@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "../styles/simulation.css";
 import AppNav from "../components/AppNav";
 import ExplainerPanel from "../components/ExplainerPanel";
+import { useUser } from "../context/UserContext";
 
 /* DEFAULT VALUES            */
 
@@ -16,9 +17,9 @@ const DEFAULTS = {
 
 export default function SimulationLab() {
   const navigate = useNavigate();
-
-  const [salary, setSalary] = useState(DEFAULTS.salary);
-  const [rent, setRent] = useState(DEFAULTS.rent);
+  const { user } = useUser();
+  const [salary, setSalary] = useState(user?.salary || DEFAULTS.salary);
+  const [rent, setRent] = useState(user?.expenses || DEFAULTS.rent);
   const [price, setPrice] = useState(DEFAULTS.price);
   const [interest, setInterest] = useState(DEFAULTS.interest);
   const [years, setYears] = useState(DEFAULTS.years);
@@ -51,8 +52,7 @@ export default function SimulationLab() {
   const buyTotal = bondMonthly * 12 * years;
   const difference = rentTotal - buyTotal;
 
-  const maxValue = Math.max(rentTotal, buyTotal);
-
+  const maxValue = Math.max(rentTotal, buyTotal) || 1;
   /* AI-STYLE VERDICT */
 
   let verdict = "";

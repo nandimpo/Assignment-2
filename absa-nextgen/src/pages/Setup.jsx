@@ -2,17 +2,21 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AppNav from "../components/AppNav";
 import "../styles/setup.css";
+import { useUser } from "../context/UserContext";
 
 export default function Setup() {
   const navigate = useNavigate();
-
+  const { user, setUser } = useUser();
   const [form, setForm] = useState({
-    salary: "",
-    expenses: "",
-    housePrice: "",
+    name: user?.name || "",
+    salary: user?.salary || "",
+    expenses: user?.expenses || "",
+    housePrice: user?.housePrice || "",
   });
 
-  const [selectedTrack, setSelectedTrack] = useState("Property");
+  const [selectedTrack, setSelectedTrack] = useState(
+    user?.strategy || "Property",
+  );
 
   const [suggestedPercent, setSuggestedPercent] = useState(10);
   const [userPercent, setUserPercent] = useState(10);
@@ -21,12 +25,20 @@ export default function Setup() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  /* ================= EMAIL VALIDATION (ADDED) ================= */
-  const isValidEmail = (email) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  };
+  /* ================= AUTO SUGGESTION ================= */
+  useEffect(() => {
+    if (!user) return;
 
-  /* AUTO SUGGESTION */
+    setForm({
+      name: user.name || "",
+      salary: user.salary || "",
+      expenses: user.expenses || "",
+      housePrice: user.housePrice || "",
+    });
+
+    setSelectedTrack(user.strategy || "Property");
+  }, []); // 👈 IMPORTANT: empty dependency
+
   useEffect(() => {
     const salary = Number(form.salary);
     const expenses = Number(form.expenses);
@@ -55,30 +67,46 @@ export default function Setup() {
   const monthsToGoal =
     monthlySavings > 0 ? Math.ceil(depositAmount / monthlySavings) : 0;
 
+  /* ================= SUBMIT ================= */
   const handleSubmit = () => {
-    const user = JSON.parse(sessionStorage.getItem("user")) || {};
+    const salary = Number(form.salary);
+    const expenses = Number(form.expenses);
+    const housePrice = Number(form.housePrice);
 
-    /* ================= EMAIL CHECK (ADDED) ================= */
-    if (!user.email || !isValidEmail(user.email)) {
-      alert(
-        "Invalid email detected. Please register with a valid email (must include @ and .)",
-      );
-      navigate("/register");
+    if (!form.name.trim()) {
+      alert("Please enter your name");
+      return;
+    }
+
+    if (!salary || !expenses || !housePrice) {
+      alert("Please fill in all fields");
+      return;
+    }
+
+    if (salary <= 0 || expenses < 0 || housePrice <= 0) {
+      alert("Please enter valid positive numbers");
+      return;
+    }
+
+    if (expenses >= salary) {
+      alert("Your expenses cannot be greater than or equal to your salary");
       return;
     }
 
     const updatedUser = {
       ...user,
-      strategy: selectedTrack, // ✅ SAVE TRACK
-      salary: Number(form.salary),
-      expenses: Number(form.expenses),
-      housePrice: Number(form.housePrice),
+      name: form.name,
+      strategy: selectedTrack,
+      salary,
+      expenses,
+      housePrice,
       depositPercent: userPercent,
       depositAmount,
       monthsToGoal,
+      savings: salary - expenses,
     };
 
-    sessionStorage.setItem("user", JSON.stringify(updatedUser));
+    setUser(updatedUser); // ✅ THIS replaces localStorage.setItem
     navigate("/home");
   };
 
@@ -95,8 +123,9 @@ export default function Setup() {
             <p className="label">Choose your strategy</p>
 
             <div className="track-options">
+              {/* Track 1 */}
               <div
-                className={`track-card active ${
+                className={`track-card ${
                   selectedTrack === "Property" ? "selected" : ""
                 }`}
                 onClick={() => setSelectedTrack("Property")}
@@ -107,42 +136,84 @@ export default function Setup() {
                 </div>
               </div>
 
-              <div className="track-card disabled">
+              {/* Track 2 */}
+              <div
+                className={`track-card ${
+                  selectedTrack === "Balanced" ? "selected" : ""
+                }`}
+                onClick={() => setSelectedTrack("Balanced")}
+              >
                 <div className="track-title">
                   💼 Balanced Lifestyle & Investing
                 </div>
                 <div className="track-preview">
-                  Coming soon — manage spending + investing together
+                  Manage spending + investing together
                 </div>
               </div>
 
-              <div className="track-card disabled">
+              {/* Track 3 */}
+              <div
+                className={`track-card ${
+                  selectedTrack === "CatchUp" ? "selected" : ""
+                }`}
+                onClick={() => setSelectedTrack("CatchUp")}
+              >
                 <div className="track-title">⚡ Catch-Up Wealth</div>
-                <div className="track-preview">
-                  Coming soon — aggressive saving strategy
-                </div>
+                <div className="track-preview">Aggressive saving strategy</div>
               </div>
             </div>
           </div>
 
           {/* ================= INPUTS ================= */}
           <input
+            type="text"
+            name="name"
+            placeholder="Your name"
+            value={form.name}
+            onChange={handleChange}
+          />
+
+          <input
+            type="number"
             name="salary"
             placeholder="Monthly salary"
+            value={form.salary}
             onChange={handleChange}
           />
 
           <input
+            type="number"
             name="expenses"
             placeholder="Monthly expenses"
+            value={form.expenses}
             onChange={handleChange}
           />
 
           <input
+            type="number"
             name="housePrice"
             placeholder="Target house price"
+            value={form.housePrice}
             onChange={handleChange}
           />
+
+          {/* ================= FEEDBACK ================= */}
+          {form.salary && form.expenses && (
+            <div className="feedback">
+              <p>
+                You can save{" "}
+                <strong>R{monthlySavings.toLocaleString("en-ZA")}</strong> per
+                month
+              </p>
+
+              <p>
+                Savings rate:{" "}
+                <strong>
+                  {Math.round((monthlySavings / Number(form.salary)) * 100)}%
+                </strong>
+              </p>
+            </div>
+          )}
 
           {/* ================= DEPOSIT ================= */}
           {form.housePrice && (
@@ -153,7 +224,8 @@ export default function Setup() {
               </div>
 
               <h1>
-                {userPercent}% <span>(R{depositAmount.toLocaleString()})</span>
+                {userPercent}%{" "}
+                <span>(R{depositAmount.toLocaleString("en-ZA")})</span>
               </h1>
 
               <input
@@ -182,8 +254,9 @@ export default function Setup() {
             </div>
           )}
 
+          {/* ================= BUTTON ================= */}
           <button className="btn primary" onClick={handleSubmit}>
-            Finish →
+            Save & Continue →
           </button>
         </div>
       </div>

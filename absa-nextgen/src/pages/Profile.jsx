@@ -1,33 +1,31 @@
 import { useNavigate } from "react-router-dom";
 import AppNav from "../components/AppNav";
 import "../styles/profile.css";
+import { useUser } from "../context/UserContext";
 
 export default function Profile() {
   const navigate = useNavigate();
+  const { user } = useUser();
 
-  const rawUser = sessionStorage.getItem("user");
-  const user = rawUser ? JSON.parse(rawUser) : {};
-
-  const income = Number(user.salary) || 0;
-  const expenses = Number(user.expenses) || 0;
+  const income = Number(user?.salary) || 0;
+  const expenses = Number(user?.expenses) || 0;
   const savings = Math.max(income - expenses, 0);
-  const savingRate = income > 0 ? Math.round((savings / income) * 100) : 0;
+  const savingsRate = income > 0 ? Math.round((savings / income) * 100) : 0;
 
   const simulation = user.simulation || {};
 
   // ✅ LOGOUT FUNCTION ADDED
   const handleLogout = () => {
     sessionStorage.removeItem("session");
-    sessionStorage.removeItem("user"); // optional: remove user data too
     navigate("/login");
   };
 
   const goals =
     user.strategy === "Property"
       ? [
-          { name: "Emergency Fund", value: savingRate > 20 ? 70 : 40 },
-          { name: "Deposit Saved", value: savingRate > 15 ? 40 : 20 },
-          { name: "Bond Readiness", value: savingRate > 25 ? 20 : 10 },
+          { name: "Emergency Fund", value: savingsRate > 20 ? 70 : 40 },
+          { name: "Deposit Saved", value: savingsRate > 15 ? 40 : 20 },
+          { name: "Bond Readiness", value: savingsRate > 25 ? 20 : 10 },
         ]
       : user.strategy === "Catch-Up"
         ? [
@@ -85,11 +83,11 @@ export default function Profile() {
                     className="donut"
                     style={{
                       background: `conic-gradient(#84a794 ${
-                        savingRate * 3.6
+                        savingsRate * 3.6
                       }deg, #1a1f1e 0deg)`,
                     }}
                   >
-                    <div className="donut-inner">{savingRate}%</div>
+                    <div className="donut-inner">{savingsRate}%</div>
                   </div>
                   <p className="center-text">Saving Rate</p>
                 </div>
@@ -165,7 +163,7 @@ export default function Profile() {
               <h3>Insights</h3>
 
               <p>
-                {savingRate > 25
+                {savingsRate > 25
                   ? "You're in a strong financial position"
                   : "Increase your savings to improve your position"}
               </p>

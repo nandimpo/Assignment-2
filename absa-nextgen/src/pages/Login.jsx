@@ -17,10 +17,10 @@ export default function Login() {
   useEffect(() => {
     const session = sessionStorage.getItem("session");
     if (session) navigate("/home");
-  }, []);
+  }, [navigate]);
 
   const handleLogin = () => {
-    const user = JSON.parse(sessionStorage.getItem("user"));
+    const user = JSON.parse(localStorage.getItem("user") || "null");
 
     if (!user) {
       setError("No account found. Please register first.");
@@ -76,16 +76,20 @@ export default function Login() {
               type="email"
               placeholder="Email"
               value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
-              required
+              onChange={(e) => {
+                setForm({ ...form, email: e.target.value });
+                setError("");
+              }}
             />
 
             <input
               type="password"
               placeholder="Password"
               value={form.password}
-              onChange={(e) => setForm({ ...form, password: e.target.value })}
-              required
+              onChange={(e) => {
+                setForm({ ...form, password: e.target.value });
+                setError("");
+              }}
             />
 
             <button className="submit">Login</button>
