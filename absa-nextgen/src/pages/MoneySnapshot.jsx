@@ -31,6 +31,71 @@ export default function MoneySnapshot() {
   const monthsToGoal =
     savings >= goal ? 0 : Math.ceil((goal - savings) / (savings || 1));
 
+  // ✅ BREAKDOWN — editable state, seeded from user.breakdown or auto-calculated
+  const [breakdownEdit, setBreakdownEdit] = useState({
+    housing: user?.breakdown?.housing ?? Math.round(expenses * 0.4),
+    mobility: user?.breakdown?.mobility ?? Math.round(expenses * 0.2),
+    lifestyle: user?.breakdown?.lifestyle ?? Math.round(expenses * 0.25),
+    debt: user?.breakdown?.debt ?? Math.round(expenses * 0.15),
+  });
+
+  const breakdown = {
+    ...breakdownEdit,
+    savings: savings,
+  };
+
+  const handleBreakdownChange = (e) => {
+    setBreakdownEdit({
+      ...breakdownEdit,
+      [e.target.name]: Number(e.target.value),
+    });
+  };
+
+  // ✅ DERIVED — calculated live from real values, not editable state
+  const debtToIncome =
+    income > 0 ? Math.round((breakdown.debt / income) * 100) : 0;
+
+  const disposableIncome = income - expenses;
+
+  // ✅ narrative defined AFTER disposableIncome and debtToIncome
+  const generateNarrative = () => {
+    let message = "";
+
+    if (savingsRate > 50) {
+      message += "You're saving more than most people in your income band. ";
+    } else if (savingsRate < 15) {
+      message += "Your savings rate is quite low. ";
+    }
+
+    if (debtToIncome > 40) {
+      message += "Your debt levels are high relative to your income. ";
+    }
+
+    if (disposableIncome < 0) {
+      message += "You are currently overspending. ";
+    }
+
+    return message || "Your financial position is stable.";
+  };
+  const narrative = generateNarrative();
+
+  // ✅ Savings Rate input — changes savings to match the entered rate
+  const handleSavingsRateChange = (e) => {
+    const rate = Number(e.target.value);
+    if (rate >= 0 && rate <= 100) {
+      setSavings(Math.round(income * (rate / 100)));
+    }
+  };
+
+  // ✅ Disposable Income input — changes expenses so income - expenses = entered value
+  const handleDisposableIncomeChange = (e) => {
+    const val = Number(e.target.value);
+    const newExpenses = income - val;
+    if (newExpenses >= 0) {
+      setExpenses(newExpenses);
+    }
+  };
+
   useEffect(() => {
     const updatedUser = {
       ...user,
@@ -38,12 +103,13 @@ export default function MoneySnapshot() {
       expenses: expenses,
       savings: savings,
       monthsToGoal: monthsToGoal,
+      breakdown: breakdown, // ✅ ADD THIS
     };
 
     setUser(updatedUser);
     // ✅ FIX 1: localStorage (matches Home)
     localStorage.setItem("user", JSON.stringify(updatedUser));
-  }, [income, expenses, savings]);
+  }, [income, expenses, savings, breakdownEdit]);
 
   /*  AI INSIGHT ENGINE */
 
@@ -131,6 +197,42 @@ export default function MoneySnapshot() {
             <span className="accent">{user?.strategy}</span> strategy
           </p>
         </section>
+
+        {/* FINANCIAL SUMMARY */}
+        <div className="card">
+          <h3>Financial Summary</h3>
+          <p>{narrative}</p>
+        </div>
+
+        {/* KEY METRICS */}
+        <div className="card">
+          <h3>Key Financial Metrics</h3>
+
+          <label>Debt-to-Income (%)</label>
+          <input
+            type="number"
+            value={debtToIncome}
+            readOnly
+            style={{ opacity: 0.6, cursor: "not-allowed" }}
+            title="Calculated automatically from your debt and income"
+          />
+
+          <label>Disposable Income</label>
+          <input
+            type="number"
+            value={disposableIncome}
+            onChange={handleDisposableIncomeChange}
+            title="Adjusts your expenses to match this value"
+          />
+
+          <label>Savings Rate (%)</label>
+          <input
+            type="number"
+            value={savingsRate}
+            onChange={handleSavingsRateChange}
+            title="Adjusts your savings amount to match this rate"
+          />
+        </div>
 
         {/* STATS */}
         <section className="stats">
@@ -255,6 +357,77 @@ export default function MoneySnapshot() {
                   )}
                 </div>
               ))}
+            </div>
+
+            {/* BREAKDOWN */}
+            <div className="card">
+              <h3>Spending Breakdown</h3>
+
+              <div className="breakdown-grid">
+                <div className="breakdown-item">
+                  <p>Housing</p>
+                  <input
+                    className="input-number"
+                    type="number"
+                    name="housing"
+                    value={breakdownEdit.housing}
+                    onChange={handleBreakdownChange}
+                  />
+                </div>
+
+                <div className="breakdown-item">
+                  <p>Mobility</p>
+                  <input
+                    className="input-number"
+                    type="number"
+                    name="mobility"
+                    value={breakdownEdit.mobility}
+                    onChange={handleBreakdownChange}
+                  />
+                </div>
+
+                <div className="breakdown-item">
+                  <p>Lifestyle</p>
+                  <input
+                    className="input-number"
+                    type="number"
+                    name="lifestyle"
+                    value={breakdownEdit.lifestyle}
+                    onChange={handleBreakdownChange}
+                  />
+                </div>
+
+                <div className="breakdown-item">
+                  <p>Debt</p>
+                  <input
+                    className="input-number"
+                    type="number"
+                    name="debt"
+                    value={breakdownEdit.debt}
+                    onChange={handleBreakdownChange}
+                  />
+                </div>
+
+                <div className="breakdown-item">
+                  <p>Savings</p>
+                  <strong>R{breakdown.savings.toLocaleString("en-ZA")}</strong>
+                </div>
+              </div>
+
+              <button
+                className="pill"
+                style={{ marginTop: "12px" }}
+                onClick={() =>
+                  setBreakdownEdit({
+                    housing: Math.round(expenses * 0.4),
+                    mobility: Math.round(expenses * 0.2),
+                    lifestyle: Math.round(expenses * 0.25),
+                    debt: Math.round(expenses * 0.15),
+                  })
+                }
+              >
+                Reset to auto
+              </button>
             </div>
 
             {/* LEARN */}

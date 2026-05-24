@@ -7,6 +7,7 @@ import { useUser } from "../context/UserContext";
 export default function Setup() {
   const navigate = useNavigate();
   const { user, setUser } = useUser();
+
   const [form, setForm] = useState({
     name: user?.name || "",
     salary: user?.salary || "",
@@ -21,9 +22,31 @@ export default function Setup() {
   const [suggestedPercent, setSuggestedPercent] = useState(10);
   const [userPercent, setUserPercent] = useState(10);
 
+  const [breakdown, setBreakdown] = useState({
+    housing: user?.breakdown?.housing || 0,
+    mobility: user?.breakdown?.mobility || 0,
+    lifestyle: user?.breakdown?.lifestyle || 0,
+    debt: user?.breakdown?.debt || 0,
+  });
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
+
+  const handleBreakdownChange = (e) => {
+    setBreakdown({
+      ...breakdown,
+      [e.target.name]: Number(e.target.value),
+    });
+  };
+
+  const income = Number(form.salary) || 0;
+  const expenses = Number(form.expenses) || 0;
+
+  const debtToIncome =
+    income > 0 ? Math.round((breakdown.debt / income) * 100) : 0;
+
+  const disposableIncome = income - expenses;
 
   /* ================= AUTO SUGGESTION ================= */
   useEffect(() => {
@@ -104,6 +127,8 @@ export default function Setup() {
       depositAmount,
       monthsToGoal,
       savings: salary - expenses,
+      // ✅ ADD THIS
+      breakdown: breakdown,
     };
 
     setUser(updatedUser); // ✅ THIS replaces localStorage.setItem
@@ -162,6 +187,16 @@ export default function Setup() {
                 <div className="track-preview">Aggressive saving strategy</div>
               </div>
             </div>
+
+            <div className="metrics">
+              <p>
+                Debt-to-income: <strong>{debtToIncome}%</strong>
+              </p>
+              <p>
+                Disposable income:{" "}
+                <strong>R{disposableIncome.toLocaleString("en-ZA")}</strong>
+              </p>
+            </div>
           </div>
 
           {/* ================= INPUTS ================= */}
@@ -196,6 +231,43 @@ export default function Setup() {
             value={form.housePrice}
             onChange={handleChange}
           />
+
+          {/* ================= MANUAL BREAKDOWN ================= */}
+          <div className="breakdown-inputs">
+            <h3>Spending Breakdown</h3>
+
+            <input
+              type="number"
+              name="housing"
+              placeholder="Housing (rent/bond)"
+              value={breakdown.housing}
+              onChange={handleBreakdownChange}
+            />
+
+            <input
+              type="number"
+              name="mobility"
+              placeholder="Mobility (transport)"
+              value={breakdown.mobility}
+              onChange={handleBreakdownChange}
+            />
+
+            <input
+              type="number"
+              name="lifestyle"
+              placeholder="Lifestyle"
+              value={breakdown.lifestyle}
+              onChange={handleBreakdownChange}
+            />
+
+            <input
+              type="number"
+              name="debt"
+              placeholder="Debt repayments"
+              value={breakdown.debt}
+              onChange={handleBreakdownChange}
+            />
+          </div>
 
           {/* ================= FEEDBACK ================= */}
           {form.salary && form.expenses && (

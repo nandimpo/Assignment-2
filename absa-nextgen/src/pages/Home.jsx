@@ -36,7 +36,35 @@ export default function Home() {
   if (healthScore >= 80) healthLabel = "Excellent";
   else if (healthScore >= 65) healthLabel = "Good";
   else if (healthScore < 50) healthLabel = "Needs Attention";
+  const trackDetails = {
+    property: {
+      explanation:
+        "This track focuses on aggressively saving toward a home deposit within 3–5 years by prioritising stability and reducing unnecessary spending.",
+      tradeoffs:
+        "You will limit lifestyle spending and flexibility in order to reach your property goal faster.",
+    },
 
+    balanced: {
+      explanation:
+        "This track balances saving and investing while maintaining your current lifestyle.",
+      tradeoffs:
+        "You gain flexibility and lifestyle comfort, but your long-term goals may take longer to achieve.",
+    },
+
+    foundation: {
+      explanation:
+        "This track focuses on building a strong financial base through emergency savings and essential budgeting.",
+      tradeoffs:
+        "Progress toward large goals like property will be slower while you stabilise your finances.",
+    },
+
+    correction: {
+      explanation:
+        "This track helps you reduce debt and rebalance your spending habits.",
+      tradeoffs:
+        "Requires strict discipline and reduced spending in the short term to improve long-term health.",
+    },
+  };
   return (
     <div className="home">
       <AppNav />
@@ -190,6 +218,12 @@ export default function Home() {
                 <p className="preview-card-focus">
                   <span className="label">Focus</span> Saving &amp; Stability
                 </p>
+                <p className="preview-card-extra">
+                  {trackDetails.property.explanation}
+                </p>
+                <p className="preview-card-tradeoff">
+                  Trade-off: {trackDetails.property.tradeoffs}
+                </p>
               </div>
             </div>
 
@@ -212,6 +246,12 @@ export default function Home() {
                   <span className="label">Focus</span> Flexibility &amp;
                   Investing
                 </p>
+                <p className="preview-card-extra">
+                  {trackDetails.balanced.explanation}
+                </p>
+                <p className="preview-card-tradeoff">
+                  Trade-off: {trackDetails.balanced.tradeoffs}
+                </p>
               </div>
             </div>
 
@@ -231,6 +271,12 @@ export default function Home() {
                 <p className="preview-card-focus">
                   <span className="label">Focus</span> Emergency Funds &amp;
                   Basics
+                </p>
+                <p className="preview-card-extra">
+                  {trackDetails.foundation.explanation}
+                </p>
+                <p className="preview-card-tradeoff">
+                  Trade-off: {trackDetails.foundation.tradeoffs}
                 </p>
               </div>
             </div>
@@ -252,6 +298,12 @@ export default function Home() {
                 </p>
                 <p className="preview-card-focus">
                   <span className="label">Focus</span> Behavioural Change
+                </p>
+                <p className="preview-card-extra">
+                  {trackDetails.correction.explanation}
+                </p>
+                <p className="preview-card-tradeoff">
+                  Trade-off: {trackDetails.correction.tradeoffs}
                 </p>
               </div>
             </div>
