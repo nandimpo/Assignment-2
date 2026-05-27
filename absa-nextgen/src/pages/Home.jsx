@@ -85,7 +85,7 @@ export default function Home() {
             <p className="label">Next Step</p>
             <h3>{nextStep}</h3>
           </div>
-          <button className="primary-btn" onClick={() => navigate("/track")}>
+          <button className="primary-btn" onClick={() => navigate("/strategy")}>
             Continue →
           </button>
         </section>
@@ -177,7 +177,7 @@ export default function Home() {
             <h3>Money Snapshot</h3>
             <p>See your financial position</p>
           </div>
-          <div className="feature-card" onClick={() => navigate("/track")}>
+          <div className="feature-card" onClick={() => navigate("/strategy")}>
             <h3>Strategy Track</h3>
             <p>Plan your next 5 years</p>
           </div>
@@ -196,7 +196,10 @@ export default function Home() {
                 Pathways built around your goals &amp; life stage
               </p>
             </div>
-            <button className="primary-btn" onClick={() => navigate("/track")}>
+            <button
+              className="primary-btn"
+              onClick={() => navigate("/strategy")}
+            >
               View Tracks →
             </button>
           </div>
@@ -204,7 +207,7 @@ export default function Home() {
           <div className="preview-grid">
             <div
               className="preview-card available"
-              onClick={() => navigate("/track")}
+              onClick={() => navigate("/strategy")}
             >
               <div className="preview-card-icon">🏠</div>
               <div className="preview-card-body">
@@ -229,7 +232,7 @@ export default function Home() {
 
             <div
               className="preview-card available"
-              onClick={() => navigate("/track")}
+              onClick={() => navigate("/strategy")}
             >
               <div className="preview-card-icon">⚖️</div>
               <div className="preview-card-body">
@@ -257,7 +260,7 @@ export default function Home() {
 
             <div
               className="preview-card available"
-              onClick={() => navigate("/track")}
+              onClick={() => navigate("/strategy")}
             >
               <div className="preview-card-icon">🛡️</div>
               <div className="preview-card-body">
@@ -283,7 +286,7 @@ export default function Home() {
 
             <div
               className="preview-card available"
-              onClick={() => navigate("/track")}
+              onClick={() => navigate("/strategy")}
             >
               <div className="preview-card-icon">🔄</div>
               <div className="preview-card-body">

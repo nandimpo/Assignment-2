@@ -16,7 +16,7 @@ export default function Setup() {
   });
 
   const [selectedTrack, setSelectedTrack] = useState(
-    user?.strategy || "Property",
+    user?.strategy || "property",
   );
 
   const [suggestedPercent, setSuggestedPercent] = useState(10);
@@ -59,7 +59,7 @@ export default function Setup() {
       housePrice: user.housePrice || "",
     });
 
-    setSelectedTrack(user.strategy || "Property");
+    setSelectedTrack(user.strategy || "property");
   }, []); // 👈 IMPORTANT: empty dependency
 
   useEffect(() => {
@@ -151,9 +151,9 @@ export default function Setup() {
               {/* Track 1 */}
               <div
                 className={`track-card ${
-                  selectedTrack === "Property" ? "selected" : ""
+                  selectedTrack === "property" ? "selected" : ""
                 }`}
-                onClick={() => setSelectedTrack("Property")}
+                onClick={() => setSelectedTrack("property")}
               >
                 <div className="track-title">🏡 First Property Track</div>
                 <div className="track-preview">
@@ -164,9 +164,9 @@ export default function Setup() {
               {/* Track 2 */}
               <div
                 className={`track-card ${
-                  selectedTrack === "Balanced" ? "selected" : ""
+                  selectedTrack === "balanced" ? "selected" : ""
                 }`}
-                onClick={() => setSelectedTrack("Balanced")}
+                onClick={() => setSelectedTrack("balanced")}
               >
                 <div className="track-title">
                   💼 Balanced Lifestyle & Investing
@@ -179,9 +179,9 @@ export default function Setup() {
               {/* Track 3 */}
               <div
                 className={`track-card ${
-                  selectedTrack === "CatchUp" ? "selected" : ""
+                  selectedTrack === "catchup" ? "selected" : ""
                 }`}
-                onClick={() => setSelectedTrack("CatchUp")}
+                onClick={() => setSelectedTrack("catchup")}
               >
                 <div className="track-title">⚡ Catch-Up Wealth</div>
                 <div className="track-preview">Aggressive saving strategy</div>

@@ -8,7 +8,7 @@ import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Setup from "./pages/Setup";
-
+import StrategyTrack from "./pages/StrategyTrack";
 import Home from "./pages/Home";
 import MoneySnapshot from "./pages/MoneySnapshot";
 import PropertyTrack from "./pages/PropertyTrack";
@@ -16,6 +16,10 @@ import SimulationLab from "./pages/SimulationLab";
 import Profile from "./pages/Profile";
 import FinanceSchool from "./pages/FinanceSchool";
 import Support from "./pages/Support";
+import BalancedLifestyleTrack from "./pages/BalancedLifestyleTrack";
+import CatchUpTrack from "./pages/CatchUpTrack";
+import FoundationBuilderTrack from "./pages/FoundationBuilderTrack";
+import LifestyleCorrectionTrack from "./pages/LifestyleCorrectionTrack";
 
 /* ================= PROTECTED ROUTE ================= */
 function ProtectedRoute({ children }) {
@@ -42,7 +46,7 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/learn" element={<FinanceSchool />} />
-
+        <Route path="/strategy" element={<StrategyTrack />} />
         {/* Setup can stay public for onboarding */}
         <Route path="/setup" element={<Setup />} />
 
@@ -50,7 +54,41 @@ export default function App() {
         <Route path="/snapshot" element={<MoneySnapshot />} />
 
         {/* ================= MAIN APP (PROTECTED) ================= */}
+        <Route
+          path="/property"
+          element={
+            <ProtectedRoute>
+              <PropertyTrack />
+            </ProtectedRoute>
+          }
+        />
 
+        <Route
+          path="/balanced"
+          element={
+            <ProtectedRoute>
+              <BalancedLifestyleTrack />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/foundation"
+          element={
+            <ProtectedRoute>
+              <FoundationBuilderTrack />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/correction"
+          element={
+            <ProtectedRoute>
+              <LifestyleCorrectionTrack />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/home"
           element={

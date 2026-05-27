@@ -10,26 +10,29 @@ const tracks = {
     tradeoffs: "Less lifestyle flexibility and reduced discretionary spending.",
     route: "/property",
   },
+
   balanced: {
     name: "Balanced Lifestyle",
     explanation:
       "Maintain your lifestyle while gradually building wealth through saving and investing.",
     tradeoffs: "Slower long-term wealth accumulation.",
-    route: "/simulation",
+    route: "/balanced", // ✅ FIXED
   },
+
   foundation: {
     name: "Foundation Builder",
     explanation:
       "Focus on building financial stability through emergency savings and budgeting.",
     tradeoffs: "Slower progress toward large goals like property ownership.",
-    route: "/money",
+    route: "/foundation", // ✅ FIXED
   },
+
   correction: {
     name: "Lifestyle Correction",
     explanation:
       "Rebalance your finances by reducing debt and adjusting spending habits.",
     tradeoffs: "Requires strict discipline and short-term sacrifices.",
-    route: "/money",
+    route: "/correction", // ✅ FIXED
   },
 };
 

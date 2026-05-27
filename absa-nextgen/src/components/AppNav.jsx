@@ -12,7 +12,7 @@ export default function AppNav() {
   const getPageClass = () => {
     if (location.pathname.includes("learn")) return "nav-learn";
     if (location.pathname.includes("money")) return "nav-money";
-    if (location.pathname.includes("track")) return "nav-track";
+    if (location.pathname.includes("strategy")) return "nav-track";
     if (location.pathname.includes("simulation")) return "nav-sim";
     if (location.pathname.includes("profile")) return "nav-profile";
     return "nav-home";
@@ -42,8 +42,8 @@ export default function AppNav() {
         </button>
 
         <button
-          className={isActive("/track") ? "active" : ""}
-          onClick={() => navigate("/track")}
+          className={location.pathname.includes("strategy") ? "active" : ""}
+          onClick={() => navigate("/strategy")}
         >
           Tracks
         </button>
