@@ -1,6 +1,7 @@
 import { useState } from "react";
 import AppNav from "../components/AppNav";
 import "../styles/track.css";
+import { getTrackProgression } from "../utils/trackProgression";
 
 export default function LifestyleCorrectionTrack() {
   // ================= USER MOCK =================
@@ -9,10 +10,12 @@ export default function LifestyleCorrectionTrack() {
   const debt = 85000;
   const savings = 2000;
 
+  // FIX 1: `user` was undefined — now passing the actual user data object
+  const progression = getTrackProgression({ income, expenses, debt, savings });
+
   // ================= CORE CALCULATIONS =================
   const disposableIncome = income - expenses;
   const savingsRate = ((savings / income) * 100).toFixed(0);
-
   const baseDebtPayment = 4000;
 
   // ================= SLIDERS =================
@@ -21,13 +24,30 @@ export default function LifestyleCorrectionTrack() {
 
   const newExpenses = expenses - expenseCut;
   const newDebtPayment = baseDebtPayment + extraDebt;
-
   const monthsToDebtFree = Math.ceil(debt / (newDebtPayment || 1));
 
   // ================= RECOVERY STATUS =================
   let status = "Critical";
   if (savingsRate > 20) status = "Recovering";
   if (savingsRate > 35) status = "Stable";
+
+  // ================= STAGE DETECTION =================
+  let currentStage = "";
+  let nextStep = "";
+
+  if (debt > income * 2) {
+    currentStage = "Stage 1: Financial Stress";
+    nextStep = "Cut spending immediately and stop increasing debt.";
+  } else if (debt > 0) {
+    currentStage = "Stage 2: Debt Reduction";
+    nextStep = "Focus on paying off high-interest debt aggressively.";
+  } else if (savings < expenses * 3) {
+    currentStage = "Stage 3: Rebuilding Stability";
+    nextStep = "Start building your emergency fund.";
+  } else {
+    currentStage = "Stage 4: Ready to Grow";
+    nextStep = "You can now move into investing or property strategies.";
+  }
 
   return (
     <div className="track-page">
@@ -39,7 +59,36 @@ export default function LifestyleCorrectionTrack() {
         <p className="muted">
           Rebalance your finances by reducing debt and controlling spending.
         </p>
+        {/* ================= FINANCIAL PATH ================= */}
+        <div className="card">
+          <h3>📍 Your Financial Path</h3>
 
+          <p>
+            Current Track: <strong>{progression?.track}</strong>
+          </p>
+
+          <p className="muted">{progression?.message}</p>
+
+          {progression?.next && (
+            <div className="next-step-box">
+              <h4>Next Stage</h4>
+              <p>
+                Once ready, you will move to <strong>{progression.next}</strong>
+              </p>
+            </div>
+          )}
+        </div>
+        {/* ================= CURRENT STAGE ================= */}
+        <div className="card">
+          <h3>📍 Your Current Stage</h3>
+
+          <p className="accent">{currentStage}</p>
+
+          <div className="next-step-box">
+            <h4>Next Step</h4>
+            <p>{nextStep}</p>
+          </div>
+        </div>
         {/* ================= FINANCIAL STATUS ================= */}
         <div className="card">
           <h3>Financial Recovery Status</h3>
@@ -64,7 +113,6 @@ export default function LifestyleCorrectionTrack() {
             <p className={`status ${status.toLowerCase()}`}>{status}</p>
           </div>
         </div>
-
         {/* ================= SPENDING BREAKDOWN ================= */}
         <div className="card">
           <h3>Spending Breakdown</h3>
@@ -81,7 +129,6 @@ export default function LifestyleCorrectionTrack() {
             income.
           </p>
         </div>
-
         {/* ================= DEBT PROGRESS ================= */}
         <div className="card">
           <h3>Debt Payoff Plan</h3>
@@ -100,7 +147,15 @@ export default function LifestyleCorrectionTrack() {
             debt
           </p>
         </div>
-
+        <div className="progression-flow">
+          <span>Correction</span>
+          <span>→</span>
+          <span>Foundation</span>
+          <span>→</span>
+          <span>Balanced</span>
+          <span>→</span>
+          <span>Property</span>
+        </div>
         {/* ================= ADJUSTMENT ENGINE ================= */}
         <div className="card">
           <h3>Spending Adjustment Tool</h3>
@@ -138,28 +193,27 @@ export default function LifestyleCorrectionTrack() {
             </p>
           </div>
         </div>
-
         {/* ================= 5 YEAR RECOVERY ================= */}
         <div className="card">
           <h3>Your Recovery Journey</h3>
 
           <div className="timeline">
-            <span>Year 1</span>
-            <span>Year 2</span>
-            <span>Year 3</span>
-            <span>Year 4</span>
-            <span>Year 5</span>
+            <span>Stage 1</span>
+            <span>Stage 2</span>
+            <span>Stage 3</span>
+            <span>Stage 4</span>
+            <span>Stage 5</span>
           </div>
 
           <div className="milestones">
-            <span>Debt Control</span>
-            <span>Debt Free</span>
-            <span>Emergency Fund</span>
-            <span>Start Investing</span>
-            <span>Stability</span>
+            <span>Reduce overspending</span>
+            <span>Control and stabilise expenses</span>
+            <span>Become debt-free</span>
+            <span>Build emergency fund</span>
+            <span>Transition to property / investing</span>
           </div>
-        </div>
-
+        </div>{" "}
+        {/* FIX 2: Added missing closing </div> for Recovery Journey card */}
         {/* ================= BEHAVIOURAL INSIGHTS ================= */}
         <div className="card">
           <h3>Behavioural Insights</h3>
@@ -185,28 +239,47 @@ export default function LifestyleCorrectionTrack() {
             </p>
           </div>
         </div>
-
-        {/* ================= EDUCATION ================= */}
+        {/* ================= STRATEGY GUIDE ================= */}
         <div className="card">
-          <h3>Financial Knowledge</h3>
+          <h3>Lifestyle Correction Strategy Guide</h3>
 
-          <p>
-            High-interest debt (like credit cards or personal loans) can
-            significantly slow down wealth building.
-          </p>
+          <div className="grid-2">
+            <div>
+              <h4>📌 What You Should Do</h4>
+              <ul className="list">
+                <li>Cut non-essential lifestyle spending aggressively</li>
+                <li>Prioritise paying off high-interest debt first</li>
+                <li>Create a strict monthly budget and stick to it</li>
+                <li>Avoid taking on new debt while recovering</li>
+              </ul>
+            </div>
 
-          <ul className="list">
-            <li>Prioritise paying high-interest debt first</li>
-            <li>Avoid lifestyle inflation</li>
-            <li>Build habits before investing</li>
-          </ul>
+            <div>
+              <h4>⚠️ Risks to Watch</h4>
+              <ul className="list">
+                <li>Falling back into old spending habits</li>
+                <li>Using credit to maintain lifestyle</li>
+                <li>Emotional or impulsive spending</li>
+                <li>Burnout from overly strict budgeting</li>
+              </ul>
+            </div>
+          </div>
 
-          <p className="muted">
-            In South Africa, many individuals face debt pressure due to rising
-            living costs and interest rates.
-          </p>
+          <div className="explanation-box">
+            <h4>🧠 Real Explanation</h4>
+            <p>
+              This phase is about correcting behaviour, not just numbers. Many
+              financial problems come from spending habits rather than income
+              levels.
+            </p>
+
+            <p>
+              The goal is to reduce pressure by eliminating debt and regaining
+              control. Once your expenses are stable and debt is cleared, you
+              can move into saving, investing, or property ownership.
+            </p>
+          </div>
         </div>
-
         {/* ================= AI INSIGHTS ================= */}
         <div className="card">
           <h3>AI Financial Insights</h3>

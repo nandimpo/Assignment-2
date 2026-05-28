@@ -8,30 +8,46 @@ import { useUser } from "../context/UserContext";
 export default function PropertyTrack() {
   const navigate = useNavigate();
   const { user } = useUser();
+
+  // ✅ ALL useState HOOKS MUST COME FIRST — before any calculations
+  const [showPanel, setShowPanel] = useState(false);
+  const [content, setContent] = useState(null);
+  const [savingFocus, setSavingFocus] = useState(50);
+  const [lifestyle, setLifestyle] = useState(50);
+  const [growth, setGrowth] = useState(50);
+  const [showSuggestion, setShowSuggestion] = useState(false);
+
+  // ✅ NOW calculations can safely use state values
   const income = Number(user?.salary) || 0;
   const expenses = Number(user?.expenses) || 0;
   const savings = Math.max(income - expenses, 0);
 
   const goal =
-    Number(user.depositAmount) ||
-    Number(user.depositGoal) ||
-    Math.round((Number(user.housePrice) || 1000000) * 0.1);
+    Number(user?.depositAmount) ||
+    Number(user?.depositGoal) ||
+    Math.round((Number(user?.housePrice) || 1000000) * 0.1);
+
+  // 🎯 DYNAMIC SAVINGS BASED ON SLIDERS
+  const savingsMultiplier =
+    1 + (savingFocus - 50) / 100 - (lifestyle - 50) / 120;
+
+  const adjustedSavings = Math.max(0, Math.round(savings * savingsMultiplier));
+
+  // 🧠 TIMELINE CALCULATOR
+  const remainingAmount = Math.max(goal - adjustedSavings, 0);
+
+  const monthsToGoal =
+    adjustedSavings > 0 ? Math.ceil(remainingAmount / adjustedSavings) : null;
+
+  const yearsToGoal =
+    monthsToGoal !== null ? (monthsToGoal / 12).toFixed(1) : null;
 
   const progress =
     goal > 0 ? Math.min(100, Math.round((savings / goal) * 100)) : 0;
 
   const savingsRate = income > 0 ? Math.round((savings / income) * 100) : 0;
 
-  const [showPanel, setShowPanel] = useState(false);
-  const [content, setContent] = useState(null);
-
-  const [savingFocus, setSavingFocus] = useState(50);
-  const [lifestyle, setLifestyle] = useState(50);
-  const [growth, setGrowth] = useState(50);
-  const [showSuggestion, setShowSuggestion] = useState(false);
-
   /* 🔥 AI INSIGHT ENGINE */
-
   const insights = [];
 
   if (savingsRate < 15) {
@@ -64,8 +80,7 @@ export default function PropertyTrack() {
     );
   }
 
-  /*  TRACK LOGIC */
-
+  /* TRACK LOGIC */
   const getSuggestedTrack = () => {
     if (savingFocus > 70 && lifestyle < 40) {
       return {
@@ -93,7 +108,6 @@ export default function PropertyTrack() {
   const suggestedTrack = getSuggestedTrack();
 
   /* EXPLAINERS */
-
   const explainers = {
     bond: {
       title: "Bond Pre-Approval",
@@ -133,9 +147,34 @@ export default function PropertyTrack() {
             Estimated monthly contribution: R{savings.toLocaleString()}
           </p>
 
+          {/* 🧠 TIMELINE OUTPUT */}
+          <div className="timeline-estimate">
+            {monthsToGoal ? (
+              <>
+                <h4>📅 Deposit Timeline</h4>
+                <p>
+                  At your current pace, you could reach your deposit in{" "}
+                  <strong>{monthsToGoal} months</strong> (~{yearsToGoal} years).
+                </p>
+                <p className="small">
+                  {adjustedSavings > savings
+                    ? "🚀 Your strategy is accelerating your timeline"
+                    : adjustedSavings < savings
+                      ? "⚠️ Your lifestyle is slowing your progress"
+                      : "➖ No change to your timeline"}
+                </p>
+              </>
+            ) : (
+              <p className="warning-text">
+                You currently have no available savings. Reducing expenses or
+                increasing income will unlock your timeline.
+              </p>
+            )}
+          </div>
+
           {/* AI INSIGHTS */}
           <div className="insight-block">
-            <h4> AI Insights</h4>
+            <h4>AI Insights</h4>
             {insights.map((item, i) => (
               <div key={i} className="insight">
                 {item}
@@ -147,23 +186,27 @@ export default function PropertyTrack() {
           <div className="timeline-box">
             <div className="timeline-step active">
               <h4>Stage 1</h4>
-              <p>Build emergency buffer</p>
+              <p>Build emergency fund (3–6 months expenses)</p>
             </div>
+
             <div className="timeline-step">
               <h4>Stage 2</h4>
-              <p>Increase savings rate</p>
+              <p>Optimise savings rate (20–30%)</p>
             </div>
+
             <div className="timeline-step">
               <h4>Stage 3</h4>
-              <p>Reach deposit goal</p>
+              <p>Reach deposit target (10–20% of property)</p>
             </div>
+
             <div className="timeline-step">
               <h4>Stage 4</h4>
-              <p>Secure financing</p>
+              <p>Get bond approval + cover transfer costs</p>
             </div>
+
             <div className="timeline-step">
               <h4>Stage 5</h4>
-              <p>Purchase property</p>
+              <p>Purchase property & move in</p>
             </div>
           </div>
 
@@ -209,6 +252,52 @@ export default function PropertyTrack() {
             </div>
           </div>
         </div>
+
+        {/* STRATEGY GUIDE */}
+        <div className="track-card">
+          <h2>Property Strategy Guide</h2>
+
+          <div className="grid-2">
+            <div>
+              <h3>📌 What You Should Do</h3>
+              <ul className="list">
+                <li>Save 20–30% of your income consistently</li>
+                <li>Keep expenses stable and predictable</li>
+                <li>Avoid taking on new debt</li>
+                <li>
+                  Use safe, low-risk savings (money market, savings accounts)
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h3>⚠️ Risks to Watch</h3>
+              <ul className="list">
+                <li>Burnout from extreme saving</li>
+                <li>Unexpected costs (transfer duty, legal fees)</li>
+                <li>Interest rate increases affecting affordability</li>
+                <li>Delaying investing too long</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="explanation-box">
+            <h3>🧠 Real Explanation</h3>
+            <p>
+              This strategy works because property requires a large upfront
+              deposit. The fastest way to reach that goal is by increasing your
+              savings rate and reducing unnecessary spending.
+            </p>
+
+            <p>
+              However, this comes at a cost — less flexibility and fewer
+              lifestyle upgrades in the short term. The key is consistency:
+              small monthly contributions compound into a large deposit over
+              time.
+            </p>
+          </div>
+        </div>
+
         {/* COMPARE STRATEGY TRACKS */}
         <div className="track-card compare-card">
           <h3>Compare Strategy Tracks</h3>

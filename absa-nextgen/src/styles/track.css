@@ -1,3 +1,31 @@
+.track-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.track-icon {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 8px;
+  border-radius: 10px;
+}
+
+.track-focus {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin-top: 6px;
+}
+
+.badge {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 0.7rem;
+  background: #1f3d2b;
+  color: #9fd6a3;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
 .track-page {
   background: #020202;
   min-height: 100vh;
@@ -32,8 +60,41 @@ h1 {
   padding: 20px;
   margin-bottom: 20px;
 }
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 9999;
+}
+
+.popup {
+  background: #0f1115;
+  padding: 25px;
+  border-radius: 14px;
+  text-align: center;
+  border: 1px solid #222;
+}
+
+.popup button {
+  margin-top: 15px;
+}
 /* PROGRESS */
+.progression-flow {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  opacity: 0.7;
+  font-size: 13px;
+}
+
 .progress-bar {
   height: 10px;
   background: #1a1f1e;
@@ -61,7 +122,17 @@ h1 {
   gap: 10px;
   margin-top: 20px;
 }
+.next-step-box {
+  margin-top: 12px;
+  padding: 12px;
+  background: #14161b;
+  border-radius: 10px;
+  border: 1px solid #222;
+}
 
+.next-step-box h4 {
+  margin-bottom: 5px;
+}
 .timeline-step {
   flex: 1;
   padding: 10px;
@@ -74,6 +145,26 @@ h1 {
   opacity: 1;
   background: rgba(132, 167, 148, 0.1);
 }
+.timeline-estimate {
+  margin-top: 15px;
+  padding: 12px;
+  background: #14161b;
+  border-radius: 10px;
+  border: 1px solid #222;
+}
+
+.timeline-estimate h4 {
+  margin-bottom: 5px;
+}
+.small {
+  font-size: 12px;
+  color: #9aa5a6;
+  margin-top: 4px;
+}
+
+.warning-text {
+  color: #ff6b6b;
+}
 
 /* NUDGE + IMPACT */
 .nudge-impact {
@@ -81,6 +172,28 @@ h1 {
   grid-template-columns: 1fr 1fr;
   gap: 40px; /* increased */
   margin-top: 30px; /* increased */
+}
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.list {
+  padding-left: 18px;
+}
+
+.list li {
+  margin-bottom: 8px;
+  color: #ddd;
+}
+
+.explanation-box {
+  margin-top: 20px;
+  padding: 15px;
+  background: #14161b;
+  border-radius: 10px;
+  border: 1px solid #222;
 }
 
 /* NUDGES */
@@ -188,6 +301,28 @@ h1 {
   color: #84a794;
   margin-top: 10px;
   display: block;
+}
+.score-box {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.score-bar {
+  height: 10px;
+  background: #1a1f1e;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.score-fill {
+  height: 100%;
+  transition: width 0.4s ease;
+}
+
+.small {
+  font-size: 12px;
+  color: #aaa;
+  margin-top: 8px;
 }
 
 /* COMPARE */

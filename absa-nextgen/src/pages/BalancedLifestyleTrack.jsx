@@ -2,6 +2,16 @@ import { useState } from "react";
 import { useUser } from "../context/UserContext";
 import AppNav from "../components/AppNav";
 import "../styles/track.css";
+import {
+  Wallet,
+  TrendingUp,
+  PiggyBank,
+  AlertTriangle,
+  Sliders,
+  Lightbulb,
+  Target,
+  BarChart3,
+} from "lucide-react";
 
 export default function BalancedLifestyleTrack() {
   const { user } = useUser();
@@ -52,11 +62,11 @@ export default function BalancedLifestyleTrack() {
 
   /* ================= MILESTONES ================= */
   const milestones = [
-    "Emergency fund",
-    "Consistent investing",
-    "Portfolio growth",
-    "Asset diversification",
-    "Wealth stability",
+    "Build emergency fund (3–6 months expenses)",
+    "Start consistent monthly investing",
+    "Grow portfolio to meaningful size",
+    "Diversify across assets & regions",
+    "Achieve long-term financial stability",
   ];
 
   return (
@@ -73,9 +83,18 @@ export default function BalancedLifestyleTrack() {
           <h2>Financial Balance Snapshot</h2>
 
           <div className="snapshot-list">
-            <p>💰 Savings: R{saved.toLocaleString()}</p>
-            <p>🏠 Expenses: R{expenses.toLocaleString()}</p>
-            <p>📈 Investing: R{investing.toLocaleString()}</p>
+            <p className="title-icon">
+              {" "}
+              <Wallet size={20} /> Savings: R{saved.toLocaleString()}
+            </p>
+            <p className="title-icon">
+              {" "}
+              <TrendingUp size={20} /> Expenses: R{expenses.toLocaleString()}
+            </p>
+            <p className="title-icon">
+              {" "}
+              <PiggyBank size={20} /> Investing: R{investing.toLocaleString()}
+            </p>
           </div>
 
           {/* ================= PROGRESS BAR ================= */}
@@ -134,6 +153,47 @@ export default function BalancedLifestyleTrack() {
                 Open Investment Studio →
               </button>
             </div>
+          </div>
+        </div>
+        {/* ================= STRATEGY GUIDE ================= */}
+        <div className="card">
+          <h2>Strategy Guide</h2>
+
+          <div className="grid-2">
+            <div>
+              <h3>📌 What You Should Do</h3>
+              <ul className="list">
+                <li>Invest consistently every month (even small amounts)</li>
+                <li>Keep lifestyle inflation under control</li>
+                <li>Diversify between local and offshore investments</li>
+                <li>Increase contributions when income grows</li>
+              </ul>
+            </div>
+
+            <div>
+              <h3>⚠️ Risks to Watch</h3>
+              <ul className="list">
+                <li>Spending increases as income grows (lifestyle creep)</li>
+                <li>Investing too little to make meaningful progress</li>
+                <li>Overconfidence in market growth</li>
+                <li>Not adjusting strategy over time</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="explanation-box">
+            <h3>🧠 Real Explanation</h3>
+            <p>
+              This strategy works because it balances enjoying your life today
+              while still investing for the future. The key is consistency — not
+              intensity. Small, regular investments over time compound into
+              meaningful wealth.
+            </p>
+            <p>
+              The biggest risk is becoming too comfortable. If your lifestyle
+              keeps increasing, your ability to build wealth slows down
+              significantly.
+            </p>
           </div>
         </div>
 

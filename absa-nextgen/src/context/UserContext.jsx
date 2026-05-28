@@ -16,8 +16,16 @@ export const UserProvider = ({ children }) => {
     localStorage.setItem("user", JSON.stringify(user));
   }, [user]);
 
+  // FIX 1: Moved inside the component so it can access `user` and `setUser`
+  const updateUser = (updates) => {
+    const newUser = { ...user, ...updates };
+    localStorage.setItem("user", JSON.stringify(newUser));
+    setUser(newUser);
+  };
+
+  // FIX 2: Added `updateUser` to the context value so useUser() exposes it
   return (
-    <UserContext.Provider value={{ user, setUser }}>
+    <UserContext.Provider value={{ user, setUser, updateUser }}>
       {children}
     </UserContext.Provider>
   );
