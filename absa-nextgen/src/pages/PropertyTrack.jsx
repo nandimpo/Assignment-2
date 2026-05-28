@@ -22,10 +22,13 @@ export default function PropertyTrack() {
   const expenses = Number(user?.expenses) || 0;
   const savings = Math.max(income - expenses, 0);
 
+  const housePrice = Number(user?.housePrice) || 1000000;
+
+  // FIX: single goal declaration using housePrice defined above
   const goal =
     Number(user?.depositAmount) ||
     Number(user?.depositGoal) ||
-    Math.round((Number(user?.housePrice) || 1000000) * 0.1);
+    Math.round(housePrice * 0.1);
 
   // 🎯 DYNAMIC SAVINGS BASED ON SLIDERS
   const savingsMultiplier =
@@ -34,7 +37,7 @@ export default function PropertyTrack() {
   const adjustedSavings = Math.max(0, Math.round(savings * savingsMultiplier));
 
   // 🧠 TIMELINE CALCULATOR
-  const remainingAmount = Math.max(goal - adjustedSavings, 0);
+  const remainingAmount = Math.max(goal - savings, 0);
 
   const monthsToGoal =
     adjustedSavings > 0 ? Math.ceil(remainingAmount / adjustedSavings) : null;

@@ -2,16 +2,23 @@ import { useState } from "react";
 import AppNav from "../components/AppNav";
 import "../styles/track.css";
 import { getTrackProgression } from "../utils/trackProgression";
+import { useUser } from "../context/UserContext";
 
 export default function LifestyleCorrectionTrack() {
   // ================= USER MOCK =================
-  const income = 46000;
-  const expenses = 42000;
-  const debt = 85000;
-  const savings = 2000;
+  const { user } = useUser();
+
+  const income = Number(user?.salary) || 0;
+  const expenses = Number(user?.expenses) || 0;
+  const debt = Number(user?.debt) || 0;
+
+  const savings = income - expenses;
 
   // FIX 1: `user` was undefined — now passing the actual user data object
-  const progression = getTrackProgression({ income, expenses, debt, savings });
+  const progression = getTrackProgression(user);
+  if (!user) {
+    return <p>Please complete setup first</p>;
+  }
 
   // ================= CORE CALCULATIONS =================
   const disposableIncome = income - expenses;

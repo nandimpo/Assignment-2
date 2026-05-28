@@ -36,8 +36,8 @@ export default function BalancedLifestyleTrack() {
 
   /* ================= PORTFOLIO ================= */
   const portfolio = {
-    local: 60,
-    offshore: 40,
+    local: user?.localPct || 60,
+    offshore: user?.offshorePct || 40,
   };
 
   /* ================= INSIGHTS ================= */

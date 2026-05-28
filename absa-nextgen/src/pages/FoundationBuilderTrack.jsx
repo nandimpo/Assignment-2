@@ -1,12 +1,15 @@
 import { useState } from "react";
+import { useUser } from "../context/UserContext";
 import AppNav from "../components/AppNav";
 import "../styles/track.css";
 
 export default function FoundationBuilderTrack() {
-  // ================= USER MOCK (connect to context later) =================
-  const income = 37000;
-  const expenses = 25000;
-  const savings = 6000;
+  // ================= USER CONTEXT =================
+  const { user } = useUser();
+
+  const income = Number(user?.salary) || 0;
+  const expenses = Number(user?.expenses) || 0;
+  const savings = income - expenses;
 
   // ================= FOUNDATION LOGIC =================
   const emergencyTarget = expenses * 3; // 3 months rule
@@ -16,7 +19,7 @@ export default function FoundationBuilderTrack() {
     100,
   ).toFixed(0);
 
-  // 🧠 STAGE DETECTION
+  // ================= STAGE DETECTION =================
   let currentStage = "";
   let nextStep = "";
 
@@ -44,7 +47,6 @@ export default function FoundationBuilderTrack() {
 
   const remaining = Math.max(emergencyTarget - currentSaved, 0);
 
-  // FIX 1: Removed stray "); " that followed this declaration
   const monthsToGoal =
     adjustedSavings > 0 ? Math.ceil(remaining / adjustedSavings) : null;
 
@@ -57,6 +59,7 @@ export default function FoundationBuilderTrack() {
         <p className="muted">
           Build your financial base before investing and long-term growth.
         </p>
+
         {/* ================= EMERGENCY FUND STATUS ================= */}
         <div className="card">
           <h3>Emergency Fund Progress</h3>
@@ -80,6 +83,7 @@ export default function FoundationBuilderTrack() {
 
           <p className="muted">{progress}% complete</p>
         </div>
+
         {/* ================= CURRENT STAGE ================= */}
         <div className="card">
           <h3>📍 Your Current Stage</h3>
@@ -91,6 +95,7 @@ export default function FoundationBuilderTrack() {
             <p>{nextStep}</p>
           </div>
         </div>
+
         {/* ================= ESSENTIAL ALLOCATION ================= */}
         <div className="card">
           <h3>Essential Allocation</h3>
@@ -105,6 +110,7 @@ export default function FoundationBuilderTrack() {
             This reflects a realistic South African financial structure.
           </p>
         </div>
+
         {/* ================= 5 YEAR JOURNEY ================= */}
         <div className="card">
           <h3>Your 5-Year Journey</h3>
@@ -124,8 +130,8 @@ export default function FoundationBuilderTrack() {
             <span>Start first investments</span>
             <span>Transition to wealth building</span>
           </div>
-        </div>{" "}
-        {/* FIX 2: Added missing closing </div> for 5-Year Journey card */}
+        </div>
+
         {/* ================= ADJUSTMENT ENGINE ================= */}
         <div className="card">
           <h3>Budget Adjustment Tool</h3>
@@ -171,8 +177,8 @@ export default function FoundationBuilderTrack() {
               </p>
             )}
           </div>
-        </div>{" "}
-        {/* FIX 3: Added missing closing </div> for Adjustment Engine card */}
+        </div>
+
         {/* ================= STRATEGY GUIDE ================= */}
         <div className="card">
           <h3>Foundation Strategy Guide</h3>
@@ -191,7 +197,6 @@ export default function FoundationBuilderTrack() {
             <div>
               <h4>⚠️ Risks to Watch</h4>
               <ul className="list">
-                {/* FIX 4: Removed stray "const monthsToGoal" text from inside <li> */}
                 <li>Running out of cash during emergencies</li>
                 <li>Living paycheck to paycheck</li>
                 <li>Taking on debt due to lack of savings</li>
@@ -215,6 +220,7 @@ export default function FoundationBuilderTrack() {
             </p>
           </div>
         </div>
+
         {/* ================= AI INSIGHTS ================= */}
         <div className="card">
           <h3>AI Financial Insights</h3>
@@ -240,8 +246,7 @@ export default function FoundationBuilderTrack() {
             </p>
           </div>
         </div>
-      </div>{" "}
-      {/* FIX 5: Added missing closing </div> for container */}
+      </div>
     </div>
   );
 }
