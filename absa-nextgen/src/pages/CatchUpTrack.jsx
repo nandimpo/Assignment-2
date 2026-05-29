@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useUser } from "../context/UserContext";
 import AppNav from "../components/AppNav";
 import "../styles/track.css";
+import useProgress from "../hooks/useProgress";
 
 export default function CatchUpTrack() {
   const { user } = useUser();
@@ -16,7 +17,7 @@ export default function CatchUpTrack() {
   const targetWealth = 1000000;
   const currentWealth = Math.max(150000, savings * 5);
 
-  const progress = Math.min((currentWealth / targetWealth) * 100, 100);
+  const wealthProgress = Math.min((currentWealth / targetWealth) * 100, 100);
 
   /* ================= TIME MODEL ================= */
   const [extraSaving, setExtraSaving] = useState(0);
@@ -27,6 +28,8 @@ export default function CatchUpTrack() {
 
   const yearsToGoal =
     yearlySaving > 0 ? Math.ceil(remaining / yearlySaving) : null;
+
+  const { progress: milestoneProgress, toggle, percent } = useProgress();
 
   // FIX: guard against null before subtracting
   const improvedYears =
@@ -39,8 +42,8 @@ export default function CatchUpTrack() {
   const savingsRate = income > 0 ? (savings / income) * 100 : 0;
   score += Math.min(savingsRate * 1.5, 40);
 
-  // Progress toward goal (max 40)
-  score += Math.min(progress * 0.4, 40);
+  // FIX: was referencing undefined `progress` — should be `wealthProgress`
+  score += Math.min(wealthProgress * 0.4, 40);
 
   // Time efficiency (max 20)
   if (yearsToGoal !== null) {
@@ -68,12 +71,12 @@ export default function CatchUpTrack() {
   let insight1 = "";
   let insight2 = "";
 
-  if (progress < 30) {
+  if (wealthProgress < 30) {
     insight1 =
       "You are slightly behind, but recovery is achievable with consistency.";
     insight2 =
       "Increasing contributions by 5% could reduce your timeline significantly.";
-  } else if (progress < 60) {
+  } else if (wealthProgress < 60) {
     insight1 =
       "You are making steady progress — keep increasing your savings rate.";
     insight2 =
@@ -81,6 +84,26 @@ export default function CatchUpTrack() {
   } else {
     insight1 = "You are on track — your current pace is strong.";
     insight2 = "Maintain consistency to reach your goal faster.";
+  }
+
+  const milestoneInsights = [];
+
+  if (!milestoneProgress.emergencyFund) {
+    milestoneInsights.push(
+      "Stabilise your finances by building an emergency fund first.",
+    );
+  }
+
+  if (milestoneProgress.emergencyFund && !milestoneProgress.deposit) {
+    milestoneInsights.push(
+      "Good progress — now shift focus to saving for your deposit.",
+    );
+  }
+
+  if (milestoneProgress.deposit && !milestoneProgress.purchase) {
+    milestoneInsights.push(
+      "You're close — prepare for property or investment opportunities.",
+    );
   }
 
   return (
@@ -102,16 +125,16 @@ export default function CatchUpTrack() {
             <p>📊 Current: R{currentWealth.toLocaleString()}</p>
           </div>
 
-          {/* PROGRESS BAR */}
+          {/* FIX: malformed self-closing div with dangling span — restructured */}
           <div className="progress-bar">
             <div
               className="progress saving"
-              style={{ width: `${progress}%` }}
+              style={{ width: `${wealthProgress}%` }}
             />
           </div>
 
           <div className="progress-labels">
-            <span>{Math.round(progress)}%</span>
+            <span>{Math.round(wealthProgress)}%</span>
           </div>
 
           {/* TIME MODEL */}
@@ -153,38 +176,58 @@ export default function CatchUpTrack() {
             Your score reflects your savings rate, progress, and time to goal.
           </p>
         </div>
-        {/* ================= JOURNEY ================= */}
+        {/* ================= MILESTONES ================= */}
+        {/* FIX: removed hardcoded debug text, fixed missing closing div */}
         <div className="card">
-          <h2>Your 5 Year Journey</h2>
+          <h2>Milestones</h2>
 
-          <div className="timeline">
-            <div className="timeline-item">
-              <span>Stage 1</span>
-              <div className="milestone">Emergency fund</div>
-            </div>
+          <div className="stepper">
+            {["emergencyFund", "deposit", "purchase"].map((step, index) => {
+              const labels = {
+                emergencyFund: "Emergency Fund",
+                deposit: "Deposit",
+                purchase: "Purchase",
+              };
 
-            <div className="timeline-item">
-              <span>Stage 2</span>
-              <div className="milestone">Debt reduction</div>
-            </div>
+              const steps = ["emergencyFund", "deposit", "purchase"];
 
-            <div className="timeline-item">
-              <span>Stage 3</span>
-              <div className="milestone">Accelerated saving</div>
-            </div>
+              const isCompleted = milestoneProgress[step];
+              const isCurrent =
+                !milestoneProgress[step] &&
+                (index === 0 || milestoneProgress[steps[index - 1]]);
+              const isLocked =
+                (step === "deposit" && !milestoneProgress.emergencyFund) ||
+                (step === "purchase" && !milestoneProgress.deposit);
 
-            <div className="timeline-item">
-              <span>Stage 4</span>
-              <div className="milestone">Deposit / asset goal</div>
-            </div>
+              return (
+                <div key={step} className="step-wrapper">
+                  <div
+                    className={`step 
+              ${isCompleted ? "completed" : ""} 
+              ${isCurrent ? "current" : ""} 
+              ${isLocked ? "locked" : ""}
+            `}
+                    onClick={() => !isLocked && toggle(step)}
+                  >
+                    {isCompleted ? "✓" : index + 1}
+                  </div>
 
-            <div className="timeline-item">
-              <span>Stage 5</span>
-              <div className="milestone">Financial stability</div>
-            </div>
+                  <span className="step-label">{labels[step]}</span>
+
+                  {index < steps.length - 1 && (
+                    <div
+                      className={`step-line ${
+                        milestoneProgress[step] ? "filled" : ""
+                      }`}
+                    />
+                  )}
+                </div>
+              );
+            })}
           </div>
-        </div>{" "}
-        {/* FIX: closed journey card here */}
+
+          <p className="muted">{percent}% complete</p>
+        </div>
         {/* ================= STRATEGY GUIDE ================= */}
         <div className="card">
           <h2>Catch-Up Strategy Guide</h2>
@@ -268,6 +311,17 @@ export default function CatchUpTrack() {
             <div className="insight">💡 {insight1}</div>
             <div className="insight">🔔 {insight2}</div>
           </div>
+        </div>
+        {/* ================= MILESTONE INSIGHTS ================= */}
+        {/* FIX: was outside the root div — moved inside container */}
+        <div className="card">
+          <h3>Milestone Insights</h3>
+
+          {milestoneInsights.map((item, i) => (
+            <div key={i} className="insight">
+              {item}
+            </div>
+          ))}
         </div>
       </div>
     </div>

@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import AppNav from "../components/AppNav";
 import "../styles/money.css";
 import ExplainerPanel from "../components/ExplainerPanel";
+import useProgress from "../hooks/useProgress";
 
 export default function MoneySnapshot() {
   const navigate = useNavigate();
@@ -97,13 +98,19 @@ export default function MoneySnapshot() {
   };
 
   useEffect(() => {
+    // ✅ FIX: compute breakdown inline so it's never stale inside the effect
+    const currentBreakdown = {
+      ...breakdownEdit,
+      savings: savings,
+    };
+
     const updatedUser = {
       ...user,
       salary: income,
       expenses: expenses,
       savings: savings,
       monthsToGoal: monthsToGoal,
-      breakdown: breakdown, // ✅ ADD THIS
+      breakdown: currentBreakdown, // ✅ ADD THIS
     };
 
     setUser(updatedUser);
@@ -180,6 +187,24 @@ export default function MoneySnapshot() {
       text: "This represents your target savings required for a property deposit. Increasing contributions reduces the time required to reach this milestone.",
     },
   };
+  const { progress: milestoneProgress, toggle, percent } = useProgress();
+  let nextAction = "";
+
+  if (!milestoneProgress.emergencyFund) {
+    nextAction = "Build your emergency fund (3–6 months expenses)";
+  } else if (!milestoneProgress.deposit) {
+    nextAction = "Start saving aggressively for your deposit";
+  } else if (!milestoneProgress.purchase) {
+    nextAction = "Prepare for property purchase (bond, costs)";
+  } else {
+    nextAction = "Optimise your finances post-purchase";
+  }
+  let track = "Foundation";
+
+  if (user?.debt > income * 1.5) track = "Lifestyle Correction";
+  else if (!milestoneProgress.emergencyFund) track = "Foundation";
+  else if (!milestoneProgress.deposit) track = "Balanced";
+  else track = "Property";
 
   return (
     <div className="money">
@@ -197,11 +222,70 @@ export default function MoneySnapshot() {
             <span className="accent">{user?.strategy}</span> strategy
           </p>
         </section>
+        {/* ================= MILESTONES ================= */}
+        <div className="card">
+          <h3>Milestones</h3>
+
+          <div className="stepper">
+            {["emergencyFund", "deposit", "purchase"].map((step, index) => {
+              const labels = {
+                emergencyFund: "Emergency Fund",
+                deposit: "Deposit",
+                purchase: "Purchase",
+              };
+
+              const steps = ["emergencyFund", "deposit", "purchase"];
+
+              const isCompleted = milestoneProgress[step];
+              const isCurrent =
+                !milestoneProgress[step] &&
+                (index === 0 || milestoneProgress[steps[index - 1]]);
+              const isLocked =
+                (step === "deposit" && !milestoneProgress.emergencyFund) ||
+                (step === "purchase" && !milestoneProgress.deposit);
+
+              return (
+                <div key={step} className="step-wrapper">
+                  <div
+                    className={`step 
+              ${isCompleted ? "completed" : ""} 
+              ${isCurrent ? "current" : ""} 
+              ${isLocked ? "locked" : ""}
+            `}
+                    onClick={() => !isLocked && toggle(step)}
+                  >
+                    {isCompleted ? "✓" : index + 1}
+                  </div>
+
+                  <span className="step-label">{labels[step]}</span>
+
+                  {index < steps.length - 1 && (
+                    <div
+                      className={`step-line ${
+                        milestoneProgress[step] ? "filled" : ""
+                      }`}
+                    />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          <p className="muted">{percent}% complete</p>
+        </div>
+        <div className="card">
+          <h3>📍 Your Track</h3>
+          <p className="accent">{track}</p>
+        </div>
 
         {/* FINANCIAL SUMMARY */}
         <div className="card">
           <h3>Financial Summary</h3>
           <p>{narrative}</p>
+        </div>
+        <div className="card">
+          <h3>🎯 Next Best Action</h3>
+          <p className="accent">{nextAction}</p>
         </div>
 
         {/* KEY METRICS */}

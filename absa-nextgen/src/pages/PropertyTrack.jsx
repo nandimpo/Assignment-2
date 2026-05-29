@@ -1,30 +1,43 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AppNav from "../components/AppNav";
 import "../styles/track.css";
 import ExplainerPanel from "../components/ExplainerPanel";
 import { useUser } from "../context/UserContext";
+import useProgress from "../hooks/useProgress";
 
 export default function PropertyTrack() {
   const navigate = useNavigate();
   const { user } = useUser();
 
-  // ✅ ALL useState HOOKS MUST COME FIRST — before any calculations
+  // ✅ ALL HOOKS FIRST
   const [showPanel, setShowPanel] = useState(false);
   const [content, setContent] = useState(null);
   const [savingFocus, setSavingFocus] = useState(50);
   const [lifestyle, setLifestyle] = useState(50);
   const [growth, setGrowth] = useState(50);
   const [showSuggestion, setShowSuggestion] = useState(false);
+  const { progress, toggle, percent } = useProgress("propertyProgress", {
+    emergencyFund: false,
+    deposit: false,
+    purchase: false,
+  });
 
-  // ✅ NOW calculations can safely use state values
+  // FIX 1: progress is an object, not a number — use percent to check completion
+  // FIX 2: removed isLocked from here (it used undefined 'step') — moved inside the map below
+  useEffect(() => {
+    if (percent >= 100 && !progress.deposit) {
+      toggle("deposit");
+    }
+  }, [percent, progress.deposit]);
+
+  // ✅ ALL CALCULATIONS AFTER HOOKS
   const income = Number(user?.salary) || 0;
   const expenses = Number(user?.expenses) || 0;
   const savings = Math.max(income - expenses, 0);
 
   const housePrice = Number(user?.housePrice) || 1000000;
 
-  // FIX: single goal declaration using housePrice defined above
   const goal =
     Number(user?.depositAmount) ||
     Number(user?.depositGoal) ||
@@ -45,7 +58,8 @@ export default function PropertyTrack() {
   const yearsToGoal =
     monthsToGoal !== null ? (monthsToGoal / 12).toFixed(1) : null;
 
-  const progress =
+  // renamed from 'progress' to avoid conflict with useProgress hook
+  const depositProgress =
     goal > 0 ? Math.min(100, Math.round((savings / goal) * 100)) : 0;
 
   const savingsRate = income > 0 ? Math.round((savings / income) * 100) : 0;
@@ -59,7 +73,7 @@ export default function PropertyTrack() {
     );
   }
 
-  if (progress < 20) {
+  if (depositProgress < 20) {
     insights.push(
       "You are in the early stage of your property journey. Consistency matters more than large once-off contributions.",
     );
@@ -141,8 +155,11 @@ export default function PropertyTrack() {
           </h2>
 
           <div className="progress-bar">
-            <div className="progress-fill" style={{ width: `${progress}%` }}>
-              <span className="progress-text">{progress}%</span>
+            <div
+              className="progress-fill"
+              style={{ width: `${depositProgress}%` }}
+            >
+              <span className="progress-text">{depositProgress}%</span>
             </div>
           </div>
 
@@ -185,32 +202,49 @@ export default function PropertyTrack() {
             ))}
           </div>
 
-          {/* TIMELINE */}
+          {/* MILESTONE PROGRESS */}
           <div className="timeline-box">
-            <div className="timeline-step active">
+            <h4>📍 Milestone Progress ({percent}%)</h4>
+
+            {/* FIX 3: isLocked moved inside each step's onClick to avoid undefined 'step' at top scope */}
+            <div
+              className={`timeline-step ${progress.emergencyFund ? "active" : ""}`}
+              onClick={() => toggle("emergencyFund")}
+            >
               <h4>Stage 1</h4>
-              <p>Build emergency fund (3–6 months expenses)</p>
+              <p>Emergency Fund</p>
+              <span>
+                {progress.emergencyFund ? "✅ Done" : "⬜ Mark complete"}
+              </span>
             </div>
 
-            <div className="timeline-step">
+            <div
+              className={`timeline-step ${progress.deposit ? "active" : ""}`}
+              onClick={() => {
+                const isLocked = !progress.emergencyFund;
+                if (!isLocked) toggle("deposit");
+              }}
+            >
               <h4>Stage 2</h4>
-              <p>Optimise savings rate (20–30%)</p>
+              <p>Deposit</p>
+              <span>{progress.deposit ? "✅ Done" : "⬜ Mark complete"}</span>
             </div>
 
-            <div className="timeline-step">
+            <div
+              className={`timeline-step ${progress.purchase ? "active" : ""}`}
+              onClick={() => {
+                const isLocked = !progress.deposit;
+                if (!isLocked) toggle("purchase");
+              }}
+            >
               <h4>Stage 3</h4>
-              <p>Reach deposit target (10–20% of property)</p>
+              <p>Purchase</p>
+              <span>{progress.purchase ? "✅ Done" : "⬜ Mark complete"}</span>
             </div>
+          </div>
 
-            <div className="timeline-step">
-              <h4>Stage 4</h4>
-              <p>Get bond approval + cover transfer costs</p>
-            </div>
-
-            <div className="timeline-step">
-              <h4>Stage 5</h4>
-              <p>Purchase property & move in</p>
-            </div>
+          <div className="progress-bar">
+            <div className="progress-fill" style={{ width: `${percent}%` }} />
           </div>
 
           {/* NUDGES */}
@@ -248,7 +282,7 @@ export default function PropertyTrack() {
               <p>🧾 Spending behaviour affects progress</p>
 
               <span className="success">
-                {progress > 40
+                {depositProgress > 40
                   ? "You are ahead of your projected timeline."
                   : "Maintaining consistency will improve your position."}
               </span>

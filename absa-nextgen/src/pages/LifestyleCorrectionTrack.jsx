@@ -3,6 +3,7 @@ import AppNav from "../components/AppNav";
 import "../styles/track.css";
 import { getTrackProgression } from "../utils/trackProgression";
 import { useUser } from "../context/UserContext";
+import useProgress from "../hooks/useProgress";
 
 export default function LifestyleCorrectionTrack() {
   // ================= USER MOCK =================
@@ -14,11 +15,12 @@ export default function LifestyleCorrectionTrack() {
 
   const savings = income - expenses;
 
-  // FIX 1: `user` was undefined — now passing the actual user data object
-  const progression = getTrackProgression(user);
   if (!user) {
     return <p>Please complete setup first</p>;
   }
+
+  // FIX 1: `user` was undefined — now passing the actual user data object
+  const progression = getTrackProgression(user);
 
   // ================= CORE CALCULATIONS =================
   const disposableIncome = income - expenses;
@@ -32,6 +34,7 @@ export default function LifestyleCorrectionTrack() {
   const newExpenses = expenses - expenseCut;
   const newDebtPayment = baseDebtPayment + extraDebt;
   const monthsToDebtFree = Math.ceil(debt / (newDebtPayment || 1));
+  const { progress, toggle, percent } = useProgress();
 
   // ================= RECOVERY STATUS =================
   let status = "Critical";
@@ -54,6 +57,26 @@ export default function LifestyleCorrectionTrack() {
   } else {
     currentStage = "Stage 4: Ready to Grow";
     nextStep = "You can now move into investing or property strategies.";
+  }
+
+  const milestoneInsights = [];
+
+  if (!progress.emergencyFund) {
+    milestoneInsights.push(
+      "Focus on stabilising your finances and building an emergency fund.",
+    );
+  }
+
+  if (progress.emergencyFund && !progress.deposit) {
+    milestoneInsights.push(
+      "Great — you've stabilised. Now shift toward saving for a deposit.",
+    );
+  }
+
+  if (progress.deposit && !progress.purchase) {
+    milestoneInsights.push(
+      "You're progressing well. Start preparing for property or investing.",
+    );
   }
 
   return (
@@ -202,49 +225,51 @@ export default function LifestyleCorrectionTrack() {
         </div>
         {/* ================= 5 YEAR RECOVERY ================= */}
         <div className="card">
-          <h3>Your Recovery Journey</h3>
+          <h3>Milestones</h3>
 
-          <div className="timeline">
-            <span>Stage 1</span>
-            <span>Stage 2</span>
-            <span>Stage 3</span>
-            <span>Stage 4</span>
-            <span>Stage 5</span>
+          <div className="stepper">
+            {["emergencyFund", "deposit", "purchase"].map((step, index) => {
+              const labels = {
+                emergencyFund: "Emergency Fund",
+                deposit: "Deposit",
+                purchase: "Purchase",
+              };
+
+              const steps = ["emergencyFund", "deposit", "purchase"];
+
+              const isCompleted = progress[step];
+              const isCurrent =
+                !progress[step] && (index === 0 || progress[steps[index - 1]]);
+              const isLocked =
+                (step === "deposit" && !progress.emergencyFund) ||
+                (step === "purchase" && !progress.deposit);
+
+              return (
+                <div key={step} className="step-wrapper">
+                  <div
+                    className={`step 
+              ${isCompleted ? "completed" : ""} 
+              ${isCurrent ? "current" : ""} 
+              ${isLocked ? "locked" : ""}
+            `}
+                    onClick={() => !isLocked && toggle(step)}
+                  >
+                    {isCompleted ? "✓" : index + 1}
+                  </div>
+
+                  <span className="step-label">{labels[step]}</span>
+
+                  {index < steps.length - 1 && (
+                    <div
+                      className={`step-line ${progress[step] ? "filled" : ""}`}
+                    />
+                  )}
+                </div>
+              );
+            })}
           </div>
 
-          <div className="milestones">
-            <span>Reduce overspending</span>
-            <span>Control and stabilise expenses</span>
-            <span>Become debt-free</span>
-            <span>Build emergency fund</span>
-            <span>Transition to property / investing</span>
-          </div>
-        </div>{" "}
-        {/* FIX 2: Added missing closing </div> for Recovery Journey card */}
-        {/* ================= BEHAVIOURAL INSIGHTS ================= */}
-        <div className="card">
-          <h3>Behavioural Insights</h3>
-
-          <div className="insight">
-            <p>
-              Overspending is often driven by habits, not income. Track your
-              behaviour.
-            </p>
-          </div>
-
-          <div className="insight">
-            <p>
-              Reducing lifestyle expenses by R3000/month could cut your debt
-              timeline by years.
-            </p>
-          </div>
-
-          <div className="insight">
-            <p>
-              Focus on consistency — small changes compound into major financial
-              recovery.
-            </p>
-          </div>
+          <p className="muted">{percent}% complete</p>
         </div>
         {/* ================= STRATEGY GUIDE ================= */}
         <div className="card">
@@ -308,6 +333,15 @@ export default function LifestyleCorrectionTrack() {
               </p>
             </div>
           )}
+          <div className="card">
+            <h3>Milestone Insights</h3>
+
+            {milestoneInsights.map((item, i) => (
+              <div key={i} className="insight">
+                {item}
+              </div>
+            ))}
+          </div>
 
           <div className="insight positive">
             <p>

@@ -1,43 +1,91 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useUser } from "../context/UserContext";
 import AppNav from "../components/AppNav";
 import "../styles/track.css";
-import {
-  Wallet,
-  TrendingUp,
-  PiggyBank,
-  AlertTriangle,
-  Sliders,
-  Lightbulb,
-  Target,
-  BarChart3,
-} from "lucide-react";
+import { Wallet, TrendingUp, PiggyBank } from "lucide-react";
 
 export default function BalancedLifestyleTrack() {
   const { user } = useUser();
 
-  /* ================= USER DATA ================= */
-  const income = Number(user?.salary) || 0;
-  const expenses = Number(user?.expenses) || 0;
+  // ✅ ALL useState HOOKS FIRST
+  const [investmentPct, setInvestmentPct] = useState(60);
+  const [progress, setProgress] = useState(() => {
+    const saved = localStorage.getItem("balancedProgress");
+    return saved
+      ? JSON.parse(saved)
+      : {
+          emergencyFund: false,
+          deposit: false,
+          purchase: false,
+        };
+  });
 
-  const savings = income - expenses;
+  // ✅ ALL useEffect HOOKS NEXT
+  useEffect(() => {
+    localStorage.setItem("balancedProgress", JSON.stringify(progress));
+  }, [progress]);
+
+  // FIX 1: Moved calculations above the useEffect that depends on them,
+  // but since hooks must stay at top, we derive these values before the effect
+  // by computing them inline here for the effect's dependency check.
+  // The actual named consts are declared below as before.
+  const _income = Number(user?.salary) || 0;
+  const _expenses = Number(user?.expenses) || 0;
+  const _savings = _income - _expenses;
+  const _investing = Math.round((_savings * investmentPct) / 100);
+  const _monthlySaved = _savings - _investing;
+
+  useEffect(() => {
+    if (_monthlySaved >= _expenses * 3) {
+      setProgress((prev) => ({ ...prev, emergencyFund: true }));
+    }
+  }, [_monthlySaved, _expenses]);
+
+  // ✅ ALL CALCULATIONS AFTER HOOKS
+
+  /* ================= USER DATA ================= */
+  const income = _income;
+  const expenses = _expenses;
+  const savings = _savings;
 
   /* ================= BALANCED LOGIC ================= */
-  const [investmentPct, setInvestmentPct] = useState(60);
+  const investing = _investing;
+  const monthlySaved = _monthlySaved;
 
-  const investing = Math.round((savings * investmentPct) / 100);
-  const saved = savings - investing;
+  const totalFlow = expenses + investing + monthlySaved;
 
-  const total = expenses + investing + saved;
-
-  const spendingPct = total ? (expenses / total) * 100 : 0;
-  const investingPct = total ? (investing / total) * 100 : 0;
-  const savingPct = total ? (saved / total) * 100 : 0;
+  const spendingPct = totalFlow ? (expenses / totalFlow) * 100 : 0;
+  const investingPct = totalFlow ? (investing / totalFlow) * 100 : 0;
+  const savingPct = totalFlow ? (monthlySaved / totalFlow) * 100 : 0;
 
   /* ================= PORTFOLIO ================= */
   const portfolio = {
     local: user?.localPct || 60,
     offshore: user?.offshorePct || 40,
+  };
+
+  /* ================= MILESTONES ================= */
+  const milestones = [
+    "Build emergency fund (3–6 months expenses)",
+    "Start consistent monthly investing",
+    "Grow portfolio to meaningful size",
+    "Diversify across assets & regions",
+    "Achieve long-term financial stability",
+  ];
+
+  /* ================= PROGRESS CALCULATIONS ================= */
+  const completed = Object.values(progress).filter(Boolean).length;
+  const totalSteps = Object.keys(progress).length;
+  // FIX 2: renamed to progressPercent and used consistently (was 'percent' in JSX)
+  const progressPercent = Math.round((completed / totalSteps) * 100);
+
+  /* ================= HANDLERS ================= */
+  // FIX 3: renamed to toggleMilestone — was called as toggle() in JSX
+  const toggleMilestone = (key) => {
+    setProgress((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
   };
 
   /* ================= INSIGHTS ================= */
@@ -60,15 +108,6 @@ export default function BalancedLifestyleTrack() {
     insight2 = "Reducing lifestyle costs could free up more for investments.";
   }
 
-  /* ================= MILESTONES ================= */
-  const milestones = [
-    "Build emergency fund (3–6 months expenses)",
-    "Start consistent monthly investing",
-    "Grow portfolio to meaningful size",
-    "Diversify across assets & regions",
-    "Achieve long-term financial stability",
-  ];
-
   return (
     <div className="track-page">
       <AppNav />
@@ -84,15 +123,12 @@ export default function BalancedLifestyleTrack() {
 
           <div className="snapshot-list">
             <p className="title-icon">
-              {" "}
-              <Wallet size={20} /> Savings: R{saved.toLocaleString()}
+              <Wallet size={20} /> Savings: R{monthlySaved.toLocaleString()}
             </p>
             <p className="title-icon">
-              {" "}
               <TrendingUp size={20} /> Expenses: R{expenses.toLocaleString()}
             </p>
             <p className="title-icon">
-              {" "}
               <PiggyBank size={20} /> Investing: R{investing.toLocaleString()}
             </p>
           </div>
@@ -122,17 +158,65 @@ export default function BalancedLifestyleTrack() {
 
         {/* ================= JOURNEY ================= */}
         <div className="card">
-          <h2>Your 5-Year Journey</h2>
+          <h2>Milestones</h2>
 
-          <div className="timeline">
-            {milestones.map((m, i) => (
-              <div key={i} className="timeline-item">
-                <span>Year {i + 1}</span>
-                <div className="milestone">{m}</div>
-              </div>
-            ))}
+          <div className="stepper">
+            {["emergencyFund", "deposit", "purchase"].map((step, index) => {
+              const labels = {
+                emergencyFund: "Emergency Fund",
+                deposit: "Deposit",
+                purchase: "Purchase",
+              };
+
+              const steps = ["emergencyFund", "deposit", "purchase"];
+
+              const isCompleted = progress[step];
+              const isCurrent =
+                !progress[step] && (index === 0 || progress[steps[index - 1]]);
+              const isLocked = index > 0 && !progress[steps[index - 1]];
+
+              return (
+                <div key={step} className="step-wrapper">
+                  {/* STEP */}
+                  <div
+                    className={`step 
+                      ${isCompleted ? "completed" : ""} 
+                      ${isCurrent ? "current" : ""} 
+                      ${isLocked ? "locked" : ""}
+                    `}
+                    // FIX 4: toggle → toggleMilestone
+                    onClick={() => !isLocked && toggleMilestone(step)}
+                  >
+                    {isCompleted ? "✓" : index + 1}
+                  </div>
+
+                  {/* LABEL */}
+                  <span className="step-label">{labels[step]}</span>
+
+                  {/* LINE */}
+                  {index < steps.length - 1 && (
+                    <div
+                      className={`step-line ${progress[step] ? "filled" : ""}`}
+                    />
+                  )}
+                </div>
+              );
+            })}
           </div>
+
+          {/* FIX 5: percent → progressPercent */}
+          <p className="muted">{progressPercent}% complete</p>
+
+          <p className="insight">
+            {progressPercent === 0 && "Start by building your emergency fund."}
+            {progressPercent === 33 &&
+              "Great start — now focus on your deposit."}
+            {progressPercent === 66 && "You're close — prepare for purchase."}
+            {progressPercent === 100 &&
+              "🎉 You've completed your property journey."}
+          </p>
         </div>
+        {/* FIX 6: closed the Journey card here (was missing, causing Portfolio & Strategy to nest inside it) */}
 
         {/* ================= PORTFOLIO ================= */}
         <div className="card">
@@ -155,6 +239,7 @@ export default function BalancedLifestyleTrack() {
             </div>
           </div>
         </div>
+
         {/* ================= STRATEGY GUIDE ================= */}
         <div className="card">
           <h2>Strategy Guide</h2>

@@ -1,12 +1,32 @@
-import { useState } from "react";
+// FIX 1: Removed duplicate useState import — only one import statement needed
+// FIX 2: Added useEffect to the import (was used but never imported)
+import { useState, useEffect } from "react";
 import { useUser } from "../context/UserContext";
 import AppNav from "../components/AppNav";
 import "../styles/track.css";
+import useProgress from "../hooks/useProgress";
 
 export default function FoundationBuilderTrack() {
   // ================= USER CONTEXT =================
   const { user } = useUser();
 
+  // ✅ ALL HOOKS FIRST (moved sliders up before calculations)
+  // FIX 3: useProgress needs a key + default state to match the other tracks
+  const {
+    progress: milestoneProgress,
+    toggle,
+    percent,
+  } = useProgress("foundationProgress", {
+    emergencyFund: false,
+    deposit: false,
+    purchase: false,
+  });
+
+  // FIX 4: slider useState hooks moved above calculations (hooks must come before any logic)
+  const [expenseAdjust, setExpenseAdjust] = useState(0);
+  const [savingsAdjust, setSavingsAdjust] = useState(0);
+
+  // ================= CALCULATIONS (after all hooks) =================
   const income = Number(user?.salary) || 0;
   const expenses = Number(user?.expenses) || 0;
   const savings = income - expenses;
@@ -14,22 +34,60 @@ export default function FoundationBuilderTrack() {
   // ================= FOUNDATION LOGIC =================
   const emergencyTarget = expenses * 3; // 3 months rule
   const currentSaved = savings * 2;
-  const progress = Math.min(
+  const fundProgress = Math.min(
     (currentSaved / emergencyTarget) * 100,
     100,
   ).toFixed(0);
+
+  // FIX 5: useEffect must come after all useState/useProgress hooks but before returns
+  useEffect(() => {
+    if (Number(fundProgress) >= 100 && !milestoneProgress.emergencyFund) {
+      toggle("emergencyFund");
+    }
+  }, [fundProgress]);
+
+  // FIX 6: isLocked used undefined 'step' at top scope — removed from here,
+  // moved inline inside the stepper map below (same fix applied in PropertyTrack)
+  const overallProgress = Math.round((Number(fundProgress) + percent) / 2);
+
+  // FIX 7: milestone insights used 'progress' which doesn't exist — renamed to milestoneProgress
+  const milestoneInsights = [];
+
+  if (!milestoneProgress.emergencyFund) {
+    milestoneInsights.push(
+      "Build your emergency fund first — this protects you from setbacks.",
+    );
+  }
+
+  if (milestoneProgress.emergencyFund && !milestoneProgress.deposit) {
+    milestoneInsights.push(
+      "Great — your foundation is set. Now focus on saving for your deposit.",
+    );
+  }
+
+  if (milestoneProgress.deposit && !milestoneProgress.purchase) {
+    milestoneInsights.push(
+      "You're close. Start preparing for bond approval and purchase costs.",
+    );
+  }
+
+  if (milestoneProgress.purchase) {
+    milestoneInsights.push(
+      "🎉 You've completed your property journey — time to optimise ownership.",
+    );
+  }
 
   // ================= STAGE DETECTION =================
   let currentStage = "";
   let nextStep = "";
 
-  if (progress < 30) {
+  if (fundProgress < 30) {
     currentStage = "Stage 1: Starting Emergency Fund";
     nextStep = "Focus on saving your first 1–2 months of expenses.";
-  } else if (progress < 60) {
+  } else if (fundProgress < 60) {
     currentStage = "Stage 2: Building Stability";
     nextStep = "Increase consistency and reach 3–6 months of savings.";
-  } else if (progress < 100) {
+  } else if (fundProgress < 100) {
     currentStage = "Stage 3: Securing Foundation";
     nextStep = "Maintain discipline and fully complete your emergency fund.";
   } else {
@@ -38,10 +96,7 @@ export default function FoundationBuilderTrack() {
       "You can now start investing and move to wealth-building strategies.";
   }
 
-  // ================= SLIDERS =================
-  const [expenseAdjust, setExpenseAdjust] = useState(0);
-  const [savingsAdjust, setSavingsAdjust] = useState(0);
-
+  // ================= SLIDER CALCULATIONS =================
   const adjustedExpenses = expenses - expenseAdjust;
   const adjustedSavings = savings + savingsAdjust;
 
@@ -77,11 +132,14 @@ export default function FoundationBuilderTrack() {
           <div className="progress-bar">
             <div
               className="progress-fill"
-              style={{ width: `${progress}%` }}
-            ></div>
+              style={{ width: `${fundProgress}%` }}
+            >
+              <p className="muted">{fundProgress}% complete</p>
+            </div>
           </div>
 
-          <p className="muted">{progress}% complete</p>
+          {/* FIX 8: milestoneProgress is an object, not a number — use percent here */}
+          <p className="muted">{percent}% complete</p>
         </div>
 
         {/* ================= CURRENT STAGE ================= */}
@@ -94,6 +152,15 @@ export default function FoundationBuilderTrack() {
             <h4>Next Step</h4>
             <p>{nextStep}</p>
           </div>
+        </div>
+
+        <div className="insight-block">
+          <h4>Milestone Insights</h4>
+          {milestoneInsights.map((item, i) => (
+            <div key={i} className="insight">
+              {item}
+            </div>
+          ))}
         </div>
 
         {/* ================= ESSENTIAL ALLOCATION ================= */}
@@ -113,23 +180,62 @@ export default function FoundationBuilderTrack() {
 
         {/* ================= 5 YEAR JOURNEY ================= */}
         <div className="card">
-          <h3>Your 5-Year Journey</h3>
+          <h3>Milestones</h3>
 
-          <div className="timeline">
-            <span>Stage 1</span>
-            <span>Stage 2</span>
-            <span>Stage 3</span>
-            <span>Stage 4</span>
-            <span>Stage 5</span>
+          <div className="stepper">
+            {["emergencyFund", "deposit", "purchase"].map((step, index) => {
+              const labels = {
+                emergencyFund: "Emergency Fund",
+                deposit: "Deposit",
+                purchase: "Purchase",
+              };
+
+              const steps = ["emergencyFund", "deposit", "purchase"];
+
+              const isCompleted = milestoneProgress[step];
+              const isCurrent =
+                !milestoneProgress[step] &&
+                (index === 0 || milestoneProgress[steps[index - 1]]);
+              // FIX 9: isLocked now correctly scoped inside the map using step variable
+              const isLocked =
+                index > 0 && !milestoneProgress[steps[index - 1]];
+
+              return (
+                <div key={step} className="step-wrapper">
+                  <div
+                    className={`step 
+              ${isCompleted ? "completed" : ""} 
+              ${isCurrent ? "current" : ""} 
+              ${isLocked ? "locked" : ""}
+            `}
+                    onClick={() => !isLocked && toggle(step)}
+                  >
+                    {isCompleted ? "✓" : index + 1}
+                  </div>
+
+                  <span className="step-label">{labels[step]}</span>
+
+                  {index < steps.length - 1 && (
+                    <div
+                      className={`step-line ${
+                        milestoneProgress[step] ? "filled" : ""
+                      }`}
+                    />
+                  )}
+                </div>
+              );
+            })}
           </div>
 
-          <div className="milestones">
-            <span>Build emergency fund (1–3 months)</span>
-            <span>Reach full emergency fund (3–6 months)</span>
-            <span>Stabilise budget &amp; control spending</span>
-            <span>Start first investments</span>
-            <span>Transition to wealth building</span>
+          <h3>Overall Progress</h3>
+          <div className="progress-bar">
+            <div
+              className="progress-fill"
+              style={{ width: `${overallProgress}%` }}
+            />
           </div>
+          <p>{overallProgress}% complete</p>
+          <p className="muted">{percent}% complete</p>
         </div>
 
         {/* ================= ADJUSTMENT ENGINE ================= */}
