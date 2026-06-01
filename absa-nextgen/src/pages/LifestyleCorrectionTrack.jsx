@@ -6,20 +6,29 @@ import { useUser } from "../context/UserContext";
 import useProgress from "../hooks/useProgress";
 
 export default function LifestyleCorrectionTrack() {
-  // ================= USER MOCK =================
+  // ================= USER CONTEXT =================
   const { user } = useUser();
 
-  const income = Number(user?.salary) || 0;
-  const expenses = Number(user?.expenses) || 0;
-  const debt = Number(user?.debt) || 0;
+  // ✅ ALL HOOKS FIRST — early return moved to after hooks
+  const [expenseCut, setExpenseCut] = useState(0);
+  const [extraDebt, setExtraDebt] = useState(0);
+  const { progress, toggle, percent } = useProgress("lifestyleProgress", {
+    emergencyFund: false,
+    deposit: false,
+    purchase: false,
+  });
 
-  const savings = income - expenses;
-
+  // ================= EARLY RETURN (after all hooks) =================
   if (!user) {
     return <p>Please complete setup first</p>;
   }
 
-  // FIX 1: `user` was undefined — now passing the actual user data object
+  // ================= USER DATA =================
+  const income = Number(user?.salary) || 0;
+  const expenses = Number(user?.expenses) || 0;
+  const debt = Number(user?.debt) || 0;
+  const savings = income - expenses;
+
   const progression = getTrackProgression(user);
 
   // ================= CORE CALCULATIONS =================
@@ -27,14 +36,10 @@ export default function LifestyleCorrectionTrack() {
   const savingsRate = ((savings / income) * 100).toFixed(0);
   const baseDebtPayment = 4000;
 
-  // ================= SLIDERS =================
-  const [expenseCut, setExpenseCut] = useState(0);
-  const [extraDebt, setExtraDebt] = useState(0);
-
+  // ================= SLIDER CALCULATIONS =================
   const newExpenses = expenses - expenseCut;
   const newDebtPayment = baseDebtPayment + extraDebt;
   const monthsToDebtFree = Math.ceil(debt / (newDebtPayment || 1));
-  const { progress, toggle, percent } = useProgress();
 
   // ================= RECOVERY STATUS =================
   let status = "Critical";
@@ -59,6 +64,7 @@ export default function LifestyleCorrectionTrack() {
     nextStep = "You can now move into investing or property strategies.";
   }
 
+  // ================= MILESTONE INSIGHTS =================
   const milestoneInsights = [];
 
   if (!progress.emergencyFund) {
@@ -79,25 +85,33 @@ export default function LifestyleCorrectionTrack() {
     );
   }
 
+  const steps = ["emergencyFund", "deposit", "purchase"];
+  const timelineLabels = {
+    emergencyFund: "Stabilise (Emergency Fund)",
+    deposit: "Rebuild (Save Deposit)",
+    purchase: "Recover & Grow",
+  };
+
   return (
     <div className="track-page">
       <AppNav />
 
-      <div className="container">
+      <div className="track-container">
         {/* ================= HEADER ================= */}
         <h1>Lifestyle Correction Track</h1>
-        <p className="muted">
+        <p className="subtitle">
           Rebalance your finances by reducing debt and controlling spending.
         </p>
+
         {/* ================= FINANCIAL PATH ================= */}
-        <div className="card">
+        <div className="track-card">
           <h3>📍 Your Financial Path</h3>
 
           <p>
             Current Track: <strong>{progression?.track}</strong>
           </p>
 
-          <p className="muted">{progression?.message}</p>
+          <p className="small">{progression?.message}</p>
 
           {progression?.next && (
             <div className="next-step-box">
@@ -108,8 +122,9 @@ export default function LifestyleCorrectionTrack() {
             </div>
           )}
         </div>
+
         {/* ================= CURRENT STAGE ================= */}
-        <div className="card">
+        <div className="track-card">
           <h3>📍 Your Current Stage</h3>
 
           <p className="accent">{currentStage}</p>
@@ -119,64 +134,69 @@ export default function LifestyleCorrectionTrack() {
             <p>{nextStep}</p>
           </div>
         </div>
+
         {/* ================= FINANCIAL STATUS ================= */}
-        <div className="card">
+        <div className="track-card">
           <h3>Financial Recovery Status</h3>
 
-          <div className="stat-row">
-            <p>Income</p>
-            <p>R{income.toLocaleString()}</p>
-          </div>
-
-          <div className="stat-row">
-            <p>Expenses</p>
-            <p>R{expenses.toLocaleString()}</p>
-          </div>
-
-          <div className="stat-row">
-            <p>Debt</p>
-            <p>R{debt.toLocaleString()}</p>
-          </div>
-
-          <div className="stat-row">
-            <p>Status</p>
-            <p className={`status ${status.toLowerCase()}`}>{status}</p>
-          </div>
+          {[
+            { label: "Income", value: `R${income.toLocaleString()}` },
+            { label: "Expenses", value: `R${expenses.toLocaleString()}` },
+            { label: "Debt", value: `R${debt.toLocaleString()}` },
+            { label: "Status", value: status },
+          ].map(({ label, value }) => (
+            <div
+              key={label}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: "8px",
+              }}
+            >
+              <p>{label}</p>
+              <p>{value}</p>
+            </div>
+          ))}
         </div>
+
         {/* ================= SPENDING BREAKDOWN ================= */}
-        <div className="card">
+        <div className="track-card">
           <h3>Spending Breakdown</h3>
 
           <ul className="list">
-            <li>Housing & Bills: 45%</li>
+            <li>Housing &amp; Bills: 45%</li>
             <li>Lifestyle: 30%</li>
             <li>Debt Repayment: 20%</li>
             <li>Savings: 5%</li>
           </ul>
 
-          <p className="muted">
+          <p className="small">
             Your lifestyle spending is currently too high relative to your
             income.
           </p>
         </div>
+
         {/* ================= DEBT PROGRESS ================= */}
-        <div className="card">
+        <div className="track-card">
           <h3>Debt Payoff Plan</h3>
 
           <div className="progress-bar">
             <div
-              className="progress-fill warning"
+              className="progress-fill"
               style={{
-                width: `${Math.min((baseDebtPayment / debt) * 100, 100)}%`,
+                width: `${Math.min((baseDebtPayment / (debt || 1)) * 100, 100)}%`,
+                background: "#d6a85a",
               }}
-            ></div>
+            />
           </div>
 
-          <p className="muted">
+          <p className="small">
             Current pace: {Math.ceil(debt / baseDebtPayment)} months to clear
             debt
           </p>
         </div>
+
+        {/* ================= PROGRESSION FLOW ================= */}
         <div className="progression-flow">
           <span>Correction</span>
           <span>→</span>
@@ -186,8 +206,9 @@ export default function LifestyleCorrectionTrack() {
           <span>→</span>
           <span>Property</span>
         </div>
+
         {/* ================= ADJUSTMENT ENGINE ================= */}
-        <div className="card">
+        <div className="track-card">
           <h3>Spending Adjustment Tool</h3>
 
           <div className="slider-group">
@@ -199,7 +220,7 @@ export default function LifestyleCorrectionTrack() {
               value={expenseCut}
               onChange={(e) => setExpenseCut(Number(e.target.value))}
             />
-            <p>-R{expenseCut}</p>
+            <span className="slider-hint">-R{expenseCut}</span>
           </div>
 
           <div className="slider-group">
@@ -211,10 +232,18 @@ export default function LifestyleCorrectionTrack() {
               value={extraDebt}
               onChange={(e) => setExtraDebt(Number(e.target.value))}
             />
-            <p>+R{extraDebt}</p>
+            <span className="slider-hint">+R{extraDebt}</span>
           </div>
 
-          <div className="result">
+          <div
+            style={{
+              marginTop: "16px",
+              padding: "12px",
+              background: "#14161b",
+              borderRadius: "10px",
+              border: "1px solid #222",
+            }}
+          >
             <p>
               New Expenses: <strong>R{newExpenses.toLocaleString()}</strong>
             </p>
@@ -223,42 +252,72 @@ export default function LifestyleCorrectionTrack() {
             </p>
           </div>
         </div>
-        {/* ================= 5 YEAR RECOVERY ================= */}
-        <div className="card">
-          <h3>Milestones</h3>
 
-          <div className="stepper">
-            {["emergencyFund", "deposit", "purchase"].map((step, index) => {
-              const labels = {
-                emergencyFund: "Emergency Fund",
-                deposit: "Deposit",
-                purchase: "Purchase",
-              };
+        {/* ================= 5-YEAR RECOVERY TIMELINE ================= */}
+        <div className="track-card">
+          <h3>5-Year Recovery Journey</h3>
 
-              const steps = ["emergencyFund", "deposit", "purchase"];
+          {/* HORIZONTAL TIMELINE */}
+          <div
+            style={{
+              position: "relative",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+              marginTop: "30px",
+              paddingBottom: "20px",
+            }}
+          >
+            {/* BACKGROUND LINE */}
+            <div
+              style={{
+                position: "absolute",
+                top: "20px",
+                left: "0",
+                right: "0",
+                height: "3px",
+                background: "#1a1f1e",
+                zIndex: 0,
+              }}
+            />
+            {/* FILLED LINE */}
+            <div
+              style={{
+                position: "absolute",
+                top: "20px",
+                left: "0",
+                height: "3px",
+                width: `${percent}%`,
+                background: "linear-gradient(to right, #d6a85a, #84a794)",
+                zIndex: 1,
+                transition: "width 0.4s ease",
+              }}
+            />
 
+            {steps.map((step, index) => {
               const isCompleted = progress[step];
               const isCurrent =
                 !progress[step] && (index === 0 || progress[steps[index - 1]]);
-              const isLocked =
-                (step === "deposit" && !progress.emergencyFund) ||
-                (step === "purchase" && !progress.deposit);
+              const isLocked = index > 0 && !progress[steps[index - 1]];
 
               return (
-                <div key={step} className="step-wrapper">
+                <div
+                  key={step}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    flex: 1,
+                    zIndex: 2,
+                  }}
+                >
                   <div
-                    className={`step 
-              ${isCompleted ? "completed" : ""} 
-              ${isCurrent ? "current" : ""} 
-              ${isLocked ? "locked" : ""}
-            `}
+                    className={`step ${isCompleted ? "completed" : ""} ${isCurrent ? "current" : ""} ${isLocked ? "locked" : ""}`}
                     onClick={() => !isLocked && toggle(step)}
                   >
                     {isCompleted ? "✓" : index + 1}
                   </div>
-
-                  <span className="step-label">{labels[step]}</span>
-
+                  <span className="step-label">{timelineLabels[step]}</span>
                   {index < steps.length - 1 && (
                     <div
                       className={`step-line ${progress[step] ? "filled" : ""}`}
@@ -269,10 +328,26 @@ export default function LifestyleCorrectionTrack() {
             })}
           </div>
 
-          <p className="muted">{percent}% complete</p>
+          <p className="small">{percent}% complete</p>
+
+          <p className="insight neutral">
+            {percent < 25 &&
+              "You're stabilising — focus on cutting expenses and debt."}
+            {percent >= 25 &&
+              percent < 50 &&
+              "Recovery has started — stay disciplined."}
+            {percent >= 50 &&
+              percent < 75 &&
+              "Momentum building — you're regaining control."}
+            {percent >= 75 &&
+              percent < 100 &&
+              "Almost recovered — prepare for growth."}
+            {percent === 100 && "🎉 Fully recovered — ready to build wealth."}
+          </p>
         </div>
+
         {/* ================= STRATEGY GUIDE ================= */}
-        <div className="card">
+        <div className="track-card">
           <h3>Lifestyle Correction Strategy Guide</h3>
 
           <div className="grid-2">
@@ -304,7 +379,6 @@ export default function LifestyleCorrectionTrack() {
               financial problems come from spending habits rather than income
               levels.
             </p>
-
             <p>
               The goal is to reduce pressure by eliminating debt and regaining
               control. Once your expenses are stable and debt is cleared, you
@@ -312,42 +386,43 @@ export default function LifestyleCorrectionTrack() {
             </p>
           </div>
         </div>
+
         {/* ================= AI INSIGHTS ================= */}
-        <div className="card">
+        <div className="track-card">
           <h3>AI Financial Insights</h3>
 
-          {disposableIncome < 0 && (
-            <div className="insight warning">
-              <p>
+          <div className="insight-block">
+            {disposableIncome < 0 && (
+              <div className="insight warning">
                 You are currently overspending. Immediate adjustments are
                 required.
-              </p>
-            </div>
-          )}
+              </div>
+            )}
 
-          {savingsRate < 10 && (
-            <div className="insight">
-              <p>
+            {savingsRate < 10 && (
+              <div className="insight">
                 Your savings rate is critically low. Focus on reducing expenses
                 first.
-              </p>
-            </div>
-          )}
-          <div className="card">
-            <h3>Milestone Insights</h3>
+              </div>
+            )}
 
+            <div className="insight positive">
+              With discipline, you can become debt-free within{" "}
+              <strong>{monthsToDebtFree}</strong> months.
+            </div>
+          </div>
+        </div>
+
+        {/* ================= MILESTONE INSIGHTS ================= */}
+        <div className="track-card">
+          <h3>Milestone Insights</h3>
+
+          <div className="insight-block">
             {milestoneInsights.map((item, i) => (
               <div key={i} className="insight">
                 {item}
               </div>
             ))}
-          </div>
-
-          <div className="insight positive">
-            <p>
-              With discipline, you can become debt-free within{" "}
-              <strong>{monthsToDebtFree}</strong> months.
-            </p>
           </div>
         </div>
       </div>

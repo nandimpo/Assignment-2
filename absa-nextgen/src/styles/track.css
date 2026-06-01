@@ -26,6 +26,7 @@
   padding: 4px 8px;
   border-radius: 8px;
 }
+
 .track-page {
   background: #020202;
   min-height: 100vh;
@@ -60,6 +61,7 @@ h1 {
   padding: 20px;
   margin-bottom: 20px;
 }
+
 .popup-overlay {
   position: fixed;
   top: 0;
@@ -67,11 +69,9 @@ h1 {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.6);
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   z-index: 9999;
 }
 
@@ -86,6 +86,7 @@ h1 {
 .popup button {
   margin-top: 15px;
 }
+
 /* PROGRESS */
 .progression-flow {
   display: flex;
@@ -116,12 +117,123 @@ h1 {
   padding-right: 6px;
 }
 
-/* TIMELINE */
+/* TIMELINE CONTAINER */
+.timeline {
+  position: relative;
+  margin-top: 20px;
+  padding-left: 40px;
+}
+
+/* VERTICAL LINE */
+.timeline-line {
+  position: absolute;
+  left: 18px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(to bottom, #4facfe, #00f2fe);
+  border-radius: 2px;
+}
+
+/* STEP — merged both definitions; vertical timeline styles take priority,
+   flex:1 / text-center only apply inside .timeline-box via its own context */
+.timeline-step {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  padding: 10px;
+  border-radius: 10px;
+  opacity: 0.4;
+}
+
+.timeline-step:hover {
+  transform: translateX(5px);
+}
+
+/* CIRCLE NODE */
+.circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  position: absolute;
+  left: -2px;
+  z-index: 2;
+  transition: all 0.3s ease;
+}
+
+/* CONTENT */
+.content {
+  margin-left: 50px;
+}
+
+.content h4 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.content span {
+  font-size: 13px;
+  color: #777;
+}
+
+/* DONE STATE */
+.timeline-step.done .circle {
+  background: #4facfe;
+  color: white;
+  box-shadow: 0 0 10px rgba(79, 172, 254, 0.6);
+}
+
+/* LOCKED STATE */
+.timeline-step.locked {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ACTIVE / CURRENT STEP */
+.timeline-step:not(.done):not(.locked) .circle {
+  border: 2px solid #4facfe;
+  background: white;
+}
+
+.timeline-step.active {
+  opacity: 1;
+  background: rgba(132, 167, 148, 0.1);
+}
+
+/* TIMELINE BOX */
 .timeline-box {
   display: flex;
   gap: 10px;
   margin-top: 20px;
+  position: relative;
 }
+
+.timeline-box::before {
+  content: "";
+  position: absolute;
+  left: 20px;
+  top: 60px;
+  bottom: 20px;
+  width: 3px;
+  background: #ddd;
+}
+
+/* Inside timeline-box, steps share space equally and center text */
+.timeline-box .timeline-step {
+  flex: 1;
+  text-align: center;
+  position: relative;
+  margin-bottom: 0;
+}
+
 .next-step-box {
   margin-top: 12px;
   padding: 12px;
@@ -133,18 +245,7 @@ h1 {
 .next-step-box h4 {
   margin-bottom: 5px;
 }
-.timeline-step {
-  flex: 1;
-  padding: 10px;
-  border-radius: 10px;
-  text-align: center;
-  opacity: 0.4;
-}
 
-.timeline-step.active {
-  opacity: 1;
-  background: rgba(132, 167, 148, 0.1);
-}
 .timeline-estimate {
   margin-top: 15px;
   padding: 12px;
@@ -156,6 +257,8 @@ h1 {
 .timeline-estimate h4 {
   margin-bottom: 5px;
 }
+
+/* SMALL — merged; using the more specific color */
 .small {
   font-size: 12px;
   color: #9aa5a6;
@@ -166,13 +269,14 @@ h1 {
   color: #ff6b6b;
 }
 
-/* NUDGE + IMPACT */
+/* NUDGE + IMPACT — merged; higher gap and margin win */
 .nudge-impact {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 40px; /* increased */
-  margin-top: 30px; /* increased */
+  gap: 40px;
+  margin-top: 36px;
 }
+
 .grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -196,37 +300,25 @@ h1 {
   border: 1px solid #222;
 }
 
-/* NUDGES */
-/* FIX TOOLTIP VISIBILITY */
-.nudge {
-  position: relative;
-  padding: 16px;
-  border-radius: 14px;
-  border: 1px solid rgba(178, 200, 188, 0.15);
-  margin-bottom: 16px;
-  cursor: pointer;
-  text-align: center;
-  transition: all 0.25s ease;
-  background: rgba(255, 255, 255, 0.02);
-}
-
-.nudge:hover {
-  border-color: #84a794;
-  background: rgba(132, 167, 148, 0.08);
-}
-
-/* CRITICAL: allow tooltip to escape */
-/* NUDGE WRAPPER */
+/* NUDGE WRAPPER — merged; overflow:visible kept, flex layout kept */
 .nudge-box {
   position: relative;
   overflow: visible;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
-/* NUDGE BUTTON */
+.nudge-box h4 {
+  margin-bottom: 18px;
+  font-size: 16px;
+}
+
+/* NUDGE — merged all three definitions into one */
 .nudge {
   position: relative;
-  padding: 16px;
-  border-radius: 14px;
+  padding: 18px;
+  border-radius: 16px;
   border: 1px solid rgba(178, 200, 188, 0.15);
   margin-bottom: 16px;
   cursor: pointer;
@@ -239,59 +331,31 @@ h1 {
   border-color: #84a794;
   background: rgba(132, 167, 148, 0.08);
 }
-/* SECTION TITLE SPACING */
-.nudge-box h4 {
-  margin-bottom: 18px; /* space below title */
-  font-size: 16px;
-}
 
-/* NUDGE CONTAINER SPACING */
-.nudge-box {
-  display: flex;
-  flex-direction: column;
-  gap: 14px; /* space between cards */
-}
-
-/* NUDGE CARD IMPROVEMENT */
-.nudge {
-  padding: 18px; /* more breathing inside */
-  border-radius: 16px;
-}
-
-/* ADD SPACE ABOVE SECTION */
-.nudge-impact {
-  margin-top: 36px; /* pushes section away from timeline */
-}
-
-/* TOOLTIP FIX (THIS IS THE KEY CHANGE) */
+/* TOOLTIP */
 .tooltip-box {
   position: absolute;
-  bottom: 110%; /* show ABOVE instead of below */
+  bottom: 110%;
   left: 50%;
   transform: translateX(-50%);
-
   background: #0f1413;
   padding: 12px 14px;
   border-radius: 10px;
-
   font-size: 12px;
   width: 240px;
-
   border: 1px solid rgba(132, 167, 148, 0.25);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
-
   z-index: 9999;
-
   opacity: 0;
   pointer-events: none;
   transition: 0.2s ease;
 }
 
-/* SHOW */
 .nudge:hover .tooltip-box {
   opacity: 1;
   transform: translateX(-50%) translateY(-6px);
 }
+
 /* IMPACT */
 .impact p {
   margin-bottom: 6px;
@@ -302,6 +366,7 @@ h1 {
   margin-top: 10px;
   display: block;
 }
+
 .score-box {
   text-align: center;
   margin-bottom: 10px;
@@ -319,12 +384,6 @@ h1 {
   transition: width 0.4s ease;
 }
 
-.small {
-  font-size: 12px;
-  color: #aaa;
-  margin-top: 8px;
-}
-
 /* COMPARE */
 .compare {
   display: grid;
@@ -333,6 +392,7 @@ h1 {
   margin-top: 15px;
   text-align: center;
 }
+
 /* COMPARE CARD */
 .compare-card {
   margin-top: 20px;
@@ -363,6 +423,7 @@ h1 {
   border-color: #84a794;
   transform: translateY(-3px);
 }
+
 /* ===== STEPPER ===== */
 .stepper {
   display: flex;
@@ -372,7 +433,6 @@ h1 {
   position: relative;
 }
 
-/* wrapper */
 .step-wrapper {
   display: flex;
   flex-direction: column;
@@ -381,7 +441,6 @@ h1 {
   flex: 1;
 }
 
-/* circle */
 .step {
   width: 40px;
   height: 40px;
@@ -396,7 +455,6 @@ h1 {
   z-index: 2;
 }
 
-/* states */
 .step.completed {
   background: #22c55e;
 }
@@ -412,14 +470,12 @@ h1 {
   opacity: 0.6;
 }
 
-/* label */
 .step-label {
   margin-top: 8px;
   font-size: 12px;
   text-align: center;
 }
 
-/* connecting line */
 .step-line {
   position: absolute;
   top: 20px;
@@ -433,6 +489,7 @@ h1 {
 .step-line.filled {
   background: #22c55e;
 }
+
 /* ACTIVE TRACK */
 .compare-column.active {
   border: 1px solid #84a794;
@@ -479,10 +536,11 @@ h1 {
   gap: 20px;
 }
 
-/* BUTTONS */
+/* BUTTONS — merged; larger padding wins */
 .pill {
-  padding: 8px 14px;
-  border-radius: 16px;
+  padding: 12px 18px;
+  font-size: 13px;
+  border-radius: 20px;
   background: linear-gradient(135deg, #84a794, #2c3a36);
   border: none;
   color: white;
@@ -494,11 +552,18 @@ h1 {
   border: 1px solid #84a794;
 }
 
+.pill.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* BUTTON ROW — merged; larger margin wins */
 .btn-row {
   display: flex;
-  gap: 10px;
-  margin-top: 10px;
+  gap: 14px;
+  margin-top: 20px;
 }
+
 /* SLIDER GROUP */
 .slider-group {
   margin-bottom: 18px;
@@ -512,7 +577,6 @@ h1 {
   color: #cfd8d6;
 }
 
-/* SLIDER */
 .slider-group input[type="range"] {
   width: 100%;
   appearance: none;
@@ -522,7 +586,6 @@ h1 {
   outline: none;
 }
 
-/* THUMB */
 .slider-group input[type="range"]::-webkit-slider-thumb {
   appearance: none;
   width: 16px;
@@ -532,7 +595,10 @@ h1 {
   cursor: pointer;
 }
 
-/* HOVER INSIGHT */
+.slider-group input[type="range"]:hover::-webkit-slider-thumb {
+  box-shadow: 0 0 10px #84a794;
+}
+
 .slider-hint {
   font-size: 11px;
   color: #7f908c;
@@ -541,7 +607,6 @@ h1 {
   transition: 0.2s;
 }
 
-/* SHOW ON HOVER */
 .slider-group:hover .slider-hint {
   opacity: 1;
   transform: translateY(0);
@@ -556,7 +621,6 @@ h1 {
   padding-top: 10px;
 }
 
-/* COLORS (subtle, premium) */
 .insight.positive {
   color: #84a794;
 }
@@ -568,89 +632,69 @@ h1 {
 .insight.warning {
   color: #d6a85a;
 }
-/* SUGGESTED CARD STATES */
-/* SUGGESTED CARD LAYOUT FIX */
+
+/* SUGGESTED CARD */
 .suggested {
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* spreads content vertically */
-  min-height: 320px; /* ensures height balance */
+  justify-content: space-between;
+  min-height: 320px;
 }
 
-/* CONTENT WRAPPER */
 .suggested-content {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-/* INSIGHT BOX IMPROVED */
 .suggested .insight {
   background: rgba(255, 255, 255, 0.03);
   padding: 12px;
   border-radius: 10px;
   margin-top: 10px;
 }
+
 .suggested.active {
   opacity: 1;
   border: 1px solid #84a794;
 }
 
-/* PLACEHOLDER */
 .placeholder {
   color: #7f908c;
   font-size: 13px;
 }
 
-/* DISABLED BUTTONS */
-/* BIGGER BUTTONS */
-.pill {
-  padding: 12px 18px; /* bigger */
-  font-size: 13px;
-  border-radius: 20px;
-}
-
-/* BUTTON ROW SPACING */
-.btn-row {
-  display: flex;
-  gap: 14px;
-  margin-top: 20px; /* more breathing room */
-}
-
-/* DISABLED STYLE (cleaner) */
-.pill.disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-/* SLIDER FEEDBACK GLOW */
-.slider-group input[type="range"]:hover::-webkit-slider-thumb {
-  box-shadow: 0 0 10px #84a794;
+/* FINANCE ORB */
+@keyframes pulseOrb {
+  0% {
+    box-shadow: 0 0 20px rgba(132, 167, 148, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 36px rgba(132, 167, 148, 0.95);
+  }
+  100% {
+    box-shadow: 0 0 20px rgba(132, 167, 148, 0.6);
+  }
 }
 
 .finance-orb {
   position: fixed;
   bottom: 30px;
   right: 30px;
-
   width: 60px;
   height: 60px;
-
   border-radius: 50%;
   background: radial-gradient(circle, #d6a85a, #84a794);
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   font-size: 24px;
   cursor: pointer;
-
   box-shadow: 0 0 20px rgba(132, 167, 148, 0.6);
   animation: pulseOrb 2s infinite;
-
   z-index: 1000;
 }
+
 /* ========================= */
 /* AI INSIGHT BLOCK */
 /* ========================= */

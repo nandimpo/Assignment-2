@@ -12,7 +12,7 @@ import StrategyTrack from "./pages/StrategyTrack";
 import Home from "./pages/Home";
 import MoneySnapshot from "./pages/MoneySnapshot";
 import PropertyTrack from "./pages/PropertyTrack";
-import SimulationLab from "./pages/SimulationLab";
+import SimulationLab from "./pages/SimulationLab.jsx";
 import Profile from "./pages/Profile";
 import FinanceSchool from "./pages/FinanceSchool";
 import Support from "./pages/Support";
@@ -20,6 +20,9 @@ import BalancedLifestyleTrack from "./pages/BalancedLifestyleTrack";
 import CatchUpTrack from "./pages/CatchUpTrack";
 import FoundationBuilderTrack from "./pages/FoundationBuilderTrack";
 import LifestyleCorrectionTrack from "./pages/LifestyleCorrectionTrack";
+import PropertyStudio from "./pages/PropertyStudio";
+import CarStudio from "./pages/CarStudio";
+import InvestingStudio from "./pages/InvestingStudio";
 
 /* ================= PROTECTED ROUTE ================= */
 function ProtectedRoute({ children }) {
@@ -89,6 +92,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/home"
           element={
@@ -121,6 +125,33 @@ export default function App() {
           element={
             <ProtectedRoute>
               <SimulationLab />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/simulation/property"
+          element={
+            <ProtectedRoute>
+              <PropertyStudio />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/simulation/car"
+          element={
+            <ProtectedRoute>
+              <CarStudio />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/simulation/investing"
+          element={
+            <ProtectedRoute>
+              <InvestingStudio />
             </ProtectedRoute>
           }
         />

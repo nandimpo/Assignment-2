@@ -1,5 +1,3 @@
-// FIX 1: Removed duplicate useState import — only one import statement needed
-// FIX 2: Added useEffect to the import (was used but never imported)
 import { useState, useEffect } from "react";
 import { useUser } from "../context/UserContext";
 import AppNav from "../components/AppNav";
@@ -10,8 +8,7 @@ export default function FoundationBuilderTrack() {
   // ================= USER CONTEXT =================
   const { user } = useUser();
 
-  // ✅ ALL HOOKS FIRST (moved sliders up before calculations)
-  // FIX 3: useProgress needs a key + default state to match the other tracks
+  // ✅ ALL HOOKS FIRST
   const {
     progress: milestoneProgress,
     toggle,
@@ -22,7 +19,6 @@ export default function FoundationBuilderTrack() {
     purchase: false,
   });
 
-  // FIX 4: slider useState hooks moved above calculations (hooks must come before any logic)
   const [expenseAdjust, setExpenseAdjust] = useState(0);
   const [savingsAdjust, setSavingsAdjust] = useState(0);
 
@@ -32,25 +28,24 @@ export default function FoundationBuilderTrack() {
   const savings = income - expenses;
 
   // ================= FOUNDATION LOGIC =================
-  const emergencyTarget = expenses * 3; // 3 months rule
+  const emergencyTarget = expenses * 3;
   const currentSaved = savings * 2;
-  const fundProgress = Math.min(
-    (currentSaved / emergencyTarget) * 100,
-    100,
-  ).toFixed(0);
 
-  // FIX 5: useEffect must come after all useState/useProgress hooks but before returns
+  // FIX: toFixed returns a string — use Number() so comparisons work correctly
+  const fundProgress = Number(
+    Math.min((currentSaved / emergencyTarget) * 100, 100).toFixed(0),
+  );
+
+  // ✅ useEffect after all hooks, before any derived logic
   useEffect(() => {
-    if (Number(fundProgress) >= 100 && !milestoneProgress.emergencyFund) {
+    if (fundProgress >= 100 && !milestoneProgress.emergencyFund) {
       toggle("emergencyFund");
     }
   }, [fundProgress]);
 
-  // FIX 6: isLocked used undefined 'step' at top scope — removed from here,
-  // moved inline inside the stepper map below (same fix applied in PropertyTrack)
-  const overallProgress = Math.round((Number(fundProgress) + percent) / 2);
+  const overallProgress = Math.round((fundProgress + percent) / 2);
 
-  // FIX 7: milestone insights used 'progress' which doesn't exist — renamed to milestoneProgress
+  // ================= MILESTONE INSIGHTS =================
   const milestoneInsights = [];
 
   if (!milestoneProgress.emergencyFund) {
@@ -97,34 +92,51 @@ export default function FoundationBuilderTrack() {
   }
 
   // ================= SLIDER CALCULATIONS =================
-  const adjustedExpenses = expenses - expenseAdjust;
   const adjustedSavings = savings + savingsAdjust;
-
   const remaining = Math.max(emergencyTarget - currentSaved, 0);
-
   const monthsToGoal =
     adjustedSavings > 0 ? Math.ceil(remaining / adjustedSavings) : null;
+
+  const steps = ["emergencyFund", "deposit", "purchase"];
+  const timelineLabels = {
+    emergencyFund: "Emergency Fund",
+    deposit: "Save Deposit",
+    purchase: "Purchase",
+  };
 
   return (
     <div className="track-page">
       <AppNav />
-      <div className="container">
+
+      <div className="track-container">
         {/* ================= HEADER ================= */}
         <h1>Foundation Builder Track</h1>
-        <p className="muted">
+        <p className="subtitle">
           Build your financial base before investing and long-term growth.
         </p>
 
         {/* ================= EMERGENCY FUND STATUS ================= */}
-        <div className="card">
+        <div className="track-card">
           <h3>Emergency Fund Progress</h3>
 
-          <div className="stat-row">
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: "8px",
+            }}
+          >
             <p>Target</p>
             <p>R{emergencyTarget.toLocaleString()}</p>
           </div>
 
-          <div className="stat-row">
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: "8px",
+            }}
+          >
             <p>Current Saved</p>
             <p>R{currentSaved.toLocaleString()}</p>
           </div>
@@ -134,16 +146,15 @@ export default function FoundationBuilderTrack() {
               className="progress-fill"
               style={{ width: `${fundProgress}%` }}
             >
-              <p className="muted">{fundProgress}% complete</p>
+              <span className="progress-text">{fundProgress}%</span>
             </div>
           </div>
 
-          {/* FIX 8: milestoneProgress is an object, not a number — use percent here */}
-          <p className="muted">{percent}% complete</p>
+          <p className="small">{fundProgress}% complete</p>
         </div>
 
         {/* ================= CURRENT STAGE ================= */}
-        <div className="card">
+        <div className="track-card">
           <h3>📍 Your Current Stage</h3>
 
           <p className="accent">{currentStage}</p>
@@ -154,17 +165,20 @@ export default function FoundationBuilderTrack() {
           </div>
         </div>
 
-        <div className="insight-block">
-          <h4>Milestone Insights</h4>
-          {milestoneInsights.map((item, i) => (
-            <div key={i} className="insight">
-              {item}
-            </div>
-          ))}
+        {/* ================= MILESTONE INSIGHTS ================= */}
+        <div className="track-card">
+          <div className="insight-block">
+            <h4>Milestone Insights</h4>
+            {milestoneInsights.map((item, i) => (
+              <div key={i} className="insight">
+                {item}
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* ================= ESSENTIAL ALLOCATION ================= */}
-        <div className="card">
+        <div className="track-card">
           <h3>Essential Allocation</h3>
 
           <ul className="list">
@@ -173,73 +187,113 @@ export default function FoundationBuilderTrack() {
             <li>Support (Black Tax / Family): 15%</li>
           </ul>
 
-          <p className="muted">
+          <p className="small">
             This reflects a realistic South African financial structure.
           </p>
         </div>
 
-        {/* ================= 5 YEAR JOURNEY ================= */}
-        <div className="card">
-          <h3>Milestones</h3>
+        {/* ================= VISUAL TIMELINE ================= */}
+        <div className="track-card">
+          <h3>5-Year Financial Journey</h3>
 
-          <div className="stepper">
-            {["emergencyFund", "deposit", "purchase"].map((step, index) => {
-              const labels = {
-                emergencyFund: "Emergency Fund",
-                deposit: "Deposit",
-                purchase: "Purchase",
-              };
+          {/* HORIZONTAL TIMELINE */}
+          <div
+            style={{
+              position: "relative",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+              marginTop: "30px",
+              paddingBottom: "20px",
+            }}
+          >
+            {/* BACKGROUND LINE */}
+            <div
+              style={{
+                position: "absolute",
+                top: "20px",
+                left: "0",
+                right: "0",
+                height: "3px",
+                background: "#1a1f1e",
+                zIndex: 0,
+              }}
+            />
+            {/* FILLED LINE */}
+            <div
+              style={{
+                position: "absolute",
+                top: "20px",
+                left: "0",
+                height: "3px",
+                width: `${percent}%`,
+                background: "linear-gradient(to right, #d6a85a, #84a794)",
+                zIndex: 1,
+                transition: "width 0.4s ease",
+              }}
+            />
 
-              const steps = ["emergencyFund", "deposit", "purchase"];
-
+            {steps.map((step, index) => {
               const isCompleted = milestoneProgress[step];
               const isCurrent =
                 !milestoneProgress[step] &&
                 (index === 0 || milestoneProgress[steps[index - 1]]);
-              // FIX 9: isLocked now correctly scoped inside the map using step variable
               const isLocked =
                 index > 0 && !milestoneProgress[steps[index - 1]];
 
               return (
-                <div key={step} className="step-wrapper">
+                <div
+                  key={step}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    flex: 1,
+                    zIndex: 2,
+                  }}
+                >
                   <div
-                    className={`step 
-              ${isCompleted ? "completed" : ""} 
-              ${isCurrent ? "current" : ""} 
-              ${isLocked ? "locked" : ""}
-            `}
+                    className={`step ${isCompleted ? "completed" : ""} ${isCurrent ? "current" : ""} ${isLocked ? "locked" : ""}`}
                     onClick={() => !isLocked && toggle(step)}
                   >
                     {isCompleted ? "✓" : index + 1}
                   </div>
-
-                  <span className="step-label">{labels[step]}</span>
-
-                  {index < steps.length - 1 && (
-                    <div
-                      className={`step-line ${
-                        milestoneProgress[step] ? "filled" : ""
-                      }`}
-                    />
-                  )}
+                  <span className="step-label">{timelineLabels[step]}</span>
                 </div>
               );
             })}
           </div>
 
+          <p className="small">{percent}% complete</p>
+
+          <p className="insight neutral">
+            {percent < 25 && "Strong start — build your foundation."}
+            {percent >= 25 && percent < 50 && "You're gaining momentum."}
+            {percent >= 50 &&
+              percent < 75 &&
+              "Halfway there — stay consistent."}
+            {percent >= 75 && percent < 100 && "Almost there — final push."}
+            {percent === 100 &&
+              "🎉 Goal achieved — financial milestone complete."}
+          </p>
+        </div>
+
+        {/* ================= OVERALL PROGRESS ================= */}
+        <div className="track-card">
           <h3>Overall Progress</h3>
+
           <div className="progress-bar">
             <div
               className="progress-fill"
               style={{ width: `${overallProgress}%` }}
             />
           </div>
-          <p>{overallProgress}% complete</p>
-          <p className="muted">{percent}% complete</p>
+
+          <p className="small">{overallProgress}% complete</p>
         </div>
 
         {/* ================= ADJUSTMENT ENGINE ================= */}
-        <div className="card">
+        <div className="track-card">
           <h3>Budget Adjustment Tool</h3>
 
           <div className="slider-group">
@@ -251,7 +305,7 @@ export default function FoundationBuilderTrack() {
               value={expenseAdjust}
               onChange={(e) => setExpenseAdjust(Number(e.target.value))}
             />
-            <p>-R{expenseAdjust}</p>
+            <span className="slider-hint">-R{expenseAdjust}</span>
           </div>
 
           <div className="slider-group">
@@ -263,10 +317,18 @@ export default function FoundationBuilderTrack() {
               value={savingsAdjust}
               onChange={(e) => setSavingsAdjust(Number(e.target.value))}
             />
-            <p>+R{savingsAdjust}</p>
+            <span className="slider-hint">+R{savingsAdjust}</span>
           </div>
 
-          <div className="result">
+          <div
+            style={{
+              marginTop: "16px",
+              padding: "12px",
+              background: "#14161b",
+              borderRadius: "10px",
+              border: "1px solid #222",
+            }}
+          >
             <p>
               Adjusted Savings:{" "}
               <strong>R{adjustedSavings.toLocaleString()}</strong>
@@ -286,7 +348,7 @@ export default function FoundationBuilderTrack() {
         </div>
 
         {/* ================= STRATEGY GUIDE ================= */}
-        <div className="card">
+        <div className="track-card">
           <h3>Foundation Strategy Guide</h3>
 
           <div className="grid-2">
@@ -318,7 +380,6 @@ export default function FoundationBuilderTrack() {
               or grow wealth, you need a financial safety net. Without it, one
               unexpected expense can reset all your progress.
             </p>
-
             <p>
               Many people skip this step and go straight to investing — but
               without stability, they end up withdrawing investments or going
@@ -328,28 +389,22 @@ export default function FoundationBuilderTrack() {
         </div>
 
         {/* ================= AI INSIGHTS ================= */}
-        <div className="card">
+        <div className="track-card">
           <h3>AI Financial Insights</h3>
 
-          <div className="insight">
-            <p>
+          <div className="insight-block">
+            <div className="insight">
               You are still in the foundation phase. Focus on building stability
               before pursuing aggressive growth.
-            </p>
-          </div>
-
-          <div className="insight">
-            <p>
+            </div>
+            <div className="insight">
               Reducing expenses by R2000 could help you reach your emergency
               fund 5–6 months faster.
-            </p>
-          </div>
-
-          <div className="insight">
-            <p>
+            </div>
+            <div className="insight">
               Consistency matters more than amount — even small savings build
               long-term security.
-            </p>
+            </div>
           </div>
         </div>
       </div>

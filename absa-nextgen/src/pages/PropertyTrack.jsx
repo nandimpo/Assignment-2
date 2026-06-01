@@ -23,6 +23,15 @@ export default function PropertyTrack() {
     purchase: false,
   });
 
+  // ✅ currentStage moved here — AFTER useProgress so progress is defined
+  const currentStage = !progress.emergencyFund
+    ? 1
+    : !progress.deposit
+      ? 2
+      : !progress.purchase
+        ? 3
+        : 4;
+
   // FIX 1: progress is an object, not a number — use percent to check completion
   // FIX 2: removed isLocked from here (it used undefined 'step') — moved inside the map below
   useEffect(() => {
@@ -200,6 +209,67 @@ export default function PropertyTrack() {
                 {item}
               </div>
             ))}
+          </div>
+
+          <div className="timeline-box">
+            <h4>📍 Milestone Progress ({percent}%)</h4>
+
+            <div className="timeline">
+              {/* LINE */}
+              <div className="timeline-line" />
+
+              {/* STEP 1 */}
+              <div
+                className={`timeline-step ${progress.emergencyFund ? "done" : ""}`}
+                onClick={() => toggle("emergencyFund")}
+              >
+                <div className="circle">
+                  {progress.emergencyFund ? "✓" : "1"}
+                </div>
+                <div className="content">
+                  <h4>Emergency Fund</h4>
+                  <span>
+                    {progress.emergencyFund ? "Completed" : "Start here"}
+                  </span>
+                </div>
+              </div>
+
+              {/* STEP 2 */}
+              <div
+                className={`timeline-step ${progress.deposit ? "done" : ""} ${
+                  !progress.emergencyFund ? "locked" : ""
+                }`}
+                onClick={() => {
+                  if (progress.emergencyFund) toggle("deposit");
+                }}
+              >
+                <div className="circle">{progress.deposit ? "✓" : "2"}</div>
+                <div className="content">
+                  <h4>Deposit</h4>
+                  <span>
+                    {progress.deposit ? "Completed" : "Build your deposit"}
+                  </span>
+                </div>
+              </div>
+
+              {/* STEP 3 */}
+              <div
+                className={`timeline-step ${progress.purchase ? "done" : ""} ${
+                  !progress.deposit ? "locked" : ""
+                }`}
+                onClick={() => {
+                  if (progress.deposit) toggle("purchase");
+                }}
+              >
+                <div className="circle">{progress.purchase ? "✓" : "3"}</div>
+                <div className="content">
+                  <h4>Purchase</h4>
+                  <span>
+                    {progress.purchase ? "Completed" : "Buy your property"}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* MILESTONE PROGRESS */}
