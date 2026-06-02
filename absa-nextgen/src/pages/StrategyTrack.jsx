@@ -4,7 +4,6 @@ import AppNav from "../components/AppNav";
 import { Home, TrendingUp, Shield, Scale } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getTrackProgression } from "../utils/trackProgression";
-import Tour from "../components/Tour";
 
 // ─── Static data (no user dependency) ────────────────────────────────────────
 
@@ -169,13 +168,11 @@ export default function StrategyTrack() {
   const getFinalSteps = () => {
     const steps = [];
 
-    // 1️⃣ Context
     steps.push({
       text: "These are your financial strategy tracks — each path shapes your future differently.",
       target: "track-header",
     });
 
-    // 2️⃣ Recommendation
     if (recommendedTrack) {
       steps.push({
         text: `Based on your finances, we recommend the ${tracks[recommendedTrack].name}.`,
@@ -183,7 +180,6 @@ export default function StrategyTrack() {
       });
     }
 
-    // 3️⃣ Reason
     if (analysis?.reasons?.length) {
       steps.push({
         text: `This is because: ${analysis.reasons.slice(0, 2).join(", ")}.`,
@@ -191,7 +187,6 @@ export default function StrategyTrack() {
       });
     }
 
-    // 4️⃣ Future impact
     if (future && recommendedTrack) {
       steps.push({
         text: `Following this path could help you reach your goal in about ${future[recommendedTrack]} months.`,
@@ -200,7 +195,6 @@ export default function StrategyTrack() {
       });
     }
 
-    // 5️⃣ Action
     steps.push({
       text: "You can explore or switch strategies at any time.",
       target: "track-grid",
@@ -231,7 +225,6 @@ export default function StrategyTrack() {
 
   // ── Effects ─────────────────────────────────────────────────────────────────
 
-  // Show tour when strategy is missing or differs from recommendation
   useEffect(() => {
     const seen = localStorage.getItem("seenTrackTour");
     if (!seen || user?.strategy !== recommendedTrack) {
@@ -239,12 +232,10 @@ export default function StrategyTrack() {
     }
   }, []);
 
-  // Reset tour when key financial inputs change
   useEffect(() => {
     if (showTour) setTourStep(0);
   }, [user?.salary, user?.expenses, user?.savings]);
 
-  // Spotlight the target element for the current tour step
   useEffect(() => {
     if (!showTour || tourStep >= trackTourSteps.length) return;
 
@@ -269,7 +260,6 @@ export default function StrategyTrack() {
     }, 300);
   }, [tourStep, showTour]);
 
-  // Auto-advance track progression
   useEffect(() => {
     if (!user) return;
     const progression = getTrackProgression(user);
@@ -349,7 +339,6 @@ export default function StrategyTrack() {
               You are on <strong>{tracks[selectedTrack]?.name}</strong>
             </p>
 
-            {/* Confidence bar */}
             <div className="confidence-bar">
               <div
                 className="confidence-fill"
@@ -438,10 +427,9 @@ export default function StrategyTrack() {
         </div>
       </div>
 
-      {/* ── Tour overlay ── */}
+      {/* Tour overlay */}
       {showTour && spotlight && (
         <>
-          {/* Masks */}
           <div
             className="tour-mask-top"
             style={{ top: 0, left: 0, right: 0, height: spotlight.top }}
@@ -474,7 +462,6 @@ export default function StrategyTrack() {
             }}
           />
 
-          {/* Cutout highlight */}
           <div
             className="tour-cutout"
             style={{
@@ -485,7 +472,6 @@ export default function StrategyTrack() {
             }}
           />
 
-          {/* Tour box */}
           <div
             className={`tour-box ${
               trackTourSteps[tourStep]?.tone === "warning" ? "warning" : ""
@@ -522,9 +508,6 @@ export default function StrategyTrack() {
           </div>
         </>
       )}
-
-      {/* ── Reusable Tour component (if used elsewhere) ── */}
-      <Tour steps={trackTourSteps} storageKey="trackTour" />
     </div>
   );
 }

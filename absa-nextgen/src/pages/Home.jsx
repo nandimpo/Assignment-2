@@ -38,46 +38,7 @@ export default function Home() {
     { text: "This is your current strategy track.", target: "tracks" },
   ];
 
-  const [tourStep, setTourStep] = useState(0);
-  const [showTour, setShowTour] = useState(false);
   const [nudgeType, setNudgeType] = useState("positive");
-  const [spotlight, setSpotlight] = useState(null);
-
-  // Persist tour visibility
-  useEffect(() => {
-    const seen = localStorage.getItem("seenHomeTour");
-    if (!seen) setShowTour(true);
-  }, []);
-
-  // Spotlight positioning — 4-panel mask approach
-  useEffect(() => {
-    if (!showTour) return;
-    if (tourStep >= tourSteps.length) return;
-
-    const step = tourSteps[tourStep];
-    const el = document.getElementById(step.target);
-
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
-
-      // Delay so scroll settles before measuring
-      setTimeout(() => {
-        const rect = el.getBoundingClientRect();
-        const pad = 10;
-        setSpotlight({
-          top: rect.top - pad,
-          left: rect.left - pad,
-          width: rect.width + pad * 2,
-          height: rect.height + pad * 2,
-        });
-      }, 350);
-    }
-  }, [tourStep, showTour]);
-
-  const endTour = () => {
-    localStorage.setItem("seenHomeTour", "true");
-    setShowTour(false);
-  };
 
   useEffect(() => {
     if (savingsRate < 20) setNudgeType("warning");
@@ -454,78 +415,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* TOUR OVERLAY — 4-panel mask approach */}
-      {showTour && spotlight && (
-        <>
-          {/* 4 dark panels surrounding the cutout */}
-          <div
-            className="tour-mask-top"
-            style={{ top: 0, left: 0, right: 0, height: spotlight.top }}
-          />
-          <div
-            className="tour-mask-bottom"
-            style={{
-              top: spotlight.top + spotlight.height,
-              left: 0,
-              right: 0,
-              bottom: 0,
-            }}
-          />
-          <div
-            className="tour-mask-left"
-            style={{
-              top: spotlight.top,
-              left: 0,
-              width: spotlight.left,
-              height: spotlight.height,
-            }}
-          />
-          <div
-            className="tour-mask-right"
-            style={{
-              top: spotlight.top,
-              left: spotlight.left + spotlight.width,
-              right: 0,
-              height: spotlight.height,
-            }}
-          />
-
-          {/* Glowing ring around highlighted element */}
-          <div
-            className="tour-cutout"
-            style={{
-              top: spotlight.top,
-              left: spotlight.left,
-              width: spotlight.width,
-              height: spotlight.height,
-            }}
-          />
-
-          {/* Tooltip box */}
-          <div className="tour-box">
-            <p className="tour-step-counter">
-              {tourStep + 1} / {tourSteps.length}
-            </p>
-            <p>{tourSteps[tourStep].text}</p>
-            <div className="tour-actions">
-              <button onClick={endTour}>Skip</button>
-              <button
-                onClick={() => {
-                  if (tourStep < tourSteps.length - 1) {
-                    setTourStep(tourStep + 1);
-                  } else {
-                    endTour();
-                  }
-                }}
-              >
-                {tourStep === tourSteps.length - 1 ? "Done ✓" : "Next →"}
-              </button>
-            </div>
-          </div>
-        </>
-      )}
-
-      {/* Reusable Tour component */}
+      {/* Tour — single source, uses Tour component only */}
       <Tour steps={tourSteps} storageKey="homeTour" />
     </div>
   );
