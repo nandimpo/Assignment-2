@@ -1,0 +1,33 @@
+.tour-mask-top,
+.tour-mask-bottom,
+.tour-mask-left,
+.tour-mask-right {
+  position: fixed;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 999;
+  pointer-events: none;
+}
+
+.tour-cutout {
+  position: fixed;
+  border-radius: 16px;
+  box-shadow:
+    0 0 0 2px rgba(132, 167, 148, 0.8),
+    0 0 40px rgba(132, 167, 148, 0.8);
+  z-index: 1000;
+}
+
+.tour-box {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #121616;
+  padding: 20px;
+  border-radius: 14px;
+  border: 1px solid rgba(132, 167, 148, 0.3);
+  color: white;
+  max-width: 320px;
+  text-align: center;
+  z-index: 1001;
+}

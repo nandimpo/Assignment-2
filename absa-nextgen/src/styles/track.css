@@ -39,7 +39,6 @@
   padding: 100px 20px 60px;
 }
 
-/* HEADER */
 h1 {
   font-size: 32px;
 }
@@ -62,6 +61,12 @@ h1 {
   margin-bottom: 20px;
 }
 
+.track-card.active {
+  border: 1px solid #84a794;
+  background: rgba(132, 167, 148, 0.08);
+}
+
+/* POPUP */
 .popup-overlay {
   position: fixed;
   top: 0;
@@ -88,14 +93,6 @@ h1 {
 }
 
 /* PROGRESS */
-.progression-flow {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-  opacity: 0.7;
-  font-size: 13px;
-}
-
 .progress-bar {
   height: 10px;
   background: #1a1f1e;
@@ -117,14 +114,81 @@ h1 {
   padding-right: 6px;
 }
 
-/* TIMELINE CONTAINER */
+/* STEPPER */
+.stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 30px 0;
+  position: relative;
+}
+
+.step-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  flex: 1;
+}
+
+.step {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #2a2a2a;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+  z-index: 2;
+}
+
+.step.completed {
+  background: #22c55e;
+}
+
+.step.current {
+  border: 2px solid #4facfe;
+  background: #111;
+}
+
+.step.locked {
+  background: #444;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.step-label {
+  margin-top: 8px;
+  font-size: 12px;
+  text-align: center;
+  color: #9aa5a6;
+}
+
+.step-line {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  width: 100%;
+  height: 3px;
+  background: #333;
+  z-index: 1;
+}
+
+.step-line.filled {
+  background: #22c55e;
+}
+
+/* TIMELINE */
 .timeline {
   position: relative;
   margin-top: 20px;
   padding-left: 40px;
 }
 
-/* VERTICAL LINE */
 .timeline-line {
   position: absolute;
   left: 18px;
@@ -135,8 +199,6 @@ h1 {
   border-radius: 2px;
 }
 
-/* STEP — merged both definitions; vertical timeline styles take priority,
-   flex:1 / text-center only apply inside .timeline-box via its own context */
 .timeline-step {
   position: relative;
   display: flex;
@@ -153,7 +215,6 @@ h1 {
   transform: translateX(5px);
 }
 
-/* CIRCLE NODE */
 .circle {
   width: 36px;
   height: 36px;
@@ -169,7 +230,6 @@ h1 {
   transition: all 0.3s ease;
 }
 
-/* CONTENT */
 .content {
   margin-left: 50px;
 }
@@ -184,20 +244,17 @@ h1 {
   color: #777;
 }
 
-/* DONE STATE */
 .timeline-step.done .circle {
   background: #4facfe;
   color: white;
   box-shadow: 0 0 10px rgba(79, 172, 254, 0.6);
 }
 
-/* LOCKED STATE */
 .timeline-step.locked {
   opacity: 0.4;
   cursor: not-allowed;
 }
 
-/* ACTIVE / CURRENT STEP */
 .timeline-step:not(.done):not(.locked) .circle {
   border: 2px solid #4facfe;
   background: white;
@@ -206,32 +263,6 @@ h1 {
 .timeline-step.active {
   opacity: 1;
   background: rgba(132, 167, 148, 0.1);
-}
-
-/* TIMELINE BOX */
-.timeline-box {
-  display: flex;
-  gap: 10px;
-  margin-top: 20px;
-  position: relative;
-}
-
-.timeline-box::before {
-  content: "";
-  position: absolute;
-  left: 20px;
-  top: 60px;
-  bottom: 20px;
-  width: 3px;
-  background: #ddd;
-}
-
-/* Inside timeline-box, steps share space equally and center text */
-.timeline-box .timeline-step {
-  flex: 1;
-  text-align: center;
-  position: relative;
-  margin-bottom: 0;
 }
 
 .next-step-box {
@@ -258,7 +289,7 @@ h1 {
   margin-bottom: 5px;
 }
 
-/* SMALL — merged; using the more specific color */
+/* UTILS */
 .small {
   font-size: 12px;
   color: #9aa5a6;
@@ -269,7 +300,7 @@ h1 {
   color: #ff6b6b;
 }
 
-/* NUDGE + IMPACT — merged; higher gap and margin win */
+/* NUDGE / IMPACT */
 .nudge-impact {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -300,7 +331,6 @@ h1 {
   border: 1px solid #222;
 }
 
-/* NUDGE WRAPPER — merged; overflow:visible kept, flex layout kept */
 .nudge-box {
   position: relative;
   overflow: visible;
@@ -314,7 +344,6 @@ h1 {
   font-size: 16px;
 }
 
-/* NUDGE — merged all three definitions into one */
 .nudge {
   position: relative;
   padding: 18px;
@@ -356,7 +385,6 @@ h1 {
   transform: translateX(-50%) translateY(-6px);
 }
 
-/* IMPACT */
 .impact p {
   margin-bottom: 6px;
 }
@@ -393,7 +421,6 @@ h1 {
   text-align: center;
 }
 
-/* COMPARE CARD */
 .compare-card {
   margin-top: 20px;
 }
@@ -403,14 +430,12 @@ h1 {
   margin-bottom: 20px;
 }
 
-/* GRID */
 .compare-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 18px;
 }
 
-/* COLUMN */
 .compare-column {
   padding: 18px;
   border-radius: 14px;
@@ -424,86 +449,17 @@ h1 {
   transform: translateY(-3px);
 }
 
-/* ===== STEPPER ===== */
-.stepper {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: 30px 0;
-  position: relative;
-}
-
-.step-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-  flex: 1;
-}
-
-.step {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: #2a2a2a;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: 0.3s;
-  z-index: 2;
-}
-
-.step.completed {
-  background: #22c55e;
-}
-
-.step.current {
-  border: 2px solid #3b82f6;
-  background: #111;
-}
-
-.step.locked {
-  background: #444;
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-.step-label {
-  margin-top: 8px;
-  font-size: 12px;
-  text-align: center;
-}
-
-.step-line {
-  position: absolute;
-  top: 20px;
-  left: 50%;
-  width: 100%;
-  height: 3px;
-  background: #333;
-  z-index: 1;
-}
-
-.step-line.filled {
-  background: #22c55e;
-}
-
-/* ACTIVE TRACK */
 .compare-column.active {
   border: 1px solid #84a794;
   background: rgba(132, 167, 148, 0.1);
 }
 
-/* TAG */
 .tag {
   font-size: 12px;
   color: #84a794;
   margin-bottom: 12px;
 }
 
-/* LIST */
 .compare-column ul {
   list-style: none;
   padding: 0;
@@ -515,28 +471,20 @@ h1 {
   color: #d4dbd9;
 }
 
-/* FOOTER */
 .compare-footer {
   margin-top: 16px;
   font-size: 13px;
   color: #9aa5a6;
 }
 
-/* RESPONSIVE */
-@media (max-width: 900px) {
-  .compare-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* GRID */
+/* TRACK GRID */
 .track-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
 }
 
-/* BUTTONS — merged; larger padding wins */
+/* BUTTONS */
 .pill {
   padding: 12px 18px;
   font-size: 13px;
@@ -545,6 +493,11 @@ h1 {
   border: none;
   color: white;
   cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.pill:hover {
+  opacity: 0.85;
 }
 
 .pill.outline {
@@ -557,14 +510,13 @@ h1 {
   cursor: not-allowed;
 }
 
-/* BUTTON ROW — merged; larger margin wins */
 .btn-row {
   display: flex;
   gap: 14px;
   margin-top: 20px;
 }
 
-/* SLIDER GROUP */
+/* SLIDERS */
 .slider-group {
   margin-bottom: 18px;
   position: relative;
@@ -612,7 +564,7 @@ h1 {
   transform: translateY(0);
 }
 
-/* INSIGHT TEXT */
+/* INSIGHTS */
 .insight {
   margin-top: 14px;
   font-size: 12.5px;
@@ -624,16 +576,13 @@ h1 {
 .insight.positive {
   color: #84a794;
 }
-
 .insight.neutral {
   color: #cfd8d6;
 }
-
 .insight.warning {
   color: #d6a85a;
 }
 
-/* SUGGESTED CARD */
 .suggested {
   display: flex;
   flex-direction: column;
@@ -695,9 +644,7 @@ h1 {
   z-index: 1000;
 }
 
-/* ========================= */
 /* AI INSIGHT BLOCK */
-/* ========================= */
 .insight-block {
   margin-top: 20px;
 }
@@ -717,10 +664,122 @@ h1 {
   line-height: 1.4;
 }
 
+/* TOUR */
+.tour-mask-top,
+.tour-mask-bottom,
+.tour-mask-left,
+.tour-mask-right {
+  position: fixed;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 999;
+  pointer-events: none;
+}
+
+.tour-cutout {
+  position: fixed;
+  border-radius: 16px;
+  box-shadow:
+    0 0 0 2px rgba(132, 167, 148, 0.8),
+    0 0 40px rgba(132, 167, 148, 0.8);
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.tour-box {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #121616;
+  padding: 20px;
+  border-radius: 14px;
+  border: 1px solid rgba(132, 167, 148, 0.3);
+  color: white;
+  z-index: 1001;
+  min-width: 300px;
+  max-width: 420px;
+}
+
+.tour-box.warning {
+  border: 1px solid #d6a85a;
+  box-shadow: 0 0 20px rgba(214, 168, 90, 0.3);
+}
+
+.tour-box strong {
+  color: #84a794;
+}
+
+.tour-counter {
+  font-size: 11px;
+  opacity: 0.6;
+  margin-bottom: 6px;
+}
+
+.tour-text {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.tour-highlight {
+  margin-top: 10px;
+  padding: 8px;
+  border-radius: 8px;
+  background: rgba(132, 167, 148, 0.12);
+  font-size: 12px;
+  color: #84a794;
+}
+
+.tour-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+
+/* COACH ACTION — used inside tour box */
+.coach-action {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 8px 16px;
+  font-size: 13px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #84a794, #2c3a36);
+  border: none;
+  color: white;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.coach-action:hover {
+  opacity: 0.85;
+}
+
+/* CONFIDENCE + IMPACT */
+.confidence-bar {
+  height: 6px;
+  background: #1a1f1e;
+  border-radius: 10px;
+  margin: 10px 0;
+}
+
+.confidence-fill {
+  height: 100%;
+  border-radius: 10px;
+  background: linear-gradient(to right, #d6a85a, #84a794);
+}
+
+.impact-box {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  background: rgba(132, 167, 148, 0.1);
+  font-size: 12px;
+}
+
 /* RESPONSIVE */
 @media (max-width: 900px) {
   .nudge-impact,
-  .track-grid {
+  .track-grid,
+  .compare-grid {
     grid-template-columns: 1fr;
   }
 }

@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import Tour from "../components/Tour";
 import AppNav from "../components/AppNav";
 import "../styles/home.css";
 import { useUser } from "../context/UserContext";
@@ -7,6 +8,7 @@ import { useUser } from "../context/UserContext";
 export default function Home() {
   const navigate = useNavigate();
   const { user } = useUser();
+
   const income = Number(user?.salary) || 0;
   const expenses = Number(user?.expenses) || 0;
   const net = income - expenses;
@@ -19,7 +21,63 @@ export default function Home() {
   else if (!user?.salary) nextStep = "Add your income details";
   else if (!user?.expenses) nextStep = "Track your monthly expenses";
 
+  const tourSteps = [
+    {
+      text: "Welcome 👋 This is your financial dashboard.",
+      target: "home-header",
+    },
+    { text: "This shows your next financial action.", target: "next-step" },
+    {
+      text: "Your financial health score updates as you improve.",
+      target: "health",
+    },
+    {
+      text: "Here's your income, expenses, and net position.",
+      target: "stats",
+    },
+    { text: "This is your current strategy track.", target: "tracks" },
+  ];
+
+  const [tourStep, setTourStep] = useState(0);
+  const [showTour, setShowTour] = useState(false);
   const [nudgeType, setNudgeType] = useState("positive");
+  const [spotlight, setSpotlight] = useState(null);
+
+  // Persist tour visibility
+  useEffect(() => {
+    const seen = localStorage.getItem("seenHomeTour");
+    if (!seen) setShowTour(true);
+  }, []);
+
+  // Spotlight positioning — 4-panel mask approach
+  useEffect(() => {
+    if (!showTour) return;
+    if (tourStep >= tourSteps.length) return;
+
+    const step = tourSteps[tourStep];
+    const el = document.getElementById(step.target);
+
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+
+      // Delay so scroll settles before measuring
+      setTimeout(() => {
+        const rect = el.getBoundingClientRect();
+        const pad = 10;
+        setSpotlight({
+          top: rect.top - pad,
+          left: rect.left - pad,
+          width: rect.width + pad * 2,
+          height: rect.height + pad * 2,
+        });
+      }, 350);
+    }
+  }, [tourStep, showTour]);
+
+  const endTour = () => {
+    localStorage.setItem("seenHomeTour", "true");
+    setShowTour(false);
+  };
 
   useEffect(() => {
     if (savingsRate < 20) setNudgeType("warning");
@@ -36,6 +94,7 @@ export default function Home() {
   if (healthScore >= 80) healthLabel = "Excellent";
   else if (healthScore >= 65) healthLabel = "Good";
   else if (healthScore < 50) healthLabel = "Needs Attention";
+
   const trackDetails = {
     property: {
       explanation:
@@ -43,21 +102,18 @@ export default function Home() {
       tradeoffs:
         "You will limit lifestyle spending and flexibility in order to reach your property goal faster.",
     },
-
     balanced: {
       explanation:
         "This track balances saving and investing while maintaining your current lifestyle.",
       tradeoffs:
         "You gain flexibility and lifestyle comfort, but your long-term goals may take longer to achieve.",
     },
-
     foundation: {
       explanation:
         "This track focuses on building a strong financial base through emergency savings and essential budgeting.",
       tradeoffs:
         "Progress toward large goals like property will be slower while you stabilise your finances.",
     },
-
     correction: {
       explanation:
         "This track helps you reduce debt and rebalance your spending habits.",
@@ -65,13 +121,14 @@ export default function Home() {
         "Requires strict discipline and reduced spending in the short term to improve long-term health.",
     },
   };
+
   return (
     <div className="home">
       <AppNav />
 
       <div className="container">
         {/* HEADER */}
-        <section className="home-header fade-in">
+        <section className="home-header fade-in" id="home-header">
           <h2>Welcome back, {user?.name || "User"}</h2>
           <p>
             You are on the{" "}
@@ -80,7 +137,7 @@ export default function Home() {
         </section>
 
         {/* NEXT STEP */}
-        <section className="next-step fade-in">
+        <section className="next-step fade-in" id="next-step">
           <div>
             <p className="label">Next Step</p>
             <h3>{nextStep}</h3>
@@ -91,7 +148,7 @@ export default function Home() {
         </section>
 
         {/* HEALTH */}
-        <section className="health-card fade-in">
+        <section className="health-card fade-in" id="health">
           <div className="score-ring">{healthScore}</div>
           <div>
             <h3>
@@ -111,7 +168,7 @@ export default function Home() {
         </section>
 
         {/* STATS */}
-        <section className="stats fade-in">
+        <section className="stats fade-in" id="stats">
           <div className="stat">
             <p>Monthly income</p>
             <h3>R{income.toLocaleString("en-ZA")}</h3>
@@ -131,7 +188,7 @@ export default function Home() {
         </section>
 
         {/* GOAL */}
-        <section className="goal-card fade-in">
+        <section className="goal-card fade-in" id="goal">
           <p className="muted">Your Deposit Plan</p>
           <h3>R{user?.depositAmount?.toLocaleString("en-ZA") || 0}</h3>
           <span className="muted">
@@ -144,7 +201,7 @@ export default function Home() {
         </section>
 
         {/* NUDGE */}
-        <section className={`nudge ${nudgeType} fade-in`}>
+        <section className={`nudge ${nudgeType} fade-in`} id="nudge">
           <p>
             {nudgeType === "positive"
               ? `You're saving ${savingsRate}% — strong position`
@@ -153,7 +210,7 @@ export default function Home() {
         </section>
 
         {/* HERO */}
-        <section className="hero-row fade-in">
+        <section className="hero-row fade-in" id="hero">
           <div>
             <h2>Take control of your financial future</h2>
             <p className="muted">
@@ -166,13 +223,13 @@ export default function Home() {
         </section>
 
         {/* SIMULATIONS */}
-        <section className="simulation-box fade-in">
+        <section className="simulation-box fade-in" id="simulations">
           <h3>Your Simulations</h3>
           <p className="empty">No simulations yet — start exploring</p>
         </section>
 
         {/* FEATURES */}
-        <section className="feature-row fade-in">
+        <section className="feature-row fade-in" id="features">
           <div className="feature-card" onClick={() => navigate("/money")}>
             <h3>Money Snapshot</h3>
             <p>See your financial position</p>
@@ -188,7 +245,7 @@ export default function Home() {
         </section>
 
         {/* STRATEGY TRACKS PREVIEW */}
-        <section className="preview-section fade-in">
+        <section className="preview-section fade-in" id="tracks">
           <div className="preview-header">
             <div>
               <h3>Strategy Tracks</h3>
@@ -396,6 +453,80 @@ export default function Home() {
           🎓
         </div>
       </div>
+
+      {/* TOUR OVERLAY — 4-panel mask approach */}
+      {showTour && spotlight && (
+        <>
+          {/* 4 dark panels surrounding the cutout */}
+          <div
+            className="tour-mask-top"
+            style={{ top: 0, left: 0, right: 0, height: spotlight.top }}
+          />
+          <div
+            className="tour-mask-bottom"
+            style={{
+              top: spotlight.top + spotlight.height,
+              left: 0,
+              right: 0,
+              bottom: 0,
+            }}
+          />
+          <div
+            className="tour-mask-left"
+            style={{
+              top: spotlight.top,
+              left: 0,
+              width: spotlight.left,
+              height: spotlight.height,
+            }}
+          />
+          <div
+            className="tour-mask-right"
+            style={{
+              top: spotlight.top,
+              left: spotlight.left + spotlight.width,
+              right: 0,
+              height: spotlight.height,
+            }}
+          />
+
+          {/* Glowing ring around highlighted element */}
+          <div
+            className="tour-cutout"
+            style={{
+              top: spotlight.top,
+              left: spotlight.left,
+              width: spotlight.width,
+              height: spotlight.height,
+            }}
+          />
+
+          {/* Tooltip box */}
+          <div className="tour-box">
+            <p className="tour-step-counter">
+              {tourStep + 1} / {tourSteps.length}
+            </p>
+            <p>{tourSteps[tourStep].text}</p>
+            <div className="tour-actions">
+              <button onClick={endTour}>Skip</button>
+              <button
+                onClick={() => {
+                  if (tourStep < tourSteps.length - 1) {
+                    setTourStep(tourStep + 1);
+                  } else {
+                    endTour();
+                  }
+                }}
+              >
+                {tourStep === tourSteps.length - 1 ? "Done ✓" : "Next →"}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Reusable Tour component */}
+      <Tour steps={tourSteps} storageKey="homeTour" />
     </div>
   );
 }

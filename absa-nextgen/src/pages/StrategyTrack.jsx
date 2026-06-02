@@ -4,8 +4,10 @@ import AppNav from "../components/AppNav";
 import { Home, TrendingUp, Shield, Scale } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getTrackProgression } from "../utils/trackProgression";
+import Tour from "../components/Tour";
 
-// ================= TRACK DATA (static — safe at module level) =================
+// ─── Static data (no user dependency) ────────────────────────────────────────
+
 const tracks = {
   property: {
     name: "Property Path",
@@ -52,10 +54,8 @@ const tracks = {
   },
 };
 
-// FIX 1: Declared once at module level (was duplicated before)
 const trackOrder = ["correction", "foundation", "balanced", "property"];
 
-// FIX 2: trackLabels was used but never defined
 const trackLabels = {
   correction: "Correction",
   foundation: "Foundation",
@@ -63,59 +63,51 @@ const trackLabels = {
   property: "Property",
 };
 
+const icons = {
+  property: <Home size={20} />,
+  balanced: <TrendingUp size={20} />,
+  foundation: <Shield size={20} />,
+  correction: <Scale size={20} />,
+};
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
 export default function StrategyTrack() {
   const navigate = useNavigate();
   const { user, updateUser, setUser, updateProfile } = useUser();
-  // FIX: updateUser may be named differently in your context — fall back gracefully
   const applyTrackUpdate = updateUser ?? setUser ?? updateProfile ?? (() => {});
 
-  // FIX 3: All hooks moved inside the component (they were at module level before, causing the crash)
   const [showPopup, setShowPopup] = useState(false);
   const [newTrack, setNewTrack] = useState(null);
+  const [tourStep, setTourStep] = useState(0);
+  const [showTour, setShowTour] = useState(false);
+  const [spotlight, setSpotlight] = useState(null);
 
   const selectedTrack = user?.strategy;
   const currentIndex = trackOrder.indexOf(user?.strategy);
 
-  useEffect(() => {
-    if (!user) return;
+  // ── Recommendation ──────────────────────────────────────────────────────────
 
-    const progression = getTrackProgression(user);
-
-    if (progression?.track && progression.track !== user.strategy) {
-      applyTrackUpdate({ strategy: progression.track });
-      setNewTrack(progression.track);
-      setShowPopup(true);
-    }
-  }, [user]);
-
-  // ================= RECOMMENDATION LOGIC =================
   const getRecommendedTrack = () => {
     if (!user) return null;
-
-    if (user.debt > 0) {
+    if (user.debt > 0)
       return {
         track: "correction",
         reason:
           "You currently have debt. Reducing it should be your first priority before building wealth.",
       };
-    }
-
-    if (!user.savings || user.savings < 10000) {
+    if (!user.savings || user.savings < 10000)
       return {
         track: "foundation",
         reason:
           "You don't yet have a strong financial safety net. Building savings will protect you.",
       };
-    }
-
-    if (user.goal === "buy_home") {
+    if (user.goal === "buy_home")
       return {
         track: "property",
         reason:
           "You want to buy a home, so focusing on saving for a deposit is the smartest move.",
       };
-    }
-
     return {
       track: "balanced",
       reason:
@@ -126,68 +118,248 @@ export default function StrategyTrack() {
   const recommendation = getRecommendedTrack();
   const recommendedTrack = recommendation?.track;
 
-  // ================= ICONS =================
-  const icons = {
-    property: <Home size={20} />,
-    balanced: <TrendingUp size={20} />,
-    foundation: <Shield size={20} />,
-    correction: <Scale size={20} />,
+  // ── Analysis ────────────────────────────────────────────────────────────────
+
+  const getTrackAnalysis = () => {
+    if (!user) return { confidence: 70, reasons: [], risks: [] };
+    let confidence = 70;
+    const reasons = [];
+    const risks = [];
+
+    if (user.debt > 0) {
+      reasons.push("You have outstanding debt");
+      risks.push("Debt slows wealth building");
+      confidence += 10;
+    }
+    if (!user.savings || user.savings < 10000) {
+      reasons.push("Your savings buffer is low");
+      risks.push("You lack financial protection");
+      confidence += 10;
+    }
+    if (user.goal === "buy_home") {
+      reasons.push("You want to purchase property");
+      confidence += 10;
+    }
+    if (user.savings > 50000 && user.debt === 0) {
+      reasons.push("You are financially stable");
+    }
+    return { confidence: Math.min(confidence, 95), reasons, risks };
   };
+
+  const analysis = getTrackAnalysis();
+
+  // ── Future simulation ───────────────────────────────────────────────────────
+
+  const simulateFuture = () => {
+    if (!user) return null;
+    const baseSavings = user.savings || 0;
+    const monthly = user.salary * 0.2;
+    return {
+      property: Math.round((1000000 - baseSavings) / monthly),
+      balanced: Math.round((1000000 - baseSavings) / (monthly * 0.7)),
+      foundation: Math.round((1000000 - baseSavings) / (monthly * 0.5)),
+      correction: Math.round((1000000 - baseSavings) / (monthly * 0.3)),
+    };
+  };
+
+  const future = simulateFuture();
+
+  // ── Tour steps ──────────────────────────────────────────────────────────────
+
+  const getFinalSteps = () => {
+    const steps = [];
+
+    // 1️⃣ Context
+    steps.push({
+      text: "These are your financial strategy tracks — each path shapes your future differently.",
+      target: "track-header",
+    });
+
+    // 2️⃣ Recommendation
+    if (recommendedTrack) {
+      steps.push({
+        text: `Based on your finances, we recommend the ${tracks[recommendedTrack].name}.`,
+        target: "recommended",
+      });
+    }
+
+    // 3️⃣ Reason
+    if (analysis?.reasons?.length) {
+      steps.push({
+        text: `This is because: ${analysis.reasons.slice(0, 2).join(", ")}.`,
+        target: "recommended",
+      });
+    }
+
+    // 4️⃣ Future impact
+    if (future && recommendedTrack) {
+      steps.push({
+        text: `Following this path could help you reach your goal in about ${future[recommendedTrack]} months.`,
+        target: "recommended",
+        highlightStrong: true,
+      });
+    }
+
+    // 5️⃣ Action
+    steps.push({
+      text: "You can explore or switch strategies at any time.",
+      target: "track-grid",
+      action: () => navigate(tracks[recommendedTrack]?.route),
+      actionLabel: "View recommended plan",
+    });
+
+    return steps;
+  };
+
+  const trackTourSteps = getFinalSteps();
+
+  // ── Tour handlers ───────────────────────────────────────────────────────────
+
+  const endTour = () => {
+    localStorage.setItem("seenTrackTour", "true");
+    setShowTour(false);
+    setSpotlight(null);
+  };
+
+  const nextStep = () => {
+    if (tourStep < trackTourSteps.length - 1) {
+      setTourStep((s) => s + 1);
+    } else {
+      endTour();
+    }
+  };
+
+  // ── Effects ─────────────────────────────────────────────────────────────────
+
+  // Show tour when strategy is missing or differs from recommendation
+  useEffect(() => {
+    const seen = localStorage.getItem("seenTrackTour");
+    if (!seen || user?.strategy !== recommendedTrack) {
+      setShowTour(true);
+    }
+  }, []);
+
+  // Reset tour when key financial inputs change
+  useEffect(() => {
+    if (showTour) setTourStep(0);
+  }, [user?.salary, user?.expenses, user?.savings]);
+
+  // Spotlight the target element for the current tour step
+  useEffect(() => {
+    if (!showTour || tourStep >= trackTourSteps.length) return;
+
+    const step = trackTourSteps[tourStep];
+    const el = document.getElementById(step.target);
+    if (!el) {
+      console.warn("❌ Missing tour target ID:", step.target);
+      return;
+    }
+
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+
+    setTimeout(() => {
+      const rect = el.getBoundingClientRect();
+      const pad = 10;
+      setSpotlight({
+        top: rect.top + window.scrollY - pad,
+        left: rect.left + window.scrollX - pad,
+        width: rect.width + pad * 2,
+        height: rect.height + pad * 2,
+      });
+    }, 300);
+  }, [tourStep, showTour]);
+
+  // Auto-advance track progression
+  useEffect(() => {
+    if (!user) return;
+    const progression = getTrackProgression(user);
+    if (progression?.track && progression.track !== user.strategy) {
+      applyTrackUpdate({ strategy: progression.track });
+      setNewTrack(progression.track);
+      setShowPopup(true);
+    }
+  }, [user]);
+
+  // ── Render ──────────────────────────────────────────────────────────────────
 
   return (
     <div className="track-page">
       <AppNav />
 
-      <div className="container">
-        <h1>Strategy Tracks</h1>
-        <p className="muted">
+      <div className="track-container">
+        <h1 id="track-header">Strategy Tracks</h1>
+        <p className="subtitle">
           Explore different financial paths and understand their trade-offs.
         </p>
 
-        {/* ================= TRACK PROGRESSION BAR ================= */}
-        <div className="progression-bar">
+        {/* Progression stepper */}
+        <div id="progression" className="stepper">
           {trackOrder.map((track, i) => (
-            <div
-              key={track}
-              className={`step ${i <= currentIndex ? "active" : ""}`}
-            >
-              {trackLabels[track]}
+            <div key={track} className="step-wrapper">
+              <div
+                className={`step ${
+                  i < currentIndex
+                    ? "completed"
+                    : i === currentIndex
+                      ? "current"
+                      : "locked"
+                }`}
+              >
+                {i < currentIndex ? "✓" : i + 1}
+              </div>
+              <span className="step-label">{trackLabels[track]}</span>
+              {i < trackOrder.length - 1 && (
+                <div
+                  className={`step-line ${i < currentIndex ? "filled" : ""}`}
+                />
+              )}
             </div>
           ))}
         </div>
 
-        {/* ================= PROGRESS POPUP ================= */}
+        {/* Progress popup */}
         {showPopup && (
           <div className="popup-overlay">
             <div className="popup">
               <h3>🎉 Progress Update</h3>
               <p>
-                You've progressed to a new stage:
-                <strong> {newTrack}</strong>
+                You've progressed to a new stage: <strong>{newTrack}</strong>
               </p>
               <button onClick={() => setShowPopup(false)}>Continue →</button>
             </div>
           </div>
         )}
 
-        {/* ================= NO STRATEGY SELECTED ================= */}
+        {/* No strategy */}
         {!selectedTrack && (
-          <div className="card warning">
+          <div className="track-card">
             <h3>No Strategy Selected</h3>
             <p>Please complete setup to choose your financial path.</p>
-            <button onClick={() => navigate("/setup")}>Go to Setup →</button>
+            <button className="pill" onClick={() => navigate("/setup")}>
+              Go to Setup →
+            </button>
           </div>
         )}
 
-        {/* ================= CURRENT TRACK ================= */}
+        {/* Current track */}
         {selectedTrack && (
-          <div className="card highlight">
+          <div id="current-track" className="track-card">
             <h3>Your Current Strategy</h3>
             <p>
               You are on <strong>{tracks[selectedTrack]?.name}</strong>
             </p>
+
+            {/* Confidence bar */}
+            <div className="confidence-bar">
+              <div
+                className="confidence-fill"
+                style={{ width: `${analysis.confidence}%` }}
+              />
+            </div>
+            <p className="small">{analysis.confidence}% match</p>
+
             <button
-              className="primary-btn"
+              className="pill"
               onClick={() => navigate(tracks[selectedTrack]?.route || "/home")}
             >
               Continue →
@@ -195,8 +367,8 @@ export default function StrategyTrack() {
           </div>
         )}
 
-        {/* ================= TRACK GRID ================= */}
-        <div className="track-grid">
+        {/* Track grid */}
+        <div className="track-grid" id="track-grid">
           {Object.entries(tracks).map(([key, track]) => {
             const isActive = selectedTrack === key;
             const isRecommended = recommendedTrack === key;
@@ -204,33 +376,26 @@ export default function StrategyTrack() {
             return (
               <div
                 key={key}
+                id={isRecommended ? "recommended" : undefined}
                 className={`track-card ${isActive ? "active" : ""}`}
               >
-                {/* HEADER */}
                 <div className="track-header">
-                  <div className="icon">{icons[key]}</div>
-
+                  <div className="track-icon">{icons[key]}</div>
                   <div>
                     <h3>{track.name}</h3>
-
+                    <p className="track-focus">{track.focus}</p>
                     {isRecommended && (
                       <>
                         <span className="badge">Recommended</span>
-                        <p className="recommendation-reason">
-                          {recommendation?.reason}
-                        </p>
+                        <p className="small">{recommendation?.reason}</p>
                       </>
                     )}
                   </div>
                 </div>
 
-                {/* CONTENT */}
-                <p className="explanation">{track.explanation}</p>
+                <p>{track.explanation}</p>
 
-                <div className="track-details">
-                  <p>
-                    <strong>Focus:</strong> {track.focus}
-                  </p>
+                <div className="explanation-box">
                   <p>
                     <strong>Who it's for:</strong> {track.who}
                   </p>
@@ -245,24 +410,121 @@ export default function StrategyTrack() {
                   </p>
                 </div>
 
-                {/* BUTTON */}
-                {isActive ? (
-                  <button className="primary-btn" disabled>
-                    Current Track
-                  </button>
-                ) : (
-                  <button
-                    className="secondary-btn"
-                    onClick={() => navigate(track.route)}
-                  >
-                    View →
-                  </button>
+                {future && isRecommended && (
+                  <div className="impact-box">
+                    <p>
+                      Estimated months to goal: <strong>{future[key]}</strong>
+                    </p>
+                  </div>
                 )}
+
+                <div className="btn-row">
+                  {isActive ? (
+                    <button className="pill disabled" disabled>
+                      Current Track
+                    </button>
+                  ) : (
+                    <button
+                      className="pill outline"
+                      onClick={() => navigate(track.route)}
+                    >
+                      View →
+                    </button>
+                  )}
+                </div>
               </div>
             );
           })}
         </div>
       </div>
+
+      {/* ── Tour overlay ── */}
+      {showTour && spotlight && (
+        <>
+          {/* Masks */}
+          <div
+            className="tour-mask-top"
+            style={{ top: 0, left: 0, right: 0, height: spotlight.top }}
+          />
+          <div
+            className="tour-mask-bottom"
+            style={{
+              top: spotlight.top + spotlight.height,
+              left: 0,
+              right: 0,
+              bottom: 0,
+            }}
+          />
+          <div
+            className="tour-mask-left"
+            style={{
+              top: spotlight.top,
+              left: 0,
+              width: spotlight.left,
+              height: spotlight.height,
+            }}
+          />
+          <div
+            className="tour-mask-right"
+            style={{
+              top: spotlight.top,
+              left: spotlight.left + spotlight.width,
+              right: 0,
+              height: spotlight.height,
+            }}
+          />
+
+          {/* Cutout highlight */}
+          <div
+            className="tour-cutout"
+            style={{
+              top: spotlight.top,
+              left: spotlight.left,
+              width: spotlight.width,
+              height: spotlight.height,
+            }}
+          />
+
+          {/* Tour box */}
+          <div
+            className={`tour-box ${
+              trackTourSteps[tourStep]?.tone === "warning" ? "warning" : ""
+            }`}
+          >
+            <p className="tour-counter">
+              Step {tourStep + 1} of {trackTourSteps.length}
+            </p>
+
+            <p className="tour-text">{trackTourSteps[tourStep]?.text}</p>
+
+            {trackTourSteps[tourStep]?.highlightStrong && (
+              <div className="tour-highlight">🚀 This is your fastest path</div>
+            )}
+
+            {trackTourSteps[tourStep]?.action && (
+              <button
+                className="pill"
+                style={{ marginTop: 10 }}
+                onClick={trackTourSteps[tourStep].action}
+              >
+                {trackTourSteps[tourStep].actionLabel}
+              </button>
+            )}
+
+            <div className="tour-actions">
+              <button className="pill outline" onClick={endTour}>
+                Skip
+              </button>
+              <button className="pill" onClick={nextStep}>
+                {tourStep === trackTourSteps.length - 1 ? "Done" : "Next →"}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ── Reusable Tour component (if used elsewhere) ── */}
+      <Tour steps={trackTourSteps} storageKey="trackTour" />
     </div>
   );
 }

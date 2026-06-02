@@ -9,7 +9,7 @@
 .container {
   max-width: 1000px;
   margin: auto;
-  padding: 100px 20px 40px; /* 🔥 fixes navbar overlap */
+  padding: 100px 20px 40px;
 }
 
 /* GRID */
@@ -17,10 +17,10 @@
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 20px;
-  align-items: start; /* 🔥 prevents stretching */
+  align-items: start;
 }
 
-/* LEFT COLUMN STACK */
+/* LEFT COLUMN */
 .left-column {
   display: flex;
   flex-direction: column;
@@ -34,6 +34,14 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
+  transition: all 0.25s ease;
+}
+
+.card:hover {
+  border-color: rgba(132, 167, 148, 0.3);
+  box-shadow:
+    0 0 0 1px rgba(132, 167, 148, 0.15),
+    0 10px 30px rgba(0, 0, 0, 0.4);
 }
 
 .glass {
@@ -57,6 +65,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  font-weight: bold;
+  font-size: 20px;
+  flex-shrink: 0;
 }
 
 /* MAIN */
@@ -72,6 +83,9 @@
   height: 120px;
   margin: auto;
   border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .donut-inner {
@@ -82,9 +96,23 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  font-weight: bold;
+}
+
+.center-text {
+  text-align: center;
+  margin-top: 8px;
+  font-size: 12px;
+  color: #9aa5a6;
 }
 
 /* SNAPSHOT */
+.snapshot {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .snapshot div {
   display: flex;
   justify-content: space-between;
@@ -98,7 +126,6 @@
   border: 1px solid rgba(132, 167, 148, 0.25);
 }
 
-/* FIX TEXT SPACING */
 .property-row {
   display: flex;
   justify-content: space-between;
@@ -121,6 +148,7 @@
 .goal {
   display: flex;
   justify-content: space-between;
+  font-size: 13px;
 }
 
 .bar {
@@ -133,6 +161,7 @@
 .bar-fill {
   height: 100%;
   background: linear-gradient(to right, #d6a85a, #84a794);
+  border-radius: 10px;
 }
 
 /* RIGHT SIDE */
@@ -142,26 +171,33 @@
   gap: 16px;
 }
 
-/* BUTTON */
-.pill {
-  padding: 8px 14px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #84a794, #2c3a36);
-  border: none;
-  cursor: pointer;
+/* ACCENT */
+.accent {
+  color: #84a794;
 }
+
+/* TAG */
+.tag {
+  font-size: 12px;
+  color: #84a794;
+  background: rgba(132, 167, 148, 0.1);
+  padding: 3px 8px;
+  border-radius: 8px;
+  display: inline-block;
+  margin-top: 4px;
+}
+
 /* ========================= */
-/* BUTTON SYSTEM */
+/* BUTTON SYSTEM             */
 /* ========================= */
 
-/* RESET DEFAULT BUTTON */
 button {
   all: unset;
   cursor: pointer;
   font-family: inherit;
 }
 
-/* PRIMARY BUTTON (main actions) */
+/* PRIMARY */
 .pill {
   padding: 10px 18px;
   border-radius: 20px;
@@ -169,17 +205,14 @@ button {
   color: white;
   font-size: 13px;
   font-weight: 500;
-
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   transition: all 0.25s ease;
   position: relative;
   overflow: hidden;
 }
 
-/* HOVER */
 .pill:hover {
   transform: translateY(-1px);
   box-shadow:
@@ -187,12 +220,10 @@ button {
     0 6px 18px rgba(132, 167, 148, 0.25);
 }
 
-/* CLICK */
 .pill:active {
   transform: scale(0.97);
 }
 
-/* SHIMMER EFFECT */
 .pill::before {
   content: "";
   position: absolute;
@@ -213,19 +244,15 @@ button {
   left: 100%;
 }
 
-/* ========================= */
-/* SECONDARY BUTTON */
-/* ========================= */
-
+/* SECONDARY */
 .secondary-btn {
   padding: 8px 14px;
   border-radius: 14px;
   font-size: 12px;
-
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(132, 167, 148, 0.2);
-
   transition: all 0.25s ease;
+  color: white;
 }
 
 .secondary-btn:hover {
@@ -234,10 +261,7 @@ button {
   box-shadow: 0 4px 12px rgba(132, 167, 148, 0.2);
 }
 
-/* ========================= */
-/* ACTION BUTTON GROUP */
-/* ========================= */
-
+/* SIDE ACTION BUTTONS */
 .side-actions {
   display: flex;
   gap: 10px;
@@ -248,39 +272,31 @@ button {
   padding: 6px 12px;
   border-radius: 10px;
   font-size: 12px;
-
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(132, 167, 148, 0.15);
-
+  color: white;
   transition: all 0.2s ease;
 }
 
-/* HOVER */
 .side-actions button:hover {
   background: rgba(132, 167, 148, 0.12);
   border-color: #84a794;
   transform: translateY(-1px);
 }
 
-/* CLICK */
 .side-actions button:active {
   transform: scale(0.95);
 }
 
-/* ========================= */
-/* EDIT BUTTON (PROFILE TOP) */
-/* ========================= */
-
+/* PROFILE TOP EDIT/LOGOUT BUTTONS */
 .profile-top button {
   margin-left: auto;
-
   padding: 6px 12px;
   border-radius: 10px;
-
   font-size: 11px;
   background: rgba(255, 255, 255, 0.05);
-
   border: 1px solid rgba(132, 167, 148, 0.2);
+  color: white;
   transition: 0.2s;
 }
 
@@ -290,44 +306,121 @@ button {
 }
 
 /* ========================= */
-/* HOVER GLOW FOR CARDS */
+/* FINANCE ORB               */
 /* ========================= */
 
-.card {
-  transition: all 0.25s ease;
+@keyframes pulseOrb {
+  0% {
+    box-shadow: 0 0 20px rgba(132, 167, 148, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 36px rgba(132, 167, 148, 0.95);
+  }
+  100% {
+    box-shadow: 0 0 20px rgba(132, 167, 148, 0.6);
+  }
 }
 
-.card:hover {
-  border-color: rgba(132, 167, 148, 0.3);
-  box-shadow:
-    0 0 0 1px rgba(132, 167, 148, 0.15),
-    0 10px 30px rgba(0, 0, 0, 0.4);
-}
 .finance-orb {
   position: fixed;
   bottom: 30px;
   right: 30px;
-
   width: 60px;
   height: 60px;
-
   border-radius: 50%;
   background: radial-gradient(circle, #d6a85a, #84a794);
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   font-size: 24px;
   cursor: pointer;
-
   box-shadow: 0 0 20px rgba(132, 167, 148, 0.6);
   animation: pulseOrb 2s infinite;
-
   z-index: 1000;
 }
 
-/* RESPONSIVE */
+/* ========================= */
+/* TOUR                      */
+/* ========================= */
+
+.tour-mask-top,
+.tour-mask-bottom,
+.tour-mask-left,
+.tour-mask-right {
+  position: fixed;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 999;
+  pointer-events: none;
+}
+
+.tour-cutout {
+  position: fixed;
+  border-radius: 16px;
+  box-shadow:
+    0 0 0 2px rgba(132, 167, 148, 0.8),
+    0 0 40px rgba(132, 167, 148, 0.8);
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.tour-box {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #121616;
+  padding: 20px;
+  border-radius: 14px;
+  border: 1px solid rgba(132, 167, 148, 0.3);
+  color: white;
+  max-width: 320px;
+  min-width: 260px;
+  text-align: center;
+  z-index: 1001;
+}
+
+/* Warning tone — applied when step has tone: "warning" */
+.tour-box.warning {
+  border: 1px solid #d6a85a;
+  box-shadow: 0 0 20px rgba(214, 168, 90, 0.3);
+}
+
+.tour-counter {
+  font-size: 11px;
+  opacity: 0.6;
+  margin-bottom: 6px;
+}
+
+.tour-text {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.tour-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+
+.tour-actions button {
+  padding: 6px 14px;
+  border-radius: 10px;
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(132, 167, 148, 0.2);
+  color: white;
+  transition: 0.2s;
+}
+
+.tour-actions button:hover {
+  background: rgba(132, 167, 148, 0.12);
+  border-color: #84a794;
+}
+
+/* ========================= */
+/* RESPONSIVE                */
+/* ========================= */
+
 @media (max-width: 900px) {
   .profile-container {
     grid-template-columns: 1fr;

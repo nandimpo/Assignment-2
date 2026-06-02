@@ -3,6 +3,7 @@ import "../styles/financeSchool.css";
 import AppNav from "../components/AppNav";
 import confetti from "canvas-confetti";
 import { useUser } from "../context/UserContext";
+import Tour from "../components/Tour";
 
 export default function FinanceSchool() {
   const [view, setView] = useState("path");
@@ -114,6 +115,21 @@ export default function FinanceSchool() {
     },
   ];
 
+  const schoolTourSteps = [
+    {
+      text: "Welcome to Finance School 🎓 — learn and earn XP as you go.",
+      target: "school-header",
+    },
+    {
+      text: "Your level and XP progress is tracked here.",
+      target: "school-progress",
+    },
+    {
+      text: "Pick a module to start learning.",
+      target: "school-modules",
+    },
+  ];
+
   const openLesson = (lesson) => {
     setActiveLesson(lesson);
     setView("lesson");
@@ -132,8 +148,7 @@ export default function FinanceSchool() {
     localStorage.setItem(storageKey, JSON.stringify(data));
   };
 
-  /* SHOW FEEDBACK THEN FADE   */
-
+  /* SHOW FEEDBACK THEN FADE */
   const showFeedback = (type) => {
     clearTimeout(feedbackTimer.current);
     setFeedback(type);
@@ -187,8 +202,7 @@ export default function FinanceSchool() {
     }
   };
 
-  /* TRY AGAIN                 */
-
+  /* TRY AGAIN */
   const tryAgain = () => {
     setFeedbackVisible(false);
     setTimeout(() => {
@@ -208,7 +222,7 @@ export default function FinanceSchool() {
 
       <div className="learn-container">
         {/* HEADER */}
-        <div className="header-row">
+        <div className="header-row" id="school-header">
           <div>
             <h1>Finance School</h1>
             <p className="subtitle">🔥 Streak: {learning.streak} days</p>
@@ -220,7 +234,7 @@ export default function FinanceSchool() {
         </div>
 
         {/* PROGRESS */}
-        <div className="card">
+        <div className="card" id="school-progress">
           <p>Level {learning.level}</p>
           <div className="progress">
             <div
@@ -231,7 +245,7 @@ export default function FinanceSchool() {
         </div>
 
         {/* MODULES */}
-        <div className="module-grid">
+        <div className="module-grid" id="school-modules">
           {lessons.map((lesson) => (
             <div key={lesson.id} className="card module-card">
               <h3>{lesson.title}</h3>
@@ -321,6 +335,9 @@ export default function FinanceSchool() {
           </div>
         )}
       </div>
+
+      {/* Tour component — correctly placed inside return(), after content */}
+      <Tour steps={schoolTourSteps} storageKey="schoolTour" />
     </div>
   );
 }

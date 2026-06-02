@@ -4,6 +4,7 @@ import AppNav from "../components/AppNav";
 import "../styles/money.css";
 import ExplainerPanel from "../components/ExplainerPanel";
 import useProgress from "../hooks/useProgress";
+import Tour from "../components/Tour";
 
 export default function MoneySnapshot() {
   const navigate = useNavigate();
@@ -21,18 +22,17 @@ export default function MoneySnapshot() {
   const [content, setContent] = useState(null);
   const [activeTooltip, setActiveTooltip] = useState(null);
 
-  const net = income - expenses;
+  const [tourStep, setTourStep] = useState(0);
+  const [showTour, setShowTour] = useState(false);
+  const [spotlight, setSpotlight] = useState(null);
 
-  // ✅ FIX 2: safe calculation (no divide-by-zero crash)
+  const net = income - expenses;
   const safeIncome = income > 0 ? income : 1;
   const savingsRate = Math.round((savings / safeIncome) * 100);
   const progress = Math.min(100, Math.round((savings / goal) * 100));
-
-  // ✅ FIX 4: monthsToGoal (matches Home)
   const monthsToGoal =
     savings >= goal ? 0 : Math.ceil((goal - savings) / (savings || 1));
 
-  // ✅ BREAKDOWN — editable state, seeded from user.breakdown or auto-calculated
   const [breakdownEdit, setBreakdownEdit] = useState({
     housing: user?.breakdown?.housing ?? Math.round(expenses * 0.4),
     mobility: user?.breakdown?.mobility ?? Math.round(expenses * 0.2),
@@ -40,10 +40,7 @@ export default function MoneySnapshot() {
     debt: user?.breakdown?.debt ?? Math.round(expenses * 0.15),
   });
 
-  const breakdown = {
-    ...breakdownEdit,
-    savings: savings,
-  };
+  const breakdown = { ...breakdownEdit, savings };
 
   const handleBreakdownChange = (e) => {
     setBreakdownEdit({
@@ -52,74 +49,156 @@ export default function MoneySnapshot() {
     });
   };
 
-  // ✅ DERIVED — calculated live from real values, not editable state
   const debtToIncome =
     income > 0 ? Math.round((breakdown.debt / income) * 100) : 0;
-
   const disposableIncome = income - expenses;
 
-  // ✅ narrative defined AFTER disposableIncome and debtToIncome
   const generateNarrative = () => {
     let message = "";
-
-    if (savingsRate > 50) {
+    if (savingsRate > 50)
       message += "You're saving more than most people in your income band. ";
-    } else if (savingsRate < 15) {
-      message += "Your savings rate is quite low. ";
-    }
-
-    if (debtToIncome > 40) {
+    else if (savingsRate < 15) message += "Your savings rate is quite low. ";
+    if (debtToIncome > 40)
       message += "Your debt levels are high relative to your income. ";
-    }
-
-    if (disposableIncome < 0) {
-      message += "You are currently overspending. ";
-    }
-
+    if (disposableIncome < 0) message += "You are currently overspending. ";
     return message || "Your financial position is stable.";
   };
   const narrative = generateNarrative();
 
-  // ✅ Savings Rate input — changes savings to match the entered rate
   const handleSavingsRateChange = (e) => {
     const rate = Number(e.target.value);
-    if (rate >= 0 && rate <= 100) {
-      setSavings(Math.round(income * (rate / 100)));
-    }
+    if (rate >= 0 && rate <= 100) setSavings(Math.round(income * (rate / 100)));
   };
 
-  // ✅ Disposable Income input — changes expenses so income - expenses = entered value
   const handleDisposableIncomeChange = (e) => {
     const val = Number(e.target.value);
     const newExpenses = income - val;
-    if (newExpenses >= 0) {
-      setExpenses(newExpenses);
-    }
+    if (newExpenses >= 0) setExpenses(newExpenses);
   };
 
-  useEffect(() => {
-    // ✅ FIX: compute breakdown inline so it's never stale inside the effect
-    const currentBreakdown = {
-      ...breakdownEdit,
-      savings: savings,
-    };
+  // ── SNAPSHOT TOUR STEPS (fixed onboarding walkthrough) ──
+  const snapshotSteps = [
+    {
+      text: "This is your financial snapshot — everything updates live.",
+      target: "header",
+    },
+    {
+      text: "Track your financial journey through milestones.",
+      target: "milestones",
+    },
+    { text: "These are your key financial metrics.", target: "metrics" },
+    { text: "Edit your income and expenses here.", target: "stats" },
+    {
+      text: "This shows your progress toward your deposit goal.",
+      target: "deposit",
+    },
+    {
+      text: "These AI insights help you improve your finances.",
+      target: "insights",
+    },
+  ];
 
+  // ── COACH STEPS (dynamic, based on current financial state) ──
+  const getCoachSteps = () => {
+    const steps = [];
+
+    if (net < 0) {
+      steps.push({
+        text: "You're currently spending more than you earn. Let's fix that first.",
+        target: "stats",
+        action: () => setExpenses(expenses - 1000),
+        actionLabel: "Reduce expenses by R1,000",
+      });
+    } else if (savingsRate < 15) {
+      steps.push({
+        text: `You're only saving ${savingsRate}% — increasing this will significantly improve your future.`,
+        target: "metrics",
+        action: () => setSavings(Math.round(income * 0.2)),
+        actionLabel: "Boost to 20%",
+      });
+    } else if (savingsRate < 30) {
+      steps.push({
+        text: `You're saving ${savingsRate}% — you're on track, but optimisation will accelerate your goals.`,
+        target: "metrics",
+        action: () => setSavings(Math.round(income * 0.3)),
+        actionLabel: "Optimise to 30%",
+      });
+    } else {
+      steps.push({
+        text: `You're saving ${savingsRate}% — strong position. Now focus on growth.`,
+        target: "insights",
+      });
+    }
+
+    steps.push({
+      text: `You are ${progress}% toward your deposit goal.`,
+      target: "deposit",
+    });
+
+    steps.push({
+      text: "These insights are personalised to help you improve faster.",
+      target: "insights",
+    });
+
+    return steps;
+  };
+
+  // Combine onboarding + coach steps
+  const allTourSteps = [...snapshotSteps, ...getCoachSteps()];
+
+  // ── TOUR EFFECTS ──
+  useEffect(() => {
+    const seen = localStorage.getItem("seenSnapshotTour");
+    if (!seen) setShowTour(true);
+  }, []);
+
+  useEffect(() => {
+    if (!showTour) return;
+    if (tourStep >= allTourSteps.length) return;
+
+    const step = allTourSteps[tourStep];
+    const el = document.getElementById(step.target);
+
+    if (!el) {
+      console.log("❌ Missing ID:", step.target);
+      return;
+    }
+
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+
+    setTimeout(() => {
+      const rect = el.getBoundingClientRect();
+      const pad = 10;
+      setSpotlight({
+        top: rect.top + window.scrollY - pad,
+        left: rect.left + window.scrollX - pad,
+        width: rect.width + pad * 2,
+        height: rect.height + pad * 2,
+      });
+    }, 300);
+  }, [tourStep, showTour]);
+
+  const endTour = () => {
+    localStorage.setItem("seenSnapshotTour", "true");
+    setShowTour(false);
+  };
+
+  // ── PERSIST TO LOCALSTORAGE ──
+  useEffect(() => {
+    const currentBreakdown = { ...breakdownEdit, savings };
     const updatedUser = {
       ...user,
       salary: income,
-      expenses: expenses,
-      savings: savings,
-      monthsToGoal: monthsToGoal,
-      breakdown: currentBreakdown, // ✅ ADD THIS
+      expenses,
+      savings,
+      monthsToGoal,
+      breakdown: currentBreakdown,
     };
-
     setUser(updatedUser);
-    // ✅ FIX 1: localStorage (matches Home)
     localStorage.setItem("user", JSON.stringify(updatedUser));
   }, [income, expenses, savings, breakdownEdit]);
 
-  /*  AI INSIGHT ENGINE */
-
+  // ── AI INSIGHT ENGINE ──
   const generateInsights = () => {
     const insights = [];
 
@@ -171,8 +250,7 @@ export default function MoneySnapshot() {
 
   const aiInsights = generateInsights();
 
-  /* EXPLAINERS */
-
+  // ── EXPLAINERS ──
   const explainers = {
     net: {
       title: "Net Position",
@@ -187,20 +265,19 @@ export default function MoneySnapshot() {
       text: "This represents your target savings required for a property deposit. Increasing contributions reduces the time required to reach this milestone.",
     },
   };
+
   const { progress: milestoneProgress, toggle, percent } = useProgress();
+
   let nextAction = "";
-
-  if (!milestoneProgress.emergencyFund) {
+  if (!milestoneProgress.emergencyFund)
     nextAction = "Build your emergency fund (3–6 months expenses)";
-  } else if (!milestoneProgress.deposit) {
+  else if (!milestoneProgress.deposit)
     nextAction = "Start saving aggressively for your deposit";
-  } else if (!milestoneProgress.purchase) {
+  else if (!milestoneProgress.purchase)
     nextAction = "Prepare for property purchase (bond, costs)";
-  } else {
-    nextAction = "Optimise your finances post-purchase";
-  }
-  let track = "Foundation";
+  else nextAction = "Optimise your finances post-purchase";
 
+  let track = "Foundation";
   if (user?.debt > income * 1.5) track = "Lifestyle Correction";
   else if (!milestoneProgress.emergencyFund) track = "Foundation";
   else if (!milestoneProgress.deposit) track = "Balanced";
@@ -212,7 +289,7 @@ export default function MoneySnapshot() {
 
       <div className="money-container">
         {/* HEADER */}
-        <section className="header">
+        <section className="header" id="header">
           <h2>
             Financial Snapshot —{" "}
             <span className="accent">{user?.name || "User"}</span>
@@ -222,10 +299,10 @@ export default function MoneySnapshot() {
             <span className="accent">{user?.strategy}</span> strategy
           </p>
         </section>
-        {/* ================= MILESTONES ================= */}
-        <div className="card">
-          <h3>Milestones</h3>
 
+        {/* MILESTONES */}
+        <div className="card" id="milestones">
+          <h3>Milestones</h3>
           <div className="stepper">
             {["emergencyFund", "deposit", "purchase"].map((step, index) => {
               const labels = {
@@ -233,9 +310,7 @@ export default function MoneySnapshot() {
                 deposit: "Deposit",
                 purchase: "Purchase",
               };
-
               const steps = ["emergencyFund", "deposit", "purchase"];
-
               const isCompleted = milestoneProgress[step];
               const isCurrent =
                 !milestoneProgress[step] &&
@@ -247,33 +322,26 @@ export default function MoneySnapshot() {
               return (
                 <div key={step} className="step-wrapper">
                   <div
-                    className={`step 
-              ${isCompleted ? "completed" : ""} 
-              ${isCurrent ? "current" : ""} 
-              ${isLocked ? "locked" : ""}
-            `}
+                    className={`step ${isCompleted ? "completed" : ""} ${isCurrent ? "current" : ""} ${isLocked ? "locked" : ""}`}
                     onClick={() => !isLocked && toggle(step)}
                   >
                     {isCompleted ? "✓" : index + 1}
                   </div>
-
                   <span className="step-label">{labels[step]}</span>
-
                   {index < steps.length - 1 && (
                     <div
-                      className={`step-line ${
-                        milestoneProgress[step] ? "filled" : ""
-                      }`}
+                      className={`step-line ${milestoneProgress[step] ? "filled" : ""}`}
                     />
                   )}
                 </div>
               );
             })}
           </div>
-
           <p className="muted">{percent}% complete</p>
         </div>
-        <div className="card">
+
+        {/* TRACK */}
+        <div className="card" id="track">
           <h3>📍 Your Track</h3>
           <p className="accent">{track}</p>
         </div>
@@ -283,13 +351,15 @@ export default function MoneySnapshot() {
           <h3>Financial Summary</h3>
           <p>{narrative}</p>
         </div>
+
+        {/* NEXT ACTION */}
         <div className="card">
           <h3>🎯 Next Best Action</h3>
           <p className="accent">{nextAction}</p>
         </div>
 
         {/* KEY METRICS */}
-        <div className="card">
+        <div className="card" id="metrics">
           <h3>Key Financial Metrics</h3>
 
           <label>Debt-to-Income (%)</label>
@@ -319,7 +389,7 @@ export default function MoneySnapshot() {
         </div>
 
         {/* STATS */}
-        <section className="stats">
+        <section className="stats" id="stats">
           <div className="stat-card">
             <p className="label">Monthly Income</p>
             <div className="value-input">
@@ -361,7 +431,6 @@ export default function MoneySnapshot() {
                 ⓘ
               </span>
             </p>
-
             {activeTooltip === "net" && (
               <div className="tooltip-advanced">
                 <h4>{explainers.net.title}</h4>
@@ -369,7 +438,6 @@ export default function MoneySnapshot() {
                 <span className="tooltip-hint">Click to learn more →</span>
               </div>
             )}
-
             <h3 className="big-number">R{net.toLocaleString("en-ZA")}</h3>
             <span className="small">
               {savingsRate}% of income allocated to savings
@@ -379,10 +447,9 @@ export default function MoneySnapshot() {
 
         {/* GRID */}
         <section className="grid">
-          {/* LEFT */}
           <div className="left">
             {/* DEPOSIT */}
-            <div className="card">
+            <div className="card" id="deposit">
               <h3>
                 Deposit Progress
                 <span
@@ -397,7 +464,6 @@ export default function MoneySnapshot() {
                   ⓘ
                 </span>
               </h3>
-
               {activeTooltip === "property" && (
                 <div className="tooltip-advanced">
                   <h4>{explainers.property.title}</h4>
@@ -405,19 +471,14 @@ export default function MoneySnapshot() {
                   <span className="tooltip-hint">Click to explore →</span>
                 </div>
               )}
-
               <div className="progress">
                 <div className="fill" style={{ width: `${progress}%` }} />
               </div>
-
               <p className="small">
                 R{savings.toLocaleString("en-ZA")} saved of R
                 {goal.toLocaleString("en-ZA")} target
               </p>
-
-              {/* ✅ FIX 4: monthsToGoal displayed */}
               <p className="small">{monthsToGoal} months to reach goal</p>
-
               <button
                 className="pill"
                 onClick={() => setSavings(Math.round(income * 0.25))}
@@ -427,13 +488,11 @@ export default function MoneySnapshot() {
             </div>
 
             {/* AI INSIGHTS */}
-            <div className="card">
+            <div className="card" id="insights">
               <h3>AI Financial Insights</h3>
-
               {aiInsights.map((insight, i) => (
                 <div className="insight" key={i}>
                   <p>{insight.text}</p>
-
                   {insight.action && (
                     <button onClick={insight.action}>
                       {insight.actionLabel}
@@ -444,9 +503,8 @@ export default function MoneySnapshot() {
             </div>
 
             {/* BREAKDOWN */}
-            <div className="card">
+            <div className="card" id="breakdown">
               <h3>Spending Breakdown</h3>
-
               <div className="breakdown-grid">
                 <div className="breakdown-item">
                   <p>Housing</p>
@@ -458,7 +516,6 @@ export default function MoneySnapshot() {
                     onChange={handleBreakdownChange}
                   />
                 </div>
-
                 <div className="breakdown-item">
                   <p>Mobility</p>
                   <input
@@ -469,7 +526,6 @@ export default function MoneySnapshot() {
                     onChange={handleBreakdownChange}
                   />
                 </div>
-
                 <div className="breakdown-item">
                   <p>Lifestyle</p>
                   <input
@@ -480,7 +536,6 @@ export default function MoneySnapshot() {
                     onChange={handleBreakdownChange}
                   />
                 </div>
-
                 <div className="breakdown-item">
                   <p>Debt</p>
                   <input
@@ -491,13 +546,11 @@ export default function MoneySnapshot() {
                     onChange={handleBreakdownChange}
                   />
                 </div>
-
                 <div className="breakdown-item">
                   <p>Savings</p>
                   <strong>R{breakdown.savings.toLocaleString("en-ZA")}</strong>
                 </div>
               </div>
-
               <button
                 className="pill"
                 style={{ marginTop: "12px" }}
@@ -526,7 +579,6 @@ export default function MoneySnapshot() {
             >
               <h3>Financial Knowledge</h3>
               <p>Understand how your savings rate impacts long-term wealth.</p>
-
               {activeTooltip === "savings" && (
                 <div className="tooltip-advanced">
                   <h4>{explainers.savings.title}</h4>
@@ -541,26 +593,21 @@ export default function MoneySnapshot() {
           <div className="right">
             <div className="card">
               <h3>Spending Distribution</h3>
-
               <div
                 className="chart"
                 style={{
                   background: `conic-gradient(
                     #84a794 0% ${(savings / safeIncome) * 100}%,
-                    #6faad3 ${(savings / safeIncome) * 100}% ${
-                      ((savings + expenses) / safeIncome) * 100
-                    }%,
+                    #6faad3 ${(savings / safeIncome) * 100}% ${((savings + expenses) / safeIncome) * 100}%,
                     #d6a85a ${((savings + expenses) / safeIncome) * 100}% 100%
                   )`,
                 }}
               />
-
               <div className="legend">
                 <p>Savings — R{savings.toLocaleString("en-ZA")}</p>
                 <p>Expenses — R{expenses.toLocaleString("en-ZA")}</p>
                 <p>Remaining — R{net.toLocaleString("en-ZA")}</p>
               </div>
-
               <button
                 className="pill full"
                 onClick={() => navigate("/simulation")}
@@ -597,6 +644,88 @@ export default function MoneySnapshot() {
       >
         🎓
       </div>
+
+      {/* TOUR OVERLAY — 4-panel mask + coach actions */}
+      {showTour && spotlight && (
+        <>
+          <div
+            className="tour-mask-top"
+            style={{ top: 0, left: 0, right: 0, height: spotlight.top }}
+          />
+          <div
+            className="tour-mask-bottom"
+            style={{
+              top: spotlight.top + spotlight.height,
+              left: 0,
+              right: 0,
+              bottom: 0,
+            }}
+          />
+          <div
+            className="tour-mask-left"
+            style={{
+              top: spotlight.top,
+              left: 0,
+              width: spotlight.left,
+              height: spotlight.height,
+            }}
+          />
+          <div
+            className="tour-mask-right"
+            style={{
+              top: spotlight.top,
+              left: spotlight.left + spotlight.width,
+              right: 0,
+              height: spotlight.height,
+            }}
+          />
+
+          <div
+            className="tour-cutout"
+            style={{
+              top: spotlight.top,
+              left: spotlight.left,
+              width: spotlight.width,
+              height: spotlight.height,
+            }}
+          />
+
+          <div className="tour-box">
+            <p className="tour-step-counter">
+              {tourStep + 1} / {allTourSteps.length}
+            </p>
+            <p>{allTourSteps[tourStep].text}</p>
+
+            {/* Coach action button — only on coach steps */}
+            {allTourSteps[tourStep].action && (
+              <button
+                className="coach-action"
+                onClick={allTourSteps[tourStep].action}
+              >
+                {allTourSteps[tourStep].actionLabel}
+              </button>
+            )}
+
+            <div className="tour-actions">
+              <button onClick={endTour}>Skip</button>
+              <button
+                onClick={() => {
+                  if (tourStep < allTourSteps.length - 1) {
+                    setTourStep(tourStep + 1);
+                  } else {
+                    endTour();
+                  }
+                }}
+              >
+                {tourStep === allTourSteps.length - 1 ? "Done ✓" : "Next →"}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Reusable Tour component */}
+      <Tour steps={snapshotSteps} storageKey="snapshotTour" />
     </div>
   );
 }

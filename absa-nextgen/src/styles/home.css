@@ -504,6 +504,99 @@ section {
     gap: 10px;
   }
 }
+/* TOUR OVERLAY */
+/* TOUR OVERLAY */
+.tour-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  pointer-events: none;
+}
+
+/* 4 dark panels that surround the spotlight */
+.tour-mask-top,
+.tour-mask-bottom,
+.tour-mask-left,
+.tour-mask-right {
+  position: fixed;
+  background: rgba(0, 0, 0, 0.82);
+  transition: all 0.35s ease;
+  z-index: 9998;
+  pointer-events: auto;
+}
+
+/* The glowing ring around the highlighted element */
+.tour-cutout {
+  position: fixed;
+  border-radius: 14px;
+  z-index: 9999;
+  pointer-events: none;
+  box-shadow:
+    0 0 0 3px rgba(132, 167, 148, 0.9),
+    0 0 24px rgba(132, 167, 148, 0.5);
+  transition: all 0.35s ease;
+}
+
+.tour-box {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  background: #121616;
+  padding: 20px 24px;
+  border-radius: 14px;
+
+  max-width: 320px;
+  width: 90%;
+  text-align: center;
+
+  border: 1px solid rgba(132, 167, 148, 0.4);
+  color: white;
+  font-size: 14px;
+  line-height: 1.5;
+
+  pointer-events: auto;
+  z-index: 10000;
+
+  animation: fadeUp 0.35s ease;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 16px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.tour-actions {
+  margin-top: 14px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.tour-actions button {
+  background: none;
+  border: none;
+  color: #84a794;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.tour-actions button:hover {
+  color: #b9d1c4;
+}
+
+.tour-step-counter {
+  font-size: 11px;
+  color: #9aa5a6;
+  margin-bottom: 6px;
+}
 
 @media (max-width: 480px) {
   .sim-preview-grid {

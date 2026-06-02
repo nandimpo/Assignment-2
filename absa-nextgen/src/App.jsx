@@ -23,6 +23,7 @@ import LifestyleCorrectionTrack from "./pages/LifestyleCorrectionTrack";
 import PropertyStudio from "./pages/PropertyStudio";
 import CarStudio from "./pages/CarStudio";
 import InvestingStudio from "./pages/InvestingStudio";
+import "./styles/tour.css";
 
 /* ================= PROTECTED ROUTE ================= */
 function ProtectedRoute({ children }) {
