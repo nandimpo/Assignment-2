@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useEffect, useRef } from "react";
 
 /* ================= SCROLL FIX ================= */
 import ScrollToTop from "./components/ScrollToTop";
@@ -37,11 +38,49 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
+/* ================= GLOBAL CURSOR ================= */
+function CustomCursor() {
+  const cursorRef = useRef(null);
+
+  useEffect(() => {
+    const move = (e) => {
+      if (!cursorRef.current) return;
+      cursorRef.current.style.left = `${e.clientX}px`;
+      cursorRef.current.style.top  = `${e.clientY}px`;
+    };
+
+    const expand = () => cursorRef.current?.classList.add("cursor--hover");
+    const shrink = () => cursorRef.current?.classList.remove("cursor--hover");
+
+    const interactives = "a, button, input, textarea, select, [role='button'], label";
+
+    const addListeners = () => {
+      document.querySelectorAll(interactives).forEach((el) => {
+        el.addEventListener("mouseenter", expand);
+        el.addEventListener("mouseleave", shrink);
+      });
+    };
+
+    // run once + re-run on DOM changes (route changes add new elements)
+    addListeners();
+    const observer = new MutationObserver(addListeners);
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    window.addEventListener("mousemove", move);
+    return () => {
+      window.removeEventListener("mousemove", move);
+      observer.disconnect();
+    };
+  }, []);
+
+  return <div className="custom-cursor" ref={cursorRef} />;
+}
+
 /* ================= APP ================= */
 export default function App() {
   return (
     <BrowserRouter basename={import.meta.env.BASE_URL}>
-      {/* 🔥 THIS FIXES YOUR SCROLL ISSUE */}
+      <CustomCursor />
       <ScrollToTop />
 
       <Routes>
