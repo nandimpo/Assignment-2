@@ -590,6 +590,12 @@ export default function MoneySnapshot() {
         </section>
       </div>
 
+      <div style={{ display: "flex", justifyContent: "flex-end", padding: "0 32px 48px" }}>
+        <button className="primary-btn" onClick={() => navigate("/strategy")}>
+          Continue →
+        </button>
+      </div>
+
       <ExplainerPanel
         show={showPanel}
         onClose={() => setShowPanel(false)}

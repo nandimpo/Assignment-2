@@ -49,8 +49,8 @@ export default function Register() {
       simulations: [],
     };
 
-    // Save user
-    sessionStorage.setItem("user", JSON.stringify(user));
+    // Save user to localStorage so UserContext and Login can read it
+    localStorage.setItem("user", JSON.stringify(user));
 
     // Create session
     sessionStorage.setItem("session", JSON.stringify({ loggedIn: true }));
@@ -65,7 +65,7 @@ export default function Register() {
         <h1>ABSA Wealth Studio</h1>
 
         <div>
-          <button onClick={() => navigate("/")}>Home</button>
+          <button onClick={() => navigate("/?skip=true")}>Home</button>
           <button onClick={() => navigate("/login")}>Login</button>
         </div>
       </div>

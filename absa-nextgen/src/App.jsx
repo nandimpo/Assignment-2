@@ -93,8 +93,8 @@ export default function App() {
         {/* Setup can stay public for onboarding */}
         <Route path="/setup" element={<Setup />} />
 
-        {/* Snapshot (you can protect later if needed) */}
-        <Route path="/snapshot" element={<MoneySnapshot />} />
+        <Route path="/snapshot" element={<Navigate to="/money" replace />} />
+        <Route path="/tracks" element={<Navigate to="/strategy" replace />} />
 
         {/* ================= MAIN APP (PROTECTED) ================= */}
         <Route

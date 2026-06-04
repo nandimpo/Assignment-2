@@ -1,7 +1,8 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import LandingNav from "../components/LandingNav";
 import Intro from "../components/Intro";
+import TypewriterHeading from "../components/TypewriterHeading";
 import "../styles/landing.css";
 
 import {
@@ -20,8 +21,11 @@ import heroVideo from "../assets/hero-video.mp4";
 
 export default function Landing() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  const [entered, setEntered] = useState(false);
+  const [entered, setEntered] = useState(
+    () => searchParams.get("skip") === "true",
+  );
   const [fadeOut, setFadeOut] = useState(false);
 
   /* ── redirect if already logged in ── */
@@ -91,16 +95,13 @@ export default function Landing() {
 
         {/* MAIN CONTENT */}
         <div className="xapo-layout">
-          <h1>
-            The Members-Only Private <br />
-            Bank For Wealth Builders
-          </h1>
+          <h1>The Home for Young South African Professionals.</h1>
           <p>
             A private financial system built for young South African
             professionals ready to grow, invest, and own their future.
           </p>
           <button className="cta-btn" onClick={() => navigate("/login")}>
-            Become a Member
+            Join Us.
           </button>
         </div>
 
@@ -138,10 +139,7 @@ export default function Landing() {
       <section id="trust" className="section container fade-in">
         <div className="text">
           <p className="eyebrow">THE PLATFORM</p>
-          <h2>
-            More than banking —<br />
-            it's your financial system
-          </h2>
+          <TypewriterHeading text="More than banking — it's your financial system" />
           <p>
             ABSA Wealth Studio combines real financial data, structured
             decision-making, and guided education into one powerful experience.
@@ -167,13 +165,16 @@ export default function Landing() {
         </div>
         <div className="hiw-text">
           <p className="eyebrow">HOW IT WORKS</p>
-          <h2>Three steps to financial clarity</h2>
+          <TypewriterHeading text="Three steps to financial clarity" />
 
           <div className="hiw-step">
             <span className="hiw-num">01</span>
             <div className="hiw-body">
               <strong>See everything</strong>
-              <p>Connect your income, expenses, and financial position in one place.</p>
+              <p>
+                Connect your income, expenses, and financial position in one
+                place.
+              </p>
             </div>
           </div>
 
@@ -181,7 +182,9 @@ export default function Landing() {
             <span className="hiw-num">02</span>
             <div className="hiw-body">
               <strong>Choose direction</strong>
-              <p>Follow structured tracks like property, saving, or investing.</p>
+              <p>
+                Follow structured tracks like property, saving, or investing.
+              </p>
             </div>
           </div>
 
@@ -195,11 +198,34 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ═══════════════ FEATURE CARDS ═══════════════ */}
+      <section className="features-section container fade-in">
+        <p className="eyebrow" style={{ textAlign: "center" }}>WHAT'S INSIDE</p>
+        <TypewriterHeading text="Three tools. One financial system." style={{ textAlign: "center", marginBottom: "40px" }} />
+        <div className="feature-cards">
+          <div className="feature-card" onClick={() => navigate("/login")}>
+              <h3>Money Snapshot</h3>
+            <p>See your full financial picture — income, expenses, debt, and savings rate — in one live dashboard.</p>
+            <span className="feature-link">Explore Snapshot →</span>
+          </div>
+          <div className="feature-card feature-card--accent" onClick={() => navigate("/login")}>
+              <h3>Strategy Tracks</h3>
+            <p>Follow a personalised path — Property, Foundation, Balanced Lifestyle, or Lifestyle Correction.</p>
+            <span className="feature-link">View Tracks →</span>
+          </div>
+          <div className="feature-card" onClick={() => navigate("/login")}>
+              <h3>Simulation Lab</h3>
+            <p>Model real decisions — rent vs buy, car finance, investing — before committing your money.</p>
+            <span className="feature-link">Try Simulation →</span>
+          </div>
+        </div>
+      </section>
+
       {/* ═══════════════ FINANCE SCHOOL ═══════════════ */}
       <section className="section container fade-in">
         <div className="text">
           <p className="eyebrow">FINANCE SCHOOL</p>
-          <h2>Learn as you build wealth</h2>
+          <TypewriterHeading text="Learn as you build wealth" />
           <p>
             Finance School gives you structured lessons, quizzes, and real-world
             insights tailored to your financial journey.
@@ -221,7 +247,7 @@ export default function Landing() {
       <section id="support" className="section container fade-in">
         <div className="text">
           <p className="eyebrow">INTELLIGENT GUIDANCE</p>
-          <h2>Guided every step of the way</h2>
+          <TypewriterHeading text="Guided every step of the way" />
           <p>
             Get intelligent recommendations, next steps, and insights based on
             your financial situation.
@@ -236,7 +262,7 @@ export default function Landing() {
       {/* ═══════════════ CTA ═══════════════ */}
       <section className="cta-section container fade-in">
         <p className="eyebrow">GET STARTED</p>
-        <h2>Start your financial freedom today</h2>
+        <TypewriterHeading text="Start your financial freedom today" style={{ textAlign: "center" }} />
         <p className="cta-sub">Learn. Plan. Execute. Grow.</p>
         <button className="cta-btn" onClick={() => navigate("/login")}>
           Start Your Journey

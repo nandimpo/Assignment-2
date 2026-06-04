@@ -1084,3 +1084,90 @@ h2 {
     right: 16px;
   }
 }
+
+/* ================= TYPEWRITER CURSOR ================= */
+
+.typewriter-cursor {
+  display: inline-block;
+  color: #84a794;
+  font-weight: 300;
+  margin-left: 2px;
+  animation: blink 0.7s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* ================= FEATURE CARDS ================= */
+
+.features-section {
+  padding: 100px 0;
+}
+
+.feature-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.feature-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(132, 167, 148, 0.15);
+  border-radius: 20px;
+  padding: 36px 28px;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.feature-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 48px rgba(132, 167, 148, 0.15);
+  border-color: rgba(132, 167, 148, 0.4);
+}
+
+.feature-card--accent {
+  background: rgba(132, 167, 148, 0.08);
+  border-color: rgba(132, 167, 148, 0.35);
+}
+
+.feature-card--accent:hover {
+  box-shadow: 0 16px 48px rgba(132, 167, 148, 0.25);
+}
+
+.feature-icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.feature-card h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #f4f6fc;
+  margin: 0;
+}
+
+.feature-card p {
+  font-size: 0.9rem;
+  color: rgba(244, 246, 252, 0.6);
+  line-height: 1.6;
+  margin: 0;
+  flex: 1;
+}
+
+.feature-link {
+  font-size: 0.85rem;
+  color: #84a794;
+  font-weight: 500;
+  margin-top: 8px;
+}
+
+@media (max-width: 768px) {
+  .feature-cards {
+    grid-template-columns: 1fr;
+  }
+}

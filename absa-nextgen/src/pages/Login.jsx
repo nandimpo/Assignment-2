@@ -20,6 +20,11 @@ export default function Login() {
   }, [navigate]);
 
   const handleLogin = () => {
+    if (!form.email || !form.password) {
+      setError("Please fill in all fields.");
+      return;
+    }
+
     const user = JSON.parse(localStorage.getItem("user") || "null");
 
     if (!user) {
@@ -27,7 +32,7 @@ export default function Login() {
       return;
     }
 
-    if (form.email !== user.email || form.password !== user.password) {
+    if (form.email.toLowerCase() !== user.email || form.password !== user.password) {
       setError("Invalid email or password.");
       return;
     }
@@ -44,7 +49,7 @@ export default function Login() {
       <div className="login-nav">
         <h1>ABSA Wealth Studio</h1>
         <div>
-          <button onClick={() => navigate("/")}>Home</button>
+          <button onClick={() => navigate("/?skip=true")}>Home</button>
           <button onClick={() => navigate("/register")}>Register</button>
         </div>
       </div>

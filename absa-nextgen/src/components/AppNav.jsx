@@ -35,14 +35,20 @@ export default function AppNav() {
         </button>
 
         <button
-          className={isActive("/money") ? "active" : ""}
+          className={isActive("/money") || isActive("/snapshot") ? "active" : ""}
           onClick={() => navigate("/money")}
         >
           Snapshot
         </button>
 
         <button
-          className={location.pathname.includes("strategy") ? "active" : ""}
+          className={
+            ["/strategy", "/property", "/balanced", "/foundation", "/correction", "/tracks"].some(
+              (p) => location.pathname.startsWith(p)
+            )
+              ? "active"
+              : ""
+          }
           onClick={() => navigate("/strategy")}
         >
           Tracks
