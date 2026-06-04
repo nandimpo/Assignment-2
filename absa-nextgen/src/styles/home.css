@@ -407,6 +407,18 @@ section {
   color: #84a794;
 }
 
+.active-badge {
+  background: rgba(132, 167, 148, 0.9);
+  border: 1px solid #84a794;
+  color: #020202;
+}
+
+.preview-card.active-track {
+  border-color: #84a794;
+  box-shadow: 0 0 0 1px rgba(132, 167, 148, 0.3), 0 8px 24px rgba(132, 167, 148, 0.12);
+  background: rgba(132, 167, 148, 0.06);
+}
+
 .soon-badge {
   background: rgba(154, 165, 166, 0.12);
   border: 1px solid rgba(154, 165, 166, 0.25);

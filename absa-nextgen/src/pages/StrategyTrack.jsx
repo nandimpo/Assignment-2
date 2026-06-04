@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
 import AppNav from "../components/AppNav";
-import { Home, TrendingUp, Shield, Scale } from "lucide-react";
+import { Home, TrendingUp, Shield, Scale, Zap } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getTrackProgression } from "../utils/trackProgression";
 
@@ -51,30 +51,41 @@ const tracks = {
     focus: "Behavioural Change",
     route: "/correction",
   },
+  catchup: {
+    name: "Catch-Up Wealth",
+    explanation: "Aggressive saving and debt elimination for those who need to accelerate their financial progress.",
+    tradeoffs: "Requires significant lifestyle sacrifice in the short term.",
+    who: "People behind on savings or with high debt loads needing fast recovery.",
+    recommendations: "Eliminate all non-essential spending, attack highest-interest debt first, automate savings.",
+    risks: "Burnout and unsustainable habits if not managed carefully.",
+    focus: "Debt Elimination & Rapid Saving",
+    route: "/catchup",
+  },
 };
 
-const trackOrder = ["correction", "foundation", "balanced", "property"];
+const trackOrder = ["correction", "foundation", "balanced", "property", "catchup"];
 
 const trackLabels = {
   correction: "Correction",
   foundation: "Foundation",
   balanced: "Balanced",
   property: "Property",
+  catchup: "Catch-Up",
 };
 
 const icons = {
-  property: <Home size={20} />,
-  balanced: <TrendingUp size={20} />,
+  property:   <Home size={20} />,
+  balanced:   <TrendingUp size={20} />,
   foundation: <Shield size={20} />,
   correction: <Scale size={20} />,
+  catchup:    <Zap size={20} />,
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function StrategyTrack() {
   const navigate = useNavigate();
-  const { user, updateUser, setUser, updateProfile } = useUser();
-  const applyTrackUpdate = updateUser ?? setUser ?? updateProfile ?? (() => {});
+  const { user, updateUser } = useUser();
 
   const [showPopup, setShowPopup] = useState(false);
   const [newTrack, setNewTrack] = useState(null);
@@ -154,10 +165,11 @@ export default function StrategyTrack() {
     const baseSavings = user.savings || 0;
     const monthly = user.salary * 0.2;
     return {
-      property: Math.round((1000000 - baseSavings) / monthly),
-      balanced: Math.round((1000000 - baseSavings) / (monthly * 0.7)),
+      property:   Math.round((1000000 - baseSavings) / monthly),
+      balanced:   Math.round((1000000 - baseSavings) / (monthly * 0.7)),
       foundation: Math.round((1000000 - baseSavings) / (monthly * 0.5)),
       correction: Math.round((1000000 - baseSavings) / (monthly * 0.3)),
+      catchup:    Math.round((1000000 - baseSavings) / (monthly * 0.4)),
     };
   };
 
@@ -264,7 +276,7 @@ export default function StrategyTrack() {
     if (!user) return;
     const progression = getTrackProgression(user);
     if (progression?.track && progression.track !== user.strategy) {
-      applyTrackUpdate({ strategy: progression.track });
+      updateUser({ strategy: progression.track });
       setNewTrack(progression.track);
       setShowPopup(true);
     }

@@ -137,6 +137,15 @@ export default function App() {
         />
 
         <Route
+          path="/catchup"
+          element={
+            <ProtectedRoute>
+              <CatchUpTrack />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
           path="/correction"
           element={
             <ProtectedRoute>

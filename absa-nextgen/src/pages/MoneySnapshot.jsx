@@ -5,18 +5,24 @@ import "../styles/money.css";
 import ExplainerPanel from "../components/ExplainerPanel";
 import useProgress from "../hooks/useProgress";
 import Tour from "../components/Tour";
+import { useUser } from "../context/UserContext";
 
 export default function MoneySnapshot() {
   const navigate = useNavigate();
+  const { user, updateUser } = useUser();
 
-  const storedUser = JSON.parse(localStorage.getItem("user")) || {};
-  const [user, setUser] = useState(storedUser);
+  const [income, setIncome] = useState(Number(user?.salary) || 50000);
+  const [expenses, setExpenses] = useState(Number(user?.expenses) || 20000);
+  const [savings, setSavings] = useState(Number(user?.savings) || 12000);
 
-  const [income, setIncome] = useState(user.salary || 50000);
-  const [expenses, setExpenses] = useState(user.expenses || 20000);
-  const [savings, setSavings] = useState(user.savings || 12000);
+  // Sync state when user context loads/changes
+  useEffect(() => {
+    if (user?.salary)   setIncome(Number(user.salary));
+    if (user?.expenses) setExpenses(Number(user.expenses));
+    if (user?.savings)  setSavings(Number(user.savings));
+  }, [user?.salary, user?.expenses, user?.savings]);
 
-  const goal = user.depositAmount || 1000000;
+  const goal = user?.depositAmount || user?.goalAmount || 1000000;
 
   const [showPanel, setShowPanel] = useState(false);
   const [content, setContent] = useState(null);
@@ -142,19 +148,16 @@ export default function MoneySnapshot() {
   // Combine onboarding + coach steps — passed to Tour component
   const allTourSteps = [...snapshotSteps, ...getCoachSteps()];
 
-  // ── PERSIST TO LOCALSTORAGE ──
+  // ── PERSIST VIA CONTEXT ──
   useEffect(() => {
     const currentBreakdown = { ...breakdownEdit, savings };
-    const updatedUser = {
-      ...user,
+    updateUser({
       salary: income,
       expenses,
       savings,
       monthsToGoal,
       breakdown: currentBreakdown,
-    };
-    setUser(updatedUser);
-    localStorage.setItem("user", JSON.stringify(updatedUser));
+    });
   }, [income, expenses, savings, breakdownEdit]);
 
   // ── AI INSIGHT ENGINE ──

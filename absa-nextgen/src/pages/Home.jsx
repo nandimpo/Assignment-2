@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Tour from "../components/Tour";
 import AppNav from "../components/AppNav";
 import "../styles/home.css";
+import { Home as HomeIcon, Scale, Shield, RefreshCw, Building2, TrendingUp, CreditCard, Target, GraduationCap } from "lucide-react";
 import { useUser } from "../context/UserContext";
 
 export default function Home() {
@@ -23,7 +24,7 @@ export default function Home() {
 
   const tourSteps = [
     {
-      text: "Welcome 👋 This is your financial dashboard.",
+      text: "Welcome — this is your financial dashboard.",
       target: "home-header",
     },
     { text: "This shows your next financial action.", target: "next-step" },
@@ -150,15 +151,21 @@ export default function Home() {
 
         {/* GOAL */}
         <section className="goal-card fade-in" id="goal">
-          <p className="muted">Your Deposit Plan</p>
-          <h3>R{user?.depositAmount?.toLocaleString("en-ZA") || 0}</h3>
-          <span className="muted">
-            {user?.depositPercent || 0}% of home value
-          </span>
+          {{
+            property:   <p className="muted">Your Deposit Plan</p>,
+            balanced:   <p className="muted">Your Investment Goal</p>,
+            catchup:    <p className="muted">Debt Elimination Target</p>,
+            correction: <p className="muted">Lifestyle Correction Goal</p>,
+          }[user?.strategy] || <p className="muted">Your Financial Goal</p>}
+          <h3>R{(user?.strategy === "property"
+            ? user?.depositAmount
+            : user?.goalAmount
+          )?.toLocaleString("en-ZA") || 0}</h3>
+          {user?.strategy === "property" && (
+            <span className="muted">{user?.depositPercent || 0}% of home value</span>
+          )}
           <br />
-          <span className="muted">
-            {user?.monthsToGoal || 0} months to reach
-          </span>
+          <span className="muted">{user?.monthsToGoal || 0} months to reach</span>
         </section>
 
         {/* NUDGE */}
@@ -224,14 +231,14 @@ export default function Home() {
 
           <div className="preview-grid">
             <div
-              className="preview-card available"
+              className={`preview-card available ${user?.strategy === "property" ? "active-track" : ""}`}
               onClick={() => navigate("/strategy")}
             >
-              <div className="preview-card-icon">🏠</div>
+              <div className="preview-card-icon"><HomeIcon size={20} strokeWidth={1.5} /></div>
               <div className="preview-card-body">
                 <div className="preview-card-title-row">
                   <span className="preview-card-name">First Property Path</span>
-                  <span className="badge available-badge">Active</span>
+                  <span className={`badge ${user?.strategy === "property" ? "active-badge" : "available-badge"}`}>{user?.strategy === "property" ? "Active" : "Available"}</span>
                 </div>
                 <p className="preview-card-sub">
                   Save for a home deposit in 3–5 years
@@ -249,16 +256,16 @@ export default function Home() {
             </div>
 
             <div
-              className="preview-card available"
+              className={`preview-card available ${user?.strategy === "balanced" ? "active-track" : ""}`}
               onClick={() => navigate("/strategy")}
             >
-              <div className="preview-card-icon">⚖️</div>
+              <div className="preview-card-icon"><Scale size={20} strokeWidth={1.5} /></div>
               <div className="preview-card-body">
                 <div className="preview-card-title-row">
                   <span className="preview-card-name">
                     Balanced Lifestyle &amp; Investing
                   </span>
-                  <span className="badge available-badge">Available</span>
+                  <span className={`badge ${user?.strategy === "balanced" ? "active-badge" : "available-badge"}`}>{user?.strategy === "balanced" ? "Active" : "Available"}</span>
                 </div>
                 <p className="preview-card-sub">
                   Maintain your lifestyle while building wealth
@@ -277,55 +284,36 @@ export default function Home() {
             </div>
 
             <div
-              className="preview-card available"
+              className={`preview-card available ${user?.strategy === "foundation" ? "active-track" : ""}`}
               onClick={() => navigate("/strategy")}
             >
-              <div className="preview-card-icon">🛡️</div>
+              <div className="preview-card-icon"><Shield size={20} strokeWidth={1.5} /></div>
               <div className="preview-card-body">
                 <div className="preview-card-title-row">
                   <span className="preview-card-name">Foundation Builder</span>
-                  <span className="badge available-badge">Available</span>
+                  <span className={`badge ${user?.strategy === "foundation" ? "active-badge" : "available-badge"}`}>{user?.strategy === "foundation" ? "Active" : "Available"}</span>
                 </div>
-                <p className="preview-card-sub">
-                  Build financial stability from scratch
-                </p>
-                <p className="preview-card-focus">
-                  <span className="label">Focus</span> Emergency Funds &amp;
-                  Basics
-                </p>
-                <p className="preview-card-extra">
-                  {trackDetails.foundation.explanation}
-                </p>
-                <p className="preview-card-tradeoff">
-                  Trade-off: {trackDetails.foundation.tradeoffs}
-                </p>
+                <p className="preview-card-sub">Build financial stability from scratch</p>
+                <p className="preview-card-focus"><span className="label">Focus</span> Emergency Funds &amp; Basics</p>
+                <p className="preview-card-extra">{trackDetails.foundation.explanation}</p>
+                <p className="preview-card-tradeoff">Trade-off: {trackDetails.foundation.tradeoffs}</p>
               </div>
             </div>
 
             <div
-              className="preview-card available"
+              className={`preview-card available ${user?.strategy === "correction" || user?.strategy === "catchup" ? "active-track" : ""}`}
               onClick={() => navigate("/strategy")}
             >
-              <div className="preview-card-icon">🔄</div>
+              <div className="preview-card-icon"><RefreshCw size={20} strokeWidth={1.5} /></div>
               <div className="preview-card-body">
                 <div className="preview-card-title-row">
-                  <span className="preview-card-name">
-                    Lifestyle Correction
-                  </span>
-                  <span className="badge available-badge">Available</span>
+                  <span className="preview-card-name">Lifestyle Correction</span>
+                  <span className={`badge ${user?.strategy === "correction" || user?.strategy === "catchup" ? "active-badge" : "available-badge"}`}>{user?.strategy === "correction" || user?.strategy === "catchup" ? "Active" : "Available"}</span>
                 </div>
-                <p className="preview-card-sub">
-                  Rebalance spending and reduce debt
-                </p>
-                <p className="preview-card-focus">
-                  <span className="label">Focus</span> Behavioural Change
-                </p>
-                <p className="preview-card-extra">
-                  {trackDetails.correction.explanation}
-                </p>
-                <p className="preview-card-tradeoff">
-                  Trade-off: {trackDetails.correction.tradeoffs}
-                </p>
+                <p className="preview-card-sub">Rebalance spending and reduce debt</p>
+                <p className="preview-card-focus"><span className="label">Focus</span> Behavioural Change</p>
+                <p className="preview-card-extra">{trackDetails.correction.explanation}</p>
+                <p className="preview-card-tradeoff">Trade-off: {trackDetails.correction.tradeoffs}</p>
               </div>
             </div>
           </div>
@@ -354,7 +342,7 @@ export default function Home() {
               onClick={() => navigate("/simulation")}
             >
               <div className="sim-card-top">
-                <span className="sim-icon">🏘️</span>
+                <span className="sim-icon"><Building2 size={20} strokeWidth={1.5} /></span>
                 <span className="badge available-badge">Available</span>
               </div>
               <h4>Buy vs Rent</h4>
@@ -368,7 +356,7 @@ export default function Home() {
               onClick={() => navigate("/simulation")}
             >
               <div className="sim-card-top">
-                <span className="sim-icon">📈</span>
+                <span className="sim-icon"><TrendingUp size={20} strokeWidth={1.5} /></span>
                 <span className="badge available-badge">Available</span>
               </div>
               <h4>Investment Growth</h4>
@@ -382,7 +370,7 @@ export default function Home() {
               onClick={() => navigate("/simulation")}
             >
               <div className="sim-card-top">
-                <span className="sim-icon">💳</span>
+                <span className="sim-icon"><CreditCard size={20} strokeWidth={1.5} /></span>
                 <span className="badge available-badge">Available</span>
               </div>
               <h4>Debt Payoff Planner</h4>
@@ -394,7 +382,7 @@ export default function Home() {
               onClick={() => navigate("/simulation")}
             >
               <div className="sim-card-top">
-                <span className="sim-icon">🎯</span>
+                <span className="sim-icon"><Target size={20} strokeWidth={1.5} /></span>
                 <span className="badge available-badge">Available</span>
               </div>
               <h4>Retirement Readiness</h4>
@@ -411,7 +399,7 @@ export default function Home() {
           onClick={() => navigate("/learn")}
           title="Go to Finance School"
         >
-          🎓
+          <GraduationCap size={22} strokeWidth={1.5} />
         </div>
       </div>
 

@@ -124,40 +124,62 @@ export default function Profile() {
       return;
     }
 
-    el.scrollIntoView({ behavior: "smooth", block: "center" });
-
-    setTimeout(() => {
+    const measureSpotlight = () => {
       const rect = el.getBoundingClientRect();
-      const pad = 10;
+      const pad = 12;
       setSpotlight({
-        top: rect.top + window.scrollY - pad,
-        left: rect.left + window.scrollX - pad,
-        width: rect.width + pad * 2,
+        top:    rect.top    - pad,
+        left:   rect.left   - pad,
+        width:  rect.width  + pad * 2,
         height: rect.height + pad * 2,
       });
-    }, 300);
+    };
+
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+
+    // Wait for smooth scroll to finish, then measure
+    const timer = setTimeout(measureSpotlight, 520);
+
+    // Keep spotlight locked if user resizes or scrolls after measurement
+    const update = () => measureSpotlight();
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
   }, [tourStep, showTour]);
 
   // ── Goals ───────────────────────────────────────────────────────────────────
 
+  const strategy = user?.strategy?.toLowerCase();
+
   const goals =
-    user?.strategy === "Property"
+    strategy === "property"
       ? [
-          { name: "Emergency Fund", value: savingsRate > 20 ? 70 : 40 },
-          { name: "Deposit Saved", value: savingsRate > 15 ? 40 : 20 },
-          { name: "Bond Readiness", value: savingsRate > 25 ? 20 : 10 },
+          { name: "Emergency Fund",  value: savingsRate > 20 ? 70 : 40 },
+          { name: "Deposit Saved",   value: savingsRate > 15 ? 40 : 20 },
+          { name: "Bond Readiness",  value: savingsRate > 25 ? 20 : 10 },
         ]
-      : user?.strategy === "Catch-Up"
+      : strategy === "catchup" || strategy === "correction"
         ? [
-            { name: "Debt Reduction", value: 50 },
-            { name: "Emergency Fund", value: 30 },
-            { name: "Stability", value: 40 },
+            { name: "Debt Reduction",  value: Math.min(savingsRate * 2, 80) },
+            { name: "Emergency Fund",  value: savingsRate > 10 ? 40 : 20 },
+            { name: "Stability Score", value: savingsRate > 20 ? 60 : 30 },
           ]
-        : [
-            { name: "Emergency Fund", value: 70 },
-            { name: "Investing", value: 40 },
-            { name: "Lifestyle", value: 50 },
-          ];
+        : strategy === "balanced"
+          ? [
+              { name: "Emergency Fund", value: 70 },
+              { name: "Investing",      value: savingsRate > 20 ? 50 : 25 },
+              { name: "Lifestyle",      value: 60 },
+            ]
+          : [
+              { name: "Emergency Fund", value: 50 },
+              { name: "Savings",        value: savingsRate },
+              { name: "Stability",      value: 40 },
+            ];
 
   // ── Logout ──────────────────────────────────────────────────────────────────
 
@@ -187,7 +209,13 @@ export default function Profile() {
                   <h2>{user?.name || "User"}</h2>
                   <p>Financial growth journey</p>
                   <span className="tag">
-                    {user?.strategy || "No strategy"} Track
+                    {{
+                      property: "First Property",
+                      balanced: "Balanced Lifestyle",
+                      catchup: "Catch-Up Wealth",
+                      correction: "Lifestyle Correction",
+                      foundation: "Foundation Builder",
+                    }[user?.strategy] || "No strategy"} Track
                   </span>
                 </div>
 
@@ -238,23 +266,34 @@ export default function Profile() {
               </div>
             </div>
 
-            {/* Property goal */}
-            {user?.housePrice && (
+            {/* Goal box — adapts per track */}
+            {(user?.housePrice || user?.goalAmount) && (
               <div className="card glass property-box">
-                <h3>Property Goal</h3>
+                <h3>
+                  {strategy === "property" ? "Property Goal"
+                   : strategy === "catchup" ? "Debt Elimination Goal"
+                   : strategy === "correction" ? "Lifestyle Correction Goal"
+                   : "Investment Goal"}
+                </h3>
                 <div className="property-row">
                   <span>Target</span>
-                  <strong>R {Number(user.housePrice).toLocaleString()}</strong>
+                  <strong>R {Number(user.housePrice || user.goalAmount || 0).toLocaleString()}</strong>
                 </div>
+                {strategy === "property" && (
+                  <>
+                    <div className="property-row">
+                      <span>Deposit</span>
+                      <strong>R {Number(user.depositAmount || 0).toLocaleString()}</strong>
+                    </div>
+                    <div className="property-row">
+                      <span>Deposit %</span>
+                      <strong>{user.depositPercent || 0}%</strong>
+                    </div>
+                  </>
+                )}
                 <div className="property-row">
-                  <span>Deposit</span>
-                  <strong>
-                    R {Number(user.depositAmount || 0).toLocaleString()}
-                  </strong>
-                </div>
-                <div className="property-row">
-                  <span>Deposit %</span>
-                  <strong>{user.depositPercent || 0}%</strong>
+                  <span>Timeline</span>
+                  <strong>{user.monthsToGoal || 0} months</strong>
                 </div>
               </div>
             )}
@@ -293,7 +332,13 @@ export default function Profile() {
               <p>
                 Strategy:{" "}
                 <span className="accent">
-                  {user?.strategy || "Not selected"}
+                  {{
+                    property: "First Property",
+                    balanced: "Balanced Lifestyle",
+                    catchup: "Catch-Up Wealth",
+                    correction: "Lifestyle Correction",
+                    foundation: "Foundation Builder",
+                  }[user?.strategy] || "Not selected"}
                 </span>
               </p>
               <button onClick={() => navigate("/learn")} className="pill">
