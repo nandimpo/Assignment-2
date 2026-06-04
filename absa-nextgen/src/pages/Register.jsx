@@ -60,7 +60,8 @@ export default function Register() {
     // Create session
     sessionStorage.setItem("session", JSON.stringify({ loggedIn: true }));
 
-    navigate("/setup");
+    const firstName = form.name.split(" ")[0];
+    transitionTo("/setup", "green", `We're happy to have you, ${firstName}.`);
   };
 
   return (
@@ -71,7 +72,7 @@ export default function Register() {
 
         <div>
           <button onClick={() => navigate("/?skip=true")}>Home</button>
-          <button onClick={() => transitionTo("/login", "gold")}>Login</button>
+          <button onClick={() => transitionTo("/login")}>Login</button>
         </div>
       </div>
 
@@ -131,7 +132,7 @@ export default function Register() {
 
             <p className="switch">
               Already have an account?{" "}
-              <span onClick={() => transitionTo("/login", "gold")}>Login</span>
+              <span onClick={() => transitionTo("/login")}>Login</span>
             </p>
           </div>
         </div>

@@ -82,8 +82,8 @@ function CustomCursor() {
 
 /* ================= OVERLAY RENDERER ================= */
 function AppOverlay() {
-  const { active, phase, variant } = useTransition();
-  return <TransitionOverlay active={active} phase={phase} variant={variant} />;
+  const { active, phase, variant, message } = useTransition();
+  return <TransitionOverlay active={active} phase={phase} variant={variant} message={message} />;
 }
 
 /* ================= APP ================= */

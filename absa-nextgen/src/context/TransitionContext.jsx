@@ -9,9 +9,11 @@ export function TransitionProvider({ children }) {
   const [phase, setPhase] = useState("idle"); // idle | in | out
 
   const [variant, setVariant] = useState("green");
+  const [message, setMessage] = useState(null);
 
-  const trigger = useCallback((to, v = "green") => {
+  const trigger = useCallback((to, v = "green", msg = null) => {
     setVariant(v);
+    setMessage(msg);
     setActive(true);
     setPhase("in");
 
@@ -25,15 +27,16 @@ export function TransitionProvider({ children }) {
       setPhase("out");
     }, 5000);
 
-    // Hide overlay
+    // Hide overlay and clear message
     setTimeout(() => {
       setActive(false);
       setPhase("idle");
+      setMessage(null);
     }, 5700);
   }, [navigate]);
 
   return (
-    <TransitionContext.Provider value={{ active, phase, variant, trigger }}>
+    <TransitionContext.Provider value={{ active, phase, variant, message, trigger }}>
       {children}
     </TransitionContext.Provider>
   );

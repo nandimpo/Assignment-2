@@ -20,23 +20,35 @@ export default function Tour({ steps = [], storageKey }) {
     const el = document.getElementById(step.target);
 
     if (!el) {
-      console.log("❌ Missing ID:", step.target);
+      console.warn("❌ Missing tour target ID:", step.target);
       return;
     }
 
-    el.scrollIntoView({ behavior: "smooth", block: "center" });
-
-    setTimeout(() => {
+    const measure = () => {
       const rect = el.getBoundingClientRect();
-      const pad = 10;
-
+      const pad = 12;
       setSpotlight({
-        top: rect.top + window.scrollY - pad,
-        left: rect.left + window.scrollX - pad,
-        width: rect.width + pad * 2,
+        top:    rect.top    - pad,
+        left:   rect.left   - pad,
+        width:  rect.width  + pad * 2,
         height: rect.height + pad * 2,
       });
-    }, 300);
+    };
+
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+
+    // Wait for smooth scroll to finish before measuring
+    const timer = setTimeout(measure, 520);
+
+    // Re-measure if user scrolls or window resizes while tour is active
+    window.addEventListener("scroll", measure, { passive: true });
+    window.addEventListener("resize", measure);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("scroll", measure);
+      window.removeEventListener("resize", measure);
+    };
   }, [tourStep, showTour, steps]);
 
   const endTour = () => {

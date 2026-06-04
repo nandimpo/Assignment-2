@@ -42,11 +42,10 @@ export default function Login() {
       return;
     }
 
-    //  create session
     sessionStorage.setItem("session", JSON.stringify({ loggedIn: true }));
 
-    // ALWAYS GO HOME
-    navigate("/home");
+    const firstName = user.name?.split(" ")[0] || "back";
+    transitionTo("/home", "green", `Welcome back, ${firstName}.`);
   };
 
   return (
