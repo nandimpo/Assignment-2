@@ -2,9 +2,11 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import "../styles/login.css";
 import planet from "../assets/planet.png";
+import useTransitionNavigate from "../hooks/useTransitionNavigate";
 
 export default function Login() {
   const navigate = useNavigate();
+  const transitionTo = useTransitionNavigate();
 
   const [form, setForm] = useState({
     email: "",
@@ -12,6 +14,9 @@ export default function Login() {
   });
 
   const [error, setError] = useState("");
+
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email);
+  const passwordValid = form.password.length >= 6;
 
   //  If already logged in
   useEffect(() => {
@@ -50,7 +55,7 @@ export default function Login() {
         <h1>ABSA Wealth Studio</h1>
         <div>
           <button onClick={() => navigate("/?skip=true")}>Home</button>
-          <button onClick={() => navigate("/register")}>Register</button>
+          <button onClick={() => transitionTo("/register")}>Register</button>
         </div>
       </div>
 
@@ -77,32 +82,34 @@ export default function Login() {
               handleLogin();
             }}
           >
-            <input
-              type="email"
-              placeholder="Email"
-              value={form.email}
-              onChange={(e) => {
-                setForm({ ...form, email: e.target.value });
-                setError("");
-              }}
-            />
+            <div className="input-wrap">
+              <input
+                type="email"
+                placeholder="Email"
+                value={form.email}
+                className={emailValid ? "input-valid" : ""}
+                onChange={(e) => { setForm({ ...form, email: e.target.value }); setError(""); }}
+              />
+              {emailValid && <span className="input-check">✓</span>}
+            </div>
 
-            <input
-              type="password"
-              placeholder="Password"
-              value={form.password}
-              onChange={(e) => {
-                setForm({ ...form, password: e.target.value });
-                setError("");
-              }}
-            />
+            <div className="input-wrap">
+              <input
+                type="password"
+                placeholder="Password"
+                value={form.password}
+                className={passwordValid ? "input-valid" : ""}
+                onChange={(e) => { setForm({ ...form, password: e.target.value }); setError(""); }}
+              />
+              {passwordValid && <span className="input-check">✓</span>}
+            </div>
 
             <button className="submit">Login</button>
           </form>
 
           <p className="switch">
             Don’t have an account?{" "}
-            <span onClick={() => navigate("/register")}>Register</span>
+            <span onClick={() => transitionTo("/register")}>Register</span>
           </p>
         </div>
       </div>

@@ -1,0 +1,338 @@
+/* =============================================
+   PAGE TRANSITION — VORTEX TREE GROWTH
+   Brand: #020202 · #84A794 · #D6A85A · #B2C8BC
+   Total: ~5.5s
+   ============================================= */
+
+.page-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #020202;
+  pointer-events: all;
+  opacity: 0;
+}
+
+.page-transition--in  { animation: pt-fade-in  0.4s ease forwards; }
+.page-transition--out { animation: pt-fade-out 0.7s ease forwards; }
+
+@keyframes pt-fade-in  { to { opacity: 1; } }
+@keyframes pt-fade-out { from { opacity: 1; } to { opacity: 0; } }
+
+/* ══════════════════════════════
+   COLOUR VARIANTS
+   ══════════════════════════════ */
+
+/* Default (green) — no overrides needed */
+
+/* Gold variant — Register page */
+.page-transition--gold .pt-vortex-ring--1 {
+  border-color: rgba(214, 168, 90, 0.55);
+  box-shadow: 0 0 24px rgba(214, 168, 90, 0.25), inset 0 0 20px rgba(214, 168, 90, 0.06);
+}
+.page-transition--gold .pt-vortex-ring--2 {
+  border-color: rgba(178, 194, 195, 0.35);
+}
+.page-transition--gold .pt-vortex-ring--3 {
+  border-color: rgba(214, 168, 90, 0.2);
+}
+.page-transition--gold .pt-vortex-ring--4 {
+  border-color: rgba(132, 167, 148, 0.12);
+}
+
+.page-transition--gold .pt-trunk,
+.page-transition--gold .pt-b1,
+.page-transition--gold .pt-b2,
+.page-transition--gold .pt-b3 {
+  stroke: #d6a85a;
+}
+.page-transition--gold .pt-roots {
+  stroke: #b88a3a;
+}
+.page-transition--gold .pt-s1,
+.page-transition--gold .pt-s2,
+.page-transition--gold .pt-s3,
+.page-transition--gold .pt-s4,
+.page-transition--gold .pt-s5,
+.page-transition--gold .pt-s6 {
+  stroke: #c8a070;
+}
+.page-transition--gold .pt-t1,.page-transition--gold .pt-t2,
+.page-transition--gold .pt-t3,.page-transition--gold .pt-t4,
+.page-transition--gold .pt-t5,.page-transition--gold .pt-t6,
+.page-transition--gold .pt-t7,.page-transition--gold .pt-t8 {
+  stroke: #b2c2c3;
+}
+.page-transition--gold .pt-t9,.page-transition--gold .pt-t10,
+.page-transition--gold .pt-t11,.page-transition--gold .pt-t12,
+.page-transition--gold .pt-t13 {
+  stroke: #d8e0e0;
+}
+.page-transition--gold .pt-tip {
+  fill: rgba(214, 168, 90, 0.9);
+  stroke: #d6a85a;
+}
+.page-transition--gold .pt-tree {
+  filter: drop-shadow(0 0 0px rgba(214, 168, 90, 0));
+  animation: pt-tree-rotate 5s ease 0.3s forwards, pt-tree-glow-gold 1s ease 2.5s forwards;
+}
+@keyframes pt-tree-glow-gold {
+  0%   { filter: drop-shadow(0 0 0px rgba(214, 168, 90, 0)); }
+  50%  { filter: drop-shadow(0 0 22px rgba(214, 168, 90, 0.8)) drop-shadow(0 0 50px rgba(214, 168, 90, 0.35)); }
+  100% { filter: drop-shadow(0 0 14px rgba(214, 168, 90, 0.5)); }
+}
+.page-transition--gold .pt-fill {
+  background: radial-gradient(ellipse at center, #1a1206 0%, #0d0a02 40%, #020202 100%);
+}
+.page-transition--gold .pt-particle--1,
+.page-transition--gold .pt-particle--3,
+.page-transition--gold .pt-particle--6,
+.page-transition--gold .pt-particle--7,
+.page-transition--gold .pt-particle--10,
+.page-transition--gold .pt-particle--13 { background: #d6a85a; }
+.page-transition--gold .pt-particle--2,
+.page-transition--gold .pt-particle--5,
+.page-transition--gold .pt-particle--8,
+.page-transition--gold .pt-particle--11,
+.page-transition--gold .pt-particle--15 { background: #b2c2c3; }
+
+/* ── SCANLINES ── */
+.pt-scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 3px,
+    rgba(132, 167, 148, 0.02) 3px,
+    rgba(132, 167, 148, 0.02) 6px
+  );
+  pointer-events: none;
+  opacity: 0;
+  animation: pt-scanlines-show 0.5s ease 0.3s forwards;
+}
+@keyframes pt-scanlines-show { to { opacity: 1; } }
+
+/* ══════════════════════════════
+   VORTEX RINGS — spinning portal
+   ══════════════════════════════ */
+.pt-vortex {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pt-vortex-ring {
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0) rotate(0deg);
+  opacity: 0;
+}
+
+.pt-vortex-ring--1 {
+  width: 240px; height: 240px;
+  border: 1px solid rgba(132, 167, 148, 0.5);
+  box-shadow: 0 0 20px rgba(132, 167, 148, 0.2), inset 0 0 20px rgba(132, 167, 148, 0.05);
+  animation:
+    pt-ring-appear 1s cubic-bezier(0.22, 1, 0.36, 1) 0.5s forwards,
+    pt-ring-spin-slow 8s linear 0.5s infinite;
+}
+.pt-vortex-ring--2 {
+  width: 380px; height: 380px;
+  border: 1px solid rgba(178, 200, 188, 0.3);
+  animation:
+    pt-ring-appear 1s cubic-bezier(0.22, 1, 0.36, 1) 0.65s forwards,
+    pt-ring-spin-slow 12s linear reverse 0.65s infinite;
+}
+.pt-vortex-ring--3 {
+  width: 540px; height: 540px;
+  border: 1px solid rgba(132, 167, 148, 0.18);
+  animation:
+    pt-ring-appear 1s cubic-bezier(0.22, 1, 0.36, 1) 0.8s forwards,
+    pt-ring-spin-slow 16s linear 0.8s infinite;
+}
+.pt-vortex-ring--4 {
+  width: 720px; height: 720px;
+  border: 1px solid rgba(214, 168, 90, 0.1);
+  animation:
+    pt-ring-appear 1s cubic-bezier(0.22, 1, 0.36, 1) 0.95s forwards,
+    pt-ring-spin-slow 22s linear reverse 0.95s infinite;
+}
+
+@keyframes pt-ring-appear {
+  0%   { transform: scale(0) rotate(-180deg); opacity: 0; }
+  100% { transform: scale(1) rotate(0deg);    opacity: 1; }
+}
+@keyframes pt-ring-spin-slow {
+  from { transform: scale(1) rotate(0deg); }
+  to   { transform: scale(1) rotate(360deg); }
+}
+
+/* ══════════════════════════════
+   TREE — vortex growth
+   ══════════════════════════════ */
+.pt-tree {
+  position: absolute;
+  width: 300px;
+  height: 380px;
+  overflow: visible;
+  transform: translateY(40px);
+  /* subtle slow rotation as it grows — vortex pull */
+  animation: pt-tree-rotate 5s ease 0.3s forwards;
+}
+@keyframes pt-tree-rotate {
+  0%   { transform: translateY(40px) rotate(-4deg) scale(0.85); opacity: 0; }
+  15%  { opacity: 1; }
+  60%  { transform: translateY(40px) rotate(1deg) scale(1.02); }
+  100% { transform: translateY(40px) rotate(0deg) scale(1); }
+}
+
+/* Glow pulse once fully grown */
+.pt-tree { filter: drop-shadow(0 0 0px rgba(132, 167, 148, 0)); }
+
+/* All path base */
+.pt-path {
+  stroke: #84a794;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pt-trunk  { stroke-width: 5;   stroke: #84a794; }
+.pt-roots  { stroke-width: 2;   stroke: #5a8c78; opacity: 0.5; }
+.pt-b1, .pt-b2, .pt-b3 { stroke-width: 3.5; stroke: #84a794; }
+.pt-s1, .pt-s2, .pt-s3, .pt-s4, .pt-s5, .pt-s6 { stroke-width: 2.5; stroke: #9ab8a8; }
+
+/* twigs get lighter toward the tips */
+.pt-t1,.pt-t2,.pt-t3,.pt-t4,
+.pt-t5,.pt-t6,.pt-t7,.pt-t8  { stroke-width: 1.8; stroke: #b2c8bc; }
+.pt-t9,.pt-t10,.pt-t11,.pt-t12,.pt-t13 { stroke-width: 1.4; stroke: #c8ddd4; }
+
+/* ── Draw animations ── */
+.pt-trunk  { stroke-dasharray: 110; stroke-dashoffset: 110; animation: pt-draw 0.7s cubic-bezier(0.4,0,0.2,1) 0.4s forwards; }
+.pt-roots  { stroke-dasharray: 80;  stroke-dashoffset: 80;  animation: pt-draw 0.5s ease 1.0s forwards; }
+
+.pt-b1 { stroke-dasharray: 65; stroke-dashoffset: 65; animation: pt-draw 0.45s ease 1.05s forwards; }
+.pt-b2 { stroke-dasharray: 65; stroke-dashoffset: 65; animation: pt-draw 0.45s ease 1.1s forwards; }
+.pt-b3 { stroke-dasharray: 52; stroke-dashoffset: 52; animation: pt-draw 0.4s ease 1.15s forwards; }
+
+.pt-s1 { stroke-dasharray: 52; stroke-dashoffset: 52; animation: pt-draw 0.4s ease 1.45s forwards; }
+.pt-s2 { stroke-dasharray: 44; stroke-dashoffset: 44; animation: pt-draw 0.38s ease 1.5s forwards; }
+.pt-s3 { stroke-dasharray: 52; stroke-dashoffset: 52; animation: pt-draw 0.4s ease 1.45s forwards; }
+.pt-s4 { stroke-dasharray: 44; stroke-dashoffset: 44; animation: pt-draw 0.38s ease 1.5s forwards; }
+.pt-s5 { stroke-dasharray: 46; stroke-dashoffset: 46; animation: pt-draw 0.4s ease 1.55s forwards; }
+.pt-s6 { stroke-dasharray: 46; stroke-dashoffset: 46; animation: pt-draw 0.4s ease 1.55s forwards; }
+
+.pt-t1  { stroke-dasharray: 44; stroke-dashoffset: 44; animation: pt-draw 0.35s ease 1.85s forwards; }
+.pt-t2  { stroke-dasharray: 38; stroke-dashoffset: 38; animation: pt-draw 0.32s ease 1.88s forwards; }
+.pt-t3  { stroke-dasharray: 44; stroke-dashoffset: 44; animation: pt-draw 0.35s ease 1.85s forwards; }
+.pt-t4  { stroke-dasharray: 40; stroke-dashoffset: 40; animation: pt-draw 0.32s ease 1.88s forwards; }
+.pt-t5  { stroke-dasharray: 44; stroke-dashoffset: 44; animation: pt-draw 0.35s ease 1.85s forwards; }
+.pt-t6  { stroke-dasharray: 38; stroke-dashoffset: 38; animation: pt-draw 0.32s ease 1.88s forwards; }
+.pt-t7  { stroke-dasharray: 44; stroke-dashoffset: 44; animation: pt-draw 0.35s ease 1.85s forwards; }
+.pt-t8  { stroke-dasharray: 40; stroke-dashoffset: 40; animation: pt-draw 0.32s ease 1.88s forwards; }
+.pt-t9  { stroke-dasharray: 46; stroke-dashoffset: 46; animation: pt-draw 0.3s ease 2.15s forwards; }
+.pt-t10 { stroke-dasharray: 42; stroke-dashoffset: 42; animation: pt-draw 0.3s ease 2.18s forwards; }
+.pt-t11 { stroke-dasharray: 46; stroke-dashoffset: 46; animation: pt-draw 0.3s ease 2.15s forwards; }
+.pt-t12 { stroke-dasharray: 42; stroke-dashoffset: 42; animation: pt-draw 0.3s ease 2.18s forwards; }
+.pt-t13 { stroke-dasharray: 55; stroke-dashoffset: 55; animation: pt-draw 0.35s ease 2.1s forwards; }
+
+@keyframes pt-draw { to { stroke-dashoffset: 0; } }
+
+/* ── Tip glowing dots ── */
+.pt-tip {
+  fill: rgba(132, 167, 148, 0.9);
+  stroke: #84a794;
+  stroke-width: 0.8;
+  opacity: 0;
+  animation: pt-tip-glow 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 2.3s forwards;
+}
+.pt-tip:nth-child(odd)  { animation-delay: 2.3s; }
+.pt-tip:nth-child(even) { animation-delay: 2.4s; }
+
+@keyframes pt-tip-glow {
+  0%   { opacity: 0; r: 0; }
+  60%  { opacity: 1; }
+  100% { opacity: 0.85; }
+}
+
+/* Tree glow after growth */
+.pt-tree-glow-phase {
+  animation: pt-full-glow 1s ease 2.5s forwards;
+}
+@keyframes pt-full-glow {
+  0%   { filter: drop-shadow(0 0 0px rgba(132, 167, 148, 0)); }
+  50%  { filter: drop-shadow(0 0 22px rgba(132, 167, 148, 0.8)) drop-shadow(0 0 50px rgba(132, 167, 148, 0.4)); }
+  100% { filter: drop-shadow(0 0 14px rgba(132, 167, 148, 0.55)); }
+}
+
+/* ══════════════════════════════
+   PARTICLES — float up like spores
+   ══════════════════════════════ */
+.pt-particles { position: absolute; inset: 0; pointer-events: none; }
+
+.pt-particle {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0;
+}
+
+.pt-particle--1  { width:3px;height:3px;background:#84a794;top:40%;left:38%;animation:pt-float 1.8s ease 2.2s forwards; }
+.pt-particle--2  { width:2px;height:2px;background:#b2c8bc;top:30%;left:55%;animation:pt-float 2.0s ease 2.3s forwards; }
+.pt-particle--3  { width:3px;height:3px;background:#d6a85a;top:45%;left:60%;animation:pt-float 1.6s ease 2.4s forwards; }
+.pt-particle--4  { width:2px;height:2px;background:#84a794;top:52%;left:42%;animation:pt-float 1.9s ease 2.5s forwards; }
+.pt-particle--5  { width:3px;height:3px;background:#b2c8bc;top:28%;left:44%;animation:pt-float 2.2s ease 2.35s forwards; }
+.pt-particle--6  { width:2px;height:2px;background:#d6a85a;top:58%;left:56%;animation:pt-float 1.7s ease 2.45s forwards; }
+.pt-particle--7  { width:4px;height:4px;background:#84a794;top:22%;left:50%;animation:pt-float 1.5s ease 2.55s forwards; }
+.pt-particle--8  { width:2px;height:2px;background:#c8ddd4;top:63%;left:47%;animation:pt-float 2.1s ease 2.6s forwards; }
+.pt-particle--9  { width:3px;height:3px;background:#84a794;top:35%;left:35%;animation:pt-float 1.8s ease 2.65s forwards; }
+.pt-particle--10 { width:2px;height:2px;background:#d6a85a;top:48%;left:65%;animation:pt-float 1.6s ease 2.7s forwards; }
+.pt-particle--11 { width:3px;height:3px;background:#b2c8bc;top:20%;left:47%;animation:pt-float 2.0s ease 2.75s forwards; }
+.pt-particle--12 { width:2px;height:2px;background:#84a794;top:70%;left:53%;animation:pt-float 1.9s ease 2.8s forwards; }
+.pt-particle--13 { width:3px;height:3px;background:#d6a85a;top:25%;left:58%;animation:pt-float 1.7s ease 2.85s forwards; }
+.pt-particle--14 { width:2px;height:2px;background:#84a794;top:55%;left:37%;animation:pt-float 2.1s ease 2.9s forwards; }
+.pt-particle--15 { width:3px;height:3px;background:#c8ddd4;top:33%;left:63%;animation:pt-float 1.8s ease 2.95s forwards; }
+.pt-particle--16 { width:2px;height:2px;background:#d6a85a;top:46%;left:33%;animation:pt-float 2.0s ease 3.0s forwards; }
+.pt-particle--17 { width:4px;height:4px;background:#84a794;top:18%;left:52%;animation:pt-float 1.5s ease 3.05s forwards; }
+.pt-particle--18 { width:2px;height:2px;background:#b2c8bc;top:74%;left:48%;animation:pt-float 1.9s ease 3.1s forwards; }
+.pt-particle--19 { width:3px;height:3px;background:#84a794;top:42%;left:70%;animation:pt-float 1.7s ease 3.15s forwards; }
+.pt-particle--20 { width:2px;height:2px;background:#d6a85a;top:38%;left:30%;animation:pt-float 2.2s ease 3.2s forwards; }
+
+@keyframes pt-float {
+  0%   { opacity: 0; transform: translateY(0)   scale(0);   }
+  20%  { opacity: 1; transform: translateY(-10px) scale(1);  }
+  100% { opacity: 0; transform: translateY(-55px) scale(0.4); }
+}
+
+/* ══════════════════════════════
+   VORTEX PULL + SCREEN FILL
+   ══════════════════════════════ */
+
+/* Rings tighten inward before the fill */
+.pt-vortex-ring--1 { animation-name: pt-ring-appear, pt-ring-spin-slow, pt-ring-collapse; animation-duration: 1s, 8s, 0.6s; animation-delay: 0.5s, 0.5s, 3.8s; animation-fill-mode: forwards, none, forwards; }
+.pt-vortex-ring--2 { animation-name: pt-ring-appear, pt-ring-spin-slow, pt-ring-collapse; animation-duration: 1s, 12s, 0.6s; animation-delay: 0.65s, 0.65s, 3.85s; animation-fill-mode: forwards, none, forwards; animation-direction: normal, reverse, normal; }
+.pt-vortex-ring--3 { animation-name: pt-ring-appear, pt-ring-spin-slow, pt-ring-collapse; animation-duration: 1s, 16s, 0.6s; animation-delay: 0.8s, 0.8s, 3.9s; animation-fill-mode: forwards, none, forwards; }
+.pt-vortex-ring--4 { animation-name: pt-ring-appear, pt-ring-spin-slow, pt-ring-collapse; animation-duration: 1s, 22s, 0.6s; animation-delay: 0.95s, 0.95s, 3.95s; animation-fill-mode: forwards, none, forwards; animation-direction: normal, reverse, normal; }
+
+@keyframes pt-ring-collapse {
+  0%   { transform: scale(1);   opacity: 1; }
+  100% { transform: scale(0.1); opacity: 0; }
+}
+
+/* Screen fill — expands from centre like a vortex portal opening */
+.pt-fill {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, #0d2018 0%, #051209 40%, #020202 100%);
+  clip-path: circle(0% at 50% 50%);
+  animation: pt-fill-expand 1.0s cubic-bezier(0.4, 0, 0.2, 1) 4.0s forwards;
+}
+
+@keyframes pt-fill-expand {
+  0%   { clip-path: circle(0%    at 50% 50%); }
+  100% { clip-path: circle(150%  at 50% 50%); }
+}

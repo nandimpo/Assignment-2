@@ -27,6 +27,12 @@ body {
 .landing {
   opacity: 0;
   transition: opacity 1s ease;
+  position: relative;
+}
+
+.landing > *:not(canvas) {
+  position: relative;
+  z-index: 1;
 }
 
 .show-landing {
@@ -531,7 +537,7 @@ body {
 
 .xapo-layout {
   position: absolute;
-  bottom: 80px;
+  bottom: 220px;
   left: 60px;
   max-width: 580px;
   display: flex;
@@ -607,7 +613,7 @@ h2 {
 
 .scroll-hint {
   position: absolute;
-  bottom: 32px;
+  bottom: 40px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -981,10 +987,10 @@ h2 {
 
 .fade-in {
   opacity: 0;
-  transform: translateY(28px);
+  transform: translateY(40px);
   transition:
-    opacity 0.7s ease,
-    transform 0.7s ease;
+    opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .fade-in.show {
@@ -992,15 +998,112 @@ h2 {
   transform: translateY(0);
 }
 
-.fade-in.show .step:nth-child(1) {
-  transition-delay: 0.1s;
+/* slide in from left for text columns */
+.fade-in .text {
+  opacity: 0;
+  transform: translateX(-32px);
+  transition:
+    opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.1s,
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.1s;
 }
-.fade-in.show .step:nth-child(2) {
-  transition-delay: 0.2s;
+
+.fade-in.show .text {
+  opacity: 1;
+  transform: translateX(0);
 }
-.fade-in.show .step:nth-child(3) {
-  transition-delay: 0.3s;
+
+/* slide in from right for image columns */
+.fade-in .image-wrap {
+  opacity: 0;
+  transform: translateX(32px);
+  transition:
+    opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.2s,
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.2s;
 }
+
+.fade-in.show .image-wrap {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* eyebrow label pops in first */
+.fade-in .eyebrow {
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity 0.5s ease 0s,
+    transform 0.5s ease 0s;
+}
+
+.fade-in.show .eyebrow {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* stagger how-it-works steps */
+.fade-in.show .hiw-step:nth-child(1) { transition-delay: 0.15s; }
+.fade-in.show .hiw-step:nth-child(2) { transition-delay: 0.3s; }
+.fade-in.show .hiw-step:nth-child(3) { transition-delay: 0.45s; }
+
+.hiw-step {
+  opacity: 0;
+  transform: translateX(-20px);
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease;
+}
+
+.fade-in.show .hiw-step {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* stagger feature cards */
+.fade-in.show .feature-card:nth-child(1) { transition-delay: 0.05s; }
+.fade-in.show .feature-card:nth-child(2) { transition-delay: 0.18s; }
+.fade-in.show .feature-card:nth-child(3) { transition-delay: 0.31s; }
+
+.feature-card {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.fade-in.show .feature-card {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* stats bar — each stat pops in */
+.stats-bar .stat {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.stats-bar.show .stat:nth-child(1),
+.fade-in.show .stat:nth-child(1) { transition-delay: 0.0s; }
+.stats-bar.show .stat:nth-child(2),
+.fade-in.show .stat:nth-child(2) { transition-delay: 0.12s; }
+.stats-bar.show .stat:nth-child(3),
+.fade-in.show .stat:nth-child(3) { transition-delay: 0.24s; }
+.stats-bar.show .stat:nth-child(4),
+.fade-in.show .stat:nth-child(4) { transition-delay: 0.36s; }
+
+.stats-bar.show .stat,
+.fade-in.show .stat {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* legacy step stagger */
+.fade-in.show .step:nth-child(1) { transition-delay: 0.1s; }
+.fade-in.show .step:nth-child(2) { transition-delay: 0.2s; }
+.fade-in.show .step:nth-child(3) { transition-delay: 0.3s; }
 
 /* ================= LANDING ENTRY ================= */
 

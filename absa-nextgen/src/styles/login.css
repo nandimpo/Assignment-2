@@ -237,6 +237,39 @@ form input:-webkit-autofill:focus {
   transition: background-color 5000s ease-in-out 0s;
 }
 
+/* VALID INPUT STATE */
+.input-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.input-wrap input {
+  padding-right: 44px;
+}
+
+form .input-valid {
+  border-color: #84a794;
+  background: rgba(132, 167, 148, 0.06);
+  box-shadow: 0 0 0 3px rgba(132, 167, 148, 0.12);
+}
+
+.input-check {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #84a794;
+  font-size: 15px;
+  font-weight: 700;
+  pointer-events: none;
+  animation: check-pop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes check-pop {
+  0%   { transform: translateY(-50%) scale(0); opacity: 0; }
+  100% { transform: translateY(-50%) scale(1); opacity: 1; }
+}
+
 /* OPTIONS */
 
 .options {

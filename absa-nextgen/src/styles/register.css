@@ -90,6 +90,56 @@
   box-shadow: 0 0 10px rgba(132, 167, 148, 0.3);
 }
 
+.form-box input:-webkit-autofill,
+.form-box input:-webkit-autofill:hover,
+.form-box input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #0b0f0e inset;
+  -webkit-text-fill-color: white;
+  border-color: #2a3d38;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.form-box input.input-valid:-webkit-autofill,
+.form-box input.input-valid:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #0b1a14 inset, 0 0 0 3px rgba(132, 167, 148, 0.12);
+  border-color: #84a794;
+}
+
+.input-wrap {
+  position: relative;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.input-wrap input {
+  margin-bottom: 0;
+  width: 100%;
+  padding-right: 44px;
+}
+
+.input-valid {
+  border-color: #84a794 !important;
+  background: rgba(132, 167, 148, 0.06) !important;
+  box-shadow: 0 0 0 3px rgba(132, 167, 148, 0.12) !important;
+}
+
+.input-check {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #84a794;
+  font-size: 16px;
+  font-weight: 600;
+  pointer-events: none;
+  animation: check-pop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes check-pop {
+  0%   { transform: translateY(-50%) scale(0); opacity: 0; }
+  100% { transform: translateY(-50%) scale(1); opacity: 1; }
+}
+
 /* BUTTON */
 .form-box button {
   width: 100%;

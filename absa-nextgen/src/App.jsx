@@ -4,6 +4,10 @@ import { useEffect, useRef } from "react";
 /* ================= SCROLL FIX ================= */
 import ScrollToTop from "./components/ScrollToTop";
 
+/* ================= TRANSITION ================= */
+import { TransitionProvider, useTransition } from "./context/TransitionContext";
+import TransitionOverlay from "./components/TransitionOverlay";
+
 /* ================= PAGES ================= */
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
@@ -76,12 +80,20 @@ function CustomCursor() {
   return <div className="custom-cursor" ref={cursorRef} />;
 }
 
+/* ================= OVERLAY RENDERER ================= */
+function AppOverlay() {
+  const { active, phase, variant } = useTransition();
+  return <TransitionOverlay active={active} phase={phase} variant={variant} />;
+}
+
 /* ================= APP ================= */
 export default function App() {
   return (
     <BrowserRouter basename={import.meta.env.BASE_URL}>
-      <CustomCursor />
-      <ScrollToTop />
+      <TransitionProvider>
+        <AppOverlay />
+        <CustomCursor />
+        <ScrollToTop />
 
       <Routes>
         {/* ================= PUBLIC ================= */}
@@ -230,6 +242,7 @@ export default function App() {
           }
         />
       </Routes>
+      </TransitionProvider>
     </BrowserRouter>
   );
 }

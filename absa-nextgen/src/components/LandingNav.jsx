@@ -1,10 +1,12 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
+import useTransitionNavigate from "../hooks/useTransitionNavigate";
 import "../styles/nav.css";
 import logo from "../assets/logo.png";
 
 export default function LandingNav() {
   const navigate = useNavigate();
+  const transitionTo = useTransitionNavigate();
   const location = useLocation();
   const [activeSection, setActiveSection] = useState("hero");
 
@@ -58,12 +60,12 @@ export default function LandingNav() {
 
         <button
           className={isLoginPage ? "active" : ""}
-          onClick={() => navigate("/login")}
+          onClick={() => transitionTo("/login")}
         >
           Login
         </button>
 
-        <button className="primary" onClick={() => navigate("/register")}>
+        <button className="primary" onClick={() => transitionTo("/register")}>
           Get Started
         </button>
       </div>
