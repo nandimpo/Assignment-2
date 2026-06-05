@@ -18,7 +18,7 @@ export default function WaveCanvas({
 
     const resize = () => {
       canvas.width = window.innerWidth;
-      canvas.height = canvas.parentElement?.scrollHeight || window.innerHeight;
+      canvas.height = window.innerHeight;
     };
     resize();
     window.addEventListener("resize", resize);
@@ -66,10 +66,11 @@ export default function WaveCanvas({
     <canvas
       ref={canvasRef}
       style={{
-        position: "absolute",
-        inset: 0,
-        width: "100%",
-        height: "100%",
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100vw",
+        height: "100vh",
         pointerEvents: "none",
         zIndex: 0,
         ...style,

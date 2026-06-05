@@ -1,5 +1,6 @@
-import { useNavigate } from "react-router-dom";
+﻿import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import useTransitionNavigate from "../hooks/useTransitionNavigate";
 import "../styles/register.css";
 import planet from "../assets/planet.png";
@@ -15,6 +16,7 @@ export default function Register() {
   });
 
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const nameValid = form.name.trim().length >= 2;
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email);
   const passwordValid = form.password.length >= 6;
@@ -58,7 +60,7 @@ export default function Register() {
     localStorage.setItem("user", JSON.stringify(user));
 
     // Create session
-    sessionStorage.setItem("session", JSON.stringify({ loggedIn: true }));
+    localStorage.setItem("session", JSON.stringify({ loggedIn: true }));
 
     const firstName = form.name.split(" ")[0];
     transitionTo("/setup", "green", `We're happy to have you, ${firstName}.`);
@@ -119,13 +121,15 @@ export default function Register() {
 
             <div className="input-wrap">
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="Password"
                 value={form.password}
                 className={passwordValid ? "input-valid" : ""}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
               />
-              {passwordValid && <span className="input-check">✓</span>}
+              <span className="eye-toggle" onClick={() => setShowPassword(p => !p)}>
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </span>
             </div>
 
             <button onClick={handleRegister}>Continue</button>
@@ -140,3 +144,4 @@ export default function Register() {
     </div>
   );
 }
+

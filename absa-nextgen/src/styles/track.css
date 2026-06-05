@@ -1,4 +1,4 @@
-.track-header {
+﻿.track-header {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -28,7 +28,7 @@
 }
 
 .track-page {
-  background: #020202;
+  background: transparent;
   min-height: 100vh;
   color: #f4f6fc;
 }
@@ -477,6 +477,206 @@ h1 {
   color: #9aa5a6;
 }
 
+/* BALANCED LIFESTYLE LAYOUT */
+.bl-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.bl-stats {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.bl-stat {
+  flex: 1;
+  min-width: 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: rgba(178, 200, 188, 0.05);
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: #84a794;
+}
+
+.bl-stat-label {
+  font-size: 10px;
+  color: #8fa3a0;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.bl-stat strong {
+  font-size: 15px;
+  font-weight: 600;
+  color: #f4f6fc;
+}
+
+.bl-bar {
+  display: flex;
+  height: 8px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.bl-bar div {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.bl-bar-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
+  font-size: 10px;
+  color: #8fa3a0;
+}
+
+.bl-slider-label {
+  font-size: 11px;
+  color: #8fa3a0;
+}
+
+/* VERTICAL STEPPER FOR MILESTONES */
+.bl-stepper {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 14px;
+}
+
+.bl-step-item {
+  display: flex;
+  gap: 12px;
+}
+
+.bl-step-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.bl-vline {
+  width: 2px;
+  flex: 1;
+  min-height: 20px;
+  background: #2a3330;
+  margin: 3px 0;
+}
+
+.bl-vline.filled {
+  background: #84a794;
+}
+
+.bl-step-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: 16px;
+}
+
+@media (max-width: 800px) {
+  .bl-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* TRACKS EYEBROW */
+.tracks-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #84a794;
+  margin-bottom: 6px;
+}
+
+/* CURRENT TRACK HERO */
+.current-track-hero {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 24px;
+  background: linear-gradient(135deg, #0e1a17, #0c1512);
+  border: 1px solid rgba(132, 167, 148, 0.3);
+  border-radius: 16px;
+  padding: 28px;
+  align-items: start;
+}
+
+.current-track-left {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.current-track-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(132, 167, 148, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #84a794;
+  flex-shrink: 0;
+}
+
+.current-track-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #84a794;
+  margin-bottom: 4px;
+}
+
+.current-track-name {
+  font-size: 22px;
+  font-weight: 700;
+  color: #f4f6fc;
+  margin: 0 0 4px;
+}
+
+.current-track-focus {
+  font-size: 12px;
+  color: #8fa3a0;
+}
+
+.current-track-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+  padding: 10px 20px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #84a794, #2c3a36);
+  border: none;
+  color: white;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.current-track-btn:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
+/* SECTION DIVIDER LABEL */
+.tracks-section-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8fa3a0;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(178, 200, 188, 0.08);
+}
+
 /* TRACK GRID */
 .track-grid {
   display: grid;
@@ -783,3 +983,4 @@ h1 {
     grid-template-columns: 1fr;
   }
 }
+

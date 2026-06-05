@@ -204,7 +204,7 @@ export default function MoneySnapshot() {
     });
   }, [grossIncome, income, expenses, savings, breakdownEdit]);
 
-  const { progress: milestoneProgress, toggle, percent } = useProgress();
+  const { progress: milestoneProgress, milestoneStatus, trackRoute, trackName, percent } = useProgress();
   const strategy = user?.strategy || "property";
 
   // ── TRACK CONFIG — drives milestones, goal label, actions, insights ──
@@ -506,38 +506,54 @@ export default function MoneySnapshot() {
 
           {/* MILESTONES inline */}
           <div className="card" id="milestones">
-            <div className="milestones-header">
-              <h3>Milestones</h3>
-              <span className="milestones-hint">Tap to mark done</span>
-            </div>
-            <div className="stepper">
-              {trackCfg.milestones.map(({ key, label }, index) => {
+            <h3>Milestones</h3>
+
+            {/* ROW 1: circles + connector lines */}
+            <div className="ms-track">
+              {trackCfg.milestones.map(({ key }, index) => {
                 const keys = trackCfg.milestones.map(m => m.key);
                 const isCompleted = milestoneProgress[key];
-                const isCurrent = !milestoneProgress[key] && (index === 0 || milestoneProgress[keys[index - 1]]);
-                const isLocked = index > 0 && !milestoneProgress[keys[index - 1]];
+                const isPrevDone  = index === 0 || milestoneProgress[keys[index - 1]];
+                const isLocked    = !isPrevDone;
+                const isCurrent   = !isCompleted && isPrevDone;
                 return (
-                  <div key={key} className="step-wrapper">
-                    <div
-                      className={`step ${isCompleted ? "completed" : ""} ${isCurrent ? "current" : ""} ${isLocked ? "locked" : ""}`}
-                      onClick={() => !isLocked && toggle(key)}
-                      title={isLocked ? "Complete the previous milestone first" : isCompleted ? "Click to unmark" : "Click to mark as complete"}
-                    >
-                      {isCompleted ? "✓" : index + 1}
+                  <div key={key} className="ms-step-col">
+                    <div className="ms-circle-row">
+                      {index > 0 && (
+                        <div className={`ms-line ${milestoneProgress[keys[index - 1]] ? "filled" : ""}`} />
+                      )}
+                      <div
+                        className={`step ${isCompleted ? "completed" : ""} ${isCurrent ? "current" : ""} ${isLocked ? "locked" : ""}`}
+                        title={isCompleted ? "Achieved" : isLocked ? "Complete previous milestone first" : "Not yet reached"}
+                      >
+                        {isCompleted ? "✓" : index + 1}
+                      </div>
+                      {index < trackCfg.milestones.length - 1 && (
+                        <div className={`ms-line ${isCompleted ? "filled" : ""}`} />
+                      )}
                     </div>
-                    <div className="step-label-group">
-                      <span className="step-label">{label}</span>
-                      {isCurrent && <span className="step-cta">← Mark done</span>}
+
+                    {/* ROW 2: label + hint below each circle */}
+                    <div className="ms-label">
+                      <span className="step-label">{milestoneStatus?.[key]?.label || key}</span>
+                      {isCurrent && !isCompleted && (
+                        <span className="ms-hint" onClick={() => navigate(trackRoute)}>
+                          {milestoneStatus?.[key]?.hint || `Go to ${trackName} →`}
+                        </span>
+                      )}
                       {isLocked && <span className="step-locked-label">Locked</span>}
                     </div>
-                    {index < trackCfg.milestones.length - 1 && (
-                      <div className={`step-line ${milestoneProgress[key] ? "filled" : ""}`} />
-                    )}
                   </div>
                 );
               })}
             </div>
-            <p className="muted">{percent}% complete</p>
+
+            <p className="muted" style={{ marginTop: 10 }}>{percent}% complete</p>
+            {percent < 100 && (
+              <button className="pill" style={{ marginTop: 8 }} onClick={() => navigate(trackRoute)}>
+                Update progress in {trackName} →
+              </button>
+            )}
           </div>
         </div>
 

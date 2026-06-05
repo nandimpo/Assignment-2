@@ -247,6 +247,22 @@ form input:-webkit-autofill:focus {
   padding-right: 44px;
 }
 
+.eye-toggle {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #8fa3a0;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+}
+
+.eye-toggle:hover {
+  color: #84a794;
+}
+
 form .input-valid {
   border-color: #84a794;
   background: rgba(132, 167, 148, 0.06);

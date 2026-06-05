@@ -13,11 +13,7 @@ export default function LifestyleCorrectionTrack() {
   // ✅ ALL HOOKS FIRST — early return moved to after hooks
   const [expenseCut, setExpenseCut] = useState(0);
   const [extraDebt, setExtraDebt] = useState(0);
-  const { progress, toggle, percent } = useProgress("lifestyleProgress", {
-    emergencyFund: false,
-    deposit: false,
-    purchase: false,
-  });
+  const { progress, milestoneStatus, percent } = useProgress();
 
   // ================= EARLY RETURN (after all hooks) =================
   if (!user) {
@@ -314,7 +310,6 @@ export default function LifestyleCorrectionTrack() {
                 >
                   <div
                     className={`step ${isCompleted ? "completed" : ""} ${isCurrent ? "current" : ""} ${isLocked ? "locked" : ""}`}
-                    onClick={() => !isLocked && toggle(step)}
                   >
                     {isCompleted ? "✓" : index + 1}
                   </div>

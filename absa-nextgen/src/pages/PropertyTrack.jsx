@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+﻿import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import AppNav from "../components/AppNav";
 import "../styles/track.css";
@@ -18,11 +18,7 @@ export default function PropertyTrack() {
   const [lifestyle, setLifestyle] = useState(50);
   const [growth, setGrowth] = useState(50);
   const [showSuggestion, setShowSuggestion] = useState(false);
-  const { progress, toggle, percent } = useProgress("propertyProgress", {
-    emergencyFund: false,
-    deposit: false,
-    purchase: false,
-  });
+  const { progress, milestoneStatus, percent } = useProgress();
 
   // ✅ currentStage moved here — AFTER useProgress so progress is defined
   const currentStage = !progress.emergencyFund
@@ -37,7 +33,7 @@ export default function PropertyTrack() {
   // FIX 2: removed isLocked from here (it used undefined 'step') — moved inside the map below
   useEffect(() => {
     if (percent >= 100 && !progress.deposit) {
-      toggle("deposit");
+      
     }
   }, [percent, progress.deposit]);
 
@@ -222,7 +218,7 @@ export default function PropertyTrack() {
               {/* STEP 1 */}
               <div
                 className={`timeline-step ${progress.emergencyFund ? "done" : ""}`}
-                onClick={() => toggle("emergencyFund")}
+                
               >
                 <div className="circle">
                   {progress.emergencyFund ? "✓" : "1"}
@@ -240,9 +236,6 @@ export default function PropertyTrack() {
                 className={`timeline-step ${progress.deposit ? "done" : ""} ${
                   !progress.emergencyFund ? "locked" : ""
                 }`}
-                onClick={() => {
-                  if (progress.emergencyFund) toggle("deposit");
-                }}
               >
                 <div className="circle">{progress.deposit ? "✓" : "2"}</div>
                 <div className="content">
@@ -258,9 +251,6 @@ export default function PropertyTrack() {
                 className={`timeline-step ${progress.purchase ? "done" : ""} ${
                   !progress.deposit ? "locked" : ""
                 }`}
-                onClick={() => {
-                  if (progress.deposit) toggle("purchase");
-                }}
               >
                 <div className="circle">{progress.purchase ? "✓" : "3"}</div>
                 <div className="content">
@@ -280,7 +270,7 @@ export default function PropertyTrack() {
             {/* FIX 3: isLocked moved inside each step's onClick to avoid undefined 'step' at top scope */}
             <div
               className={`timeline-step ${progress.emergencyFund ? "active" : ""}`}
-              onClick={() => toggle("emergencyFund")}
+              
             >
               <h4>Stage 1</h4>
               <p>Emergency Fund</p>
@@ -291,10 +281,6 @@ export default function PropertyTrack() {
 
             <div
               className={`timeline-step ${progress.deposit ? "active" : ""}`}
-              onClick={() => {
-                const isLocked = !progress.emergencyFund;
-                if (!isLocked) toggle("deposit");
-              }}
             >
               <h4>Stage 2</h4>
               <p>Deposit</p>
@@ -303,10 +289,6 @@ export default function PropertyTrack() {
 
             <div
               className={`timeline-step ${progress.purchase ? "active" : ""}`}
-              onClick={() => {
-                const isLocked = !progress.deposit;
-                if (!isLocked) toggle("purchase");
-              }}
             >
               <h4>Stage 3</h4>
               <p>Purchase</p>

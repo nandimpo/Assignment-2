@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+﻿import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import AppNav from "../components/AppNav";
 import "../styles/profile.css";
@@ -185,7 +185,7 @@ export default function Profile() {
   // ── Logout ──────────────────────────────────────────────────────────────────
 
   const handleLogout = () => {
-    sessionStorage.removeItem("session");
+    localStorage.removeItem("session");
     navigate("/login");
   };
 
@@ -435,3 +435,4 @@ export default function Profile() {
     </div>
   );
 }
+

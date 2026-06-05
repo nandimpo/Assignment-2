@@ -1,4 +1,4 @@
-/* ================================================
+﻿/* ================================================
    ABSA WEALTH STUDIO — LANDING STYLES
    Style guide: #020202 bg · #f4f6fc text · #84a794 accent
    ================================================ */
@@ -14,7 +14,7 @@
 body {
   margin: 0;
   font-family: "Inter", sans-serif;
-  background: #020202;
+  background: transparent;
   background-image: none;
   color: #f4f6fc;
 }
@@ -1274,3 +1274,4 @@ h2 {
     grid-template-columns: 1fr;
   }
 }
+

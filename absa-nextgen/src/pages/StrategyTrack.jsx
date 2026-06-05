@@ -1,7 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
 import AppNav from "../components/AppNav";
-import { Home, TrendingUp, Shield, Scale, Zap } from "lucide-react";
+import { Home, TrendingUp, Shield, Scale, Zap, ArrowRight } from "lucide-react";
+import TypewriterHeading from "../components/TypewriterHeading";
 import { useEffect, useState } from "react";
 import { getTrackProgression } from "../utils/trackProgression";
 
@@ -276,11 +277,10 @@ export default function StrategyTrack() {
     if (!user) return;
     const progression = getTrackProgression(user);
     if (progression?.track && progression.track !== user.strategy) {
-      updateUser({ strategy: progression.track });
+      // Only suggest — never auto-change the user's chosen strategy
       setNewTrack(progression.track);
-      setShowPopup(true);
     }
-  }, [user]);
+  }, []);
 
   // ── Render ──────────────────────────────────────────────────────────────────
 
@@ -289,91 +289,55 @@ export default function StrategyTrack() {
       <AppNav />
 
       <div className="track-container">
-        <h1 id="track-header">Strategy Tracks</h1>
-        <p className="subtitle">
-          Explore different financial paths and understand their trade-offs.
-        </p>
 
-        {/* Progression stepper */}
-        <div id="progression" className="stepper">
-          {trackOrder.map((track, i) => (
-            <div key={track} className="step-wrapper">
-              <div
-                className={`step ${
-                  i < currentIndex
-                    ? "completed"
-                    : i === currentIndex
-                      ? "current"
-                      : "locked"
-                }`}
-              >
-                {i < currentIndex ? "✓" : i + 1}
-              </div>
-              <span className="step-label">{trackLabels[track]}</span>
-              {i < trackOrder.length - 1 && (
-                <div
-                  className={`step-line ${i < currentIndex ? "filled" : ""}`}
-                />
-              )}
-            </div>
-          ))}
+        {/* ── HEADER ── */}
+        <div id="track-header">
+          <p className="tracks-eyebrow">Strategy Tracks</p>
+          <TypewriterHeading tag="h1" text="Your financial path" speed={50} />
+          <p className="subtitle">You are on the <strong>{tracks[selectedTrack]?.name || "—"}</strong> track. Explore all paths or jump straight in.</p>
         </div>
 
-        {/* Progress popup */}
-        {showPopup && (
-          <div className="popup-overlay">
-            <div className="popup">
-              <h3>🎉 Progress Update</h3>
-              <p>
-                You've progressed to a new stage: <strong>{newTrack}</strong>
-              </p>
-              <button onClick={() => setShowPopup(false)}>Continue →</button>
+        {/* ── YOUR CURRENT TRACK — hero card ── */}
+        {selectedTrack ? (
+          <div className="current-track-hero" id="current-track">
+            <div className="current-track-left">
+              <div className="current-track-icon">{icons[selectedTrack]}</div>
+              <div>
+                <p className="current-track-label">Your current track</p>
+                <h2 className="current-track-name">{tracks[selectedTrack]?.name}</h2>
+                <p className="current-track-focus">{tracks[selectedTrack]?.focus}</p>
+              </div>
+            </div>
+            <div className="current-track-right">
+              <p className="small" style={{ color: "#c8d8d4", lineHeight: 1.6 }}>{tracks[selectedTrack]?.explanation}</p>
+              <div className="confidence-bar" style={{ marginTop: 10 }}>
+                <div className="confidence-fill" style={{ width: `${analysis.confidence}%` }} />
+              </div>
+              <p className="small" style={{ marginTop: 4 }}>{analysis.confidence}% match for your profile</p>
+              <button
+                className="current-track-btn"
+                onClick={() => navigate(tracks[selectedTrack]?.route)}
+              >
+                Open my track <ArrowRight size={14} />
+              </button>
             </div>
           </div>
-        )}
-
-        {/* No strategy */}
-        {!selectedTrack && (
+        ) : (
           <div className="track-card">
-            <h3>No Strategy Selected</h3>
-            <p>Please complete setup to choose your financial path.</p>
-            <button className="pill" onClick={() => navigate("/setup")}>
-              Go to Setup →
-            </button>
+            <h3>No track selected</h3>
+            <p>Complete setup to choose your financial path.</p>
+            <button className="pill" onClick={() => navigate("/setup")}>Go to Setup →</button>
           </div>
         )}
 
-        {/* Current track */}
-        {selectedTrack && (
-          <div id="current-track" className="track-card">
-            <h3>Your Current Strategy</h3>
-            <p>
-              You are on <strong>{tracks[selectedTrack]?.name}</strong>
-            </p>
+        {/* ── DIVIDER ── */}
+        <div className="tracks-section-label">All tracks — explore or switch</div>
 
-            <div className="confidence-bar">
-              <div
-                className="confidence-fill"
-                style={{ width: `${analysis.confidence}%` }}
-              />
-            </div>
-            <p className="small">{analysis.confidence}% match</p>
-
-            <button
-              className="pill"
-              onClick={() => navigate(tracks[selectedTrack]?.route || "/home")}
-            >
-              Continue →
-            </button>
-          </div>
-        )}
-
-        {/* Track grid */}
+        {/* ── TRACK GRID ── */}
         <div className="track-grid" id="track-grid">
           {Object.entries(tracks).map(([key, track]) => {
             const isActive = selectedTrack === key;
             const isRecommended = recommendedTrack === key;
-
             return (
               <div
                 key={key}
@@ -385,58 +349,44 @@ export default function StrategyTrack() {
                   <div>
                     <h3>{track.name}</h3>
                     <p className="track-focus">{track.focus}</p>
-                    {isRecommended && (
-                      <>
-                        <span className="badge">Recommended</span>
-                        <p className="small">{recommendation?.reason}</p>
-                      </>
-                    )}
+                    {isActive && <span className="badge" style={{ background: "#84a794", color: "#020202" }}>Your track</span>}
+                    {isRecommended && !isActive && <span className="badge">Recommended</span>}
                   </div>
                 </div>
-
                 <p>{track.explanation}</p>
-
                 <div className="explanation-box">
-                  <p>
-                    <strong>Who it's for:</strong> {track.who}
-                  </p>
-                  <p>
-                    <strong>Trade-off:</strong> {track.tradeoffs}
-                  </p>
-                  <p>
-                    <strong>What to do:</strong> {track.recommendations}
-                  </p>
-                  <p>
-                    <strong>Risk:</strong> {track.risks}
-                  </p>
+                  <p><strong>Who it's for:</strong> {track.who}</p>
+                  <p><strong>Trade-off:</strong> {track.tradeoffs}</p>
+                  <p><strong>What to do:</strong> {track.recommendations}</p>
                 </div>
-
-                {future && isRecommended && (
+                {future && isRecommended && !isActive && (
                   <div className="impact-box">
-                    <p>
-                      Estimated months to goal: <strong>{future[key]}</strong>
-                    </p>
+                    <p>Estimated months to goal: <strong>{future[key]}</strong></p>
                   </div>
                 )}
-
                 <div className="btn-row">
-                  {isActive ? (
-                    <button className="pill disabled" disabled>
-                      Current Track
-                    </button>
-                  ) : (
-                    <button
-                      className="pill outline"
-                      onClick={() => navigate(track.route)}
-                    >
-                      View →
-                    </button>
-                  )}
+                  <button
+                    className={`pill ${isActive ? "" : "outline"}`}
+                    onClick={() => navigate(track.route)}
+                  >
+                    {isActive ? "Open track →" : "View →"}
+                  </button>
                 </div>
               </div>
             );
           })}
         </div>
+
+        {/* Progress popup */}
+        {showPopup && (
+          <div className="popup-overlay">
+            <div className="popup">
+              <h3>Progress Update</h3>
+              <p>You've progressed to: <strong>{newTrack}</strong></p>
+              <button onClick={() => setShowPopup(false)}>Continue →</button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Tour overlay */}

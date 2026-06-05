@@ -26,7 +26,9 @@ export default function Landing() {
   const [searchParams] = useSearchParams();
 
   const [entered, setEntered] = useState(
-    () => searchParams.get("skip") === "true" || sessionStorage.getItem("introSeen") === "true",
+    () =>
+      searchParams.get("skip") === "true" ||
+      sessionStorage.getItem("introSeen") === "true",
   );
   const [fadeOut, setFadeOut] = useState(false);
 
@@ -76,7 +78,6 @@ export default function Landing() {
       <LandingNav scrollTo={scrollToSection} />
 
       {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• WAVE BACKGROUND â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
-      
 
       {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• HERO â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
       <section id="hero" className="hero">
@@ -193,22 +194,39 @@ export default function Landing() {
 
       {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• FEATURE CARDS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
       <section className="features-section container fade-in">
-        <p className="eyebrow" style={{ textAlign: "center" }}>WHAT'S INSIDE</p>
-        <TypewriterHeading text="Three tools. One financial system." style={{ textAlign: "center", marginBottom: "40px" }} />
+        <p className="eyebrow" style={{ textAlign: "center" }}>
+          WHAT'S INSIDE
+        </p>
+        <TypewriterHeading
+          text="Three tools. One financial system."
+          style={{ textAlign: "center", marginBottom: "40px" }}
+        />
         <div className="feature-cards">
           <div className="feature-card" onClick={() => transitionTo("/login")}>
-              <h3>Money Snapshot</h3>
-            <p>See your full financial picture â€” income, expenses, debt, and savings rate â€” in one live dashboard.</p>
+            <h3>Money Snapshot</h3>
+            <p>
+              See your full financial picture â€” income, expenses, debt, and
+              savings rate â€” in one live dashboard.
+            </p>
             <span className="feature-link">Explore Snapshot â†’</span>
           </div>
-          <div className="feature-card feature-card--accent" onClick={() => transitionTo("/login")}>
-              <h3>Strategy Tracks</h3>
-            <p>Follow a personalised path â€” Property, Foundation, Balanced Lifestyle, or Lifestyle Correction.</p>
+          <div
+            className="feature-card feature-card--accent"
+            onClick={() => transitionTo("/login")}
+          >
+            <h3>Strategy Tracks</h3>
+            <p>
+              Follow a personalised path â€” Property, Foundation, Balanced
+              Lifestyle, or Lifestyle Correction.
+            </p>
             <span className="feature-link">View Tracks â†’</span>
           </div>
           <div className="feature-card" onClick={() => transitionTo("/login")}>
-              <h3>Simulation Lab</h3>
-            <p>Model real decisions â€” rent vs buy, car finance, investing â€” before committing your money.</p>
+            <h3>Simulation Lab</h3>
+            <p>
+              Model real decisions â€” rent vs buy, car finance, investing â€”
+              before committing your money.
+            </p>
             <span className="feature-link">Try Simulation â†’</span>
           </div>
         </div>
@@ -224,11 +242,13 @@ export default function Landing() {
             insights tailored to your financial journey.
           </p>
           <p>
-            Whether you're understanding budgeting, property, or investing â€” you
-            gain knowledge that directly impacts your decisions inside the app.
+            Whether you're understanding budgeting, property, or investing â€”
+            you gain knowledge that directly impacts your decisions inside the
+            app.
           </p>
           <p className="highlight">
-            Not just theory â€” applied learning connected to your real finances.
+            Not just theory â€” applied learning connected to your real
+            finances.
           </p>
         </div>
         <div className="image-wrap fade-in">
@@ -255,7 +275,10 @@ export default function Landing() {
       {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• CTA â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
       <section className="cta-section container fade-in">
         <p className="eyebrow">GET STARTED</p>
-        <TypewriterHeading text="Start your financial freedom today" style={{ textAlign: "center" }} />
+        <TypewriterHeading
+          text="Start your financial freedom today"
+          style={{ textAlign: "center" }}
+        />
         <p className="cta-sub">Learn. Plan. Execute. Grow.</p>
         <button className="cta-btn" onClick={() => transitionTo("/login")}>
           Start Your Journey
@@ -313,4 +336,3 @@ export default function Landing() {
     </div>
   );
 }
-

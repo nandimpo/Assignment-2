@@ -10,15 +10,7 @@ export default function FoundationBuilderTrack() {
   const { user } = useUser();
 
   // ✅ ALL HOOKS FIRST
-  const {
-    progress: milestoneProgress,
-    toggle,
-    percent,
-  } = useProgress("foundationProgress", {
-    emergencyFund: false,
-    deposit: false,
-    purchase: false,
-  });
+  const { progress: milestoneProgress, milestoneStatus, percent } = useProgress();
 
   const [expenseAdjust, setExpenseAdjust] = useState(0);
   const [savingsAdjust, setSavingsAdjust] = useState(0);
@@ -38,11 +30,7 @@ export default function FoundationBuilderTrack() {
   );
 
   // ✅ useEffect after all hooks, before any derived logic
-  useEffect(() => {
-    if (fundProgress >= 100 && !milestoneProgress.emergencyFund) {
-      toggle("emergencyFund");
-    }
-  }, [fundProgress]);
+  // milestone completion is now auto-calculated by useProgress
 
   const overallProgress = Math.round((fundProgress + percent) / 2);
 
@@ -255,11 +243,10 @@ export default function FoundationBuilderTrack() {
                 >
                   <div
                     className={`step ${isCompleted ? "completed" : ""} ${isCurrent ? "current" : ""} ${isLocked ? "locked" : ""}`}
-                    onClick={() => !isLocked && toggle(step)}
                   >
                     {isCompleted ? "✓" : index + 1}
                   </div>
-                  <span className="step-label">{timelineLabels[step]}</span>
+                  <span className="step-label">{milestoneStatus?.[step]?.label || timelineLabels[step]}</span>
                 </div>
               );
             })}

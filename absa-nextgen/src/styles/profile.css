@@ -1,4 +1,4 @@
-/* BASE */
+﻿/* BASE */
 .profile {
   background: radial-gradient(circle at top, #0b0f0e, #020202);
   min-height: 100vh;
@@ -91,7 +91,7 @@
 .donut-inner {
   width: 85px;
   height: 85px;
-  background: #020202;
+  background: transparent;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -430,3 +430,4 @@ button {
     grid-template-columns: 1fr;
   }
 }
+

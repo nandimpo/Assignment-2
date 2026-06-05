@@ -1,9 +1,9 @@
-/* PAGE */
+﻿/* PAGE */
 
 .register-page {
   display: flex;
   min-height: 100vh;
-  background: #020202;
+  background: transparent;
   color: white;
   font-family: "Inter", sans-serif;
 }
@@ -195,3 +195,4 @@
     padding: 40px;
   }
 }
+

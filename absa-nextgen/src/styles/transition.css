@@ -23,6 +23,41 @@
 @keyframes pt-fade-out { from { opacity: 1; } to { opacity: 0; } }
 
 /* ══════════════════════════════
+   NAV VARIANT — fast slide-fade
+   ══════════════════════════════ */
+
+.page-transition--nav {
+  background: transparent;
+  pointer-events: none;
+}
+
+/* Hides all vortex/tree content for nav transitions */
+.page-transition--nav .pt-vortex,
+.page-transition--nav .pt-tree,
+.page-transition--nav .pt-particles,
+.page-transition--nav .pt-scanlines,
+.page-transition--nav .pt-fill {
+  display: none;
+}
+
+/* The overlay itself becomes a subtle dark wash */
+.page-transition--nav.page-transition--in {
+  animation: nav-flash-in 0.18s ease forwards;
+}
+.page-transition--nav.page-transition--out {
+  animation: nav-flash-out 0.3s ease forwards;
+}
+
+@keyframes nav-flash-in {
+  from { opacity: 0; }
+  to   { opacity: 0.35; }
+}
+@keyframes nav-flash-out {
+  from { opacity: 0.35; }
+  to   { opacity: 0; }
+}
+
+/* ══════════════════════════════
    COLOUR VARIANTS
    ══════════════════════════════ */
 

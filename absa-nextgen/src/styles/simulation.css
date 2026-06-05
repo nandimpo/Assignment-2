@@ -1,4 +1,4 @@
-.simulation-page {
+﻿.simulation-page {
   background: #0e1111;
   min-height: 100vh;
   color: white;
@@ -173,7 +173,7 @@
 
 .sim-page {
   font-size: 14px; /* global scale down */
-  background: #020202;
+  background: transparent;
   min-height: 100vh;
   overflow-x: hidden;
 }
@@ -858,3 +858,4 @@ input[type="range"] {
     box-shadow: 0 0 0 0px rgba(132, 167, 148, 0);
   }
 }
+

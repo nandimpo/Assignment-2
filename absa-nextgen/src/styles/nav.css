@@ -54,6 +54,24 @@
   transform: translateY(-1px);
 }
 
+/* LOGOUT BUTTON */
+.nav-logout {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 80, 80, 0.35) !important;
+  background: transparent !important;
+  color: #ff6b6b !important;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+.nav-logout:hover {
+  background: rgba(255, 80, 80, 0.1) !important;
+  border-color: #ff6b6b !important;
+  transform: translateY(-1px);
+}
+
 /* PRIMARY BUTTON */
 
 .nav-links .primary {

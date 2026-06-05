@@ -2,6 +2,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import "../styles/nav.css";
 import logo from "../assets/logo.png";
 import { useUser } from "../context/UserContext";
+import { useTransition } from "../context/TransitionContext";
 
 const TRACK_ROUTES = {
   property:   "/property",
@@ -15,6 +16,14 @@ export default function AppNav() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useUser();
+  const { navTrigger } = useTransition();
+
+  const go = (path) => navTrigger(path);
+
+  const handleLogout = () => {
+    localStorage.removeItem("session");
+    navigate("/login");
+  };
 
   const trackRoute = TRACK_ROUTES[user?.strategy] || "/strategy";
 
@@ -33,7 +42,7 @@ export default function AppNav() {
   return (
     <div className={`nav ${getPageClass()}`}>
       {/* ✅ LOGO (UPDATED) */}
-      <div className="logo" onClick={() => navigate("/home")}>
+      <div className="logo" onClick={() => go("/home")}>
         <img src={logo} alt="logo" className="logo-img" />
         <span className="logo-text">ABSA Wealth Studio</span>
       </div>
@@ -41,14 +50,14 @@ export default function AppNav() {
       <div className="nav-links">
         <button
           className={isActive("/home") ? "active" : ""}
-          onClick={() => navigate("/home")}
+          onClick={() => go("/home")}
         >
           Home
         </button>
 
         <button
           className={isActive("/money") || isActive("/snapshot") ? "active" : ""}
-          onClick={() => navigate("/money")}
+          onClick={() => go("/money")}
         >
           Snapshot
         </button>
@@ -61,23 +70,27 @@ export default function AppNav() {
               ? "active"
               : ""
           }
-          onClick={() => navigate(trackRoute)}
+          onClick={() => go("/strategy")}
         >
           Tracks
         </button>
 
         <button
           className={isActive("/simulation") ? "active" : ""}
-          onClick={() => navigate("/simulation")}
+          onClick={() => go("/simulation")}
         >
           Simulation
         </button>
 
         <button
           className={isActive("/profile") ? "active" : ""}
-          onClick={() => navigate("/profile")}
+          onClick={() => go("/profile")}
         >
           Profile
+        </button>
+
+        <button className="nav-logout" onClick={handleLogout}>
+          Log out
         </button>
       </div>
     </div>

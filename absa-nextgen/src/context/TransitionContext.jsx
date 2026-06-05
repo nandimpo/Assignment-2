@@ -18,25 +18,25 @@ export function TransitionProvider({ children }) {
     setPhase("in");
 
     // Navigate as vortex fill covers screen
-    setTimeout(() => {
-      navigate(to);
-    }, 4200);
+    setTimeout(() => navigate(to), 4200);
+    setTimeout(() => setPhase("out"), 5000);
+    setTimeout(() => { setActive(false); setPhase("idle"); setMessage(null); }, 5700);
+  }, [navigate]);
 
-    // Start exit fade
-    setTimeout(() => {
-      setPhase("out");
-    }, 5000);
+  // Fast nav transition — simple fade/slide, no vortex
+  const navTrigger = useCallback((to) => {
+    setVariant("nav");
+    setMessage(null);
+    setActive(true);
+    setPhase("in");
 
-    // Hide overlay and clear message
-    setTimeout(() => {
-      setActive(false);
-      setPhase("idle");
-      setMessage(null);
-    }, 5700);
+    setTimeout(() => navigate(to), 180);
+    setTimeout(() => setPhase("out"), 200);
+    setTimeout(() => { setActive(false); setPhase("idle"); }, 500);
   }, [navigate]);
 
   return (
-    <TransitionContext.Provider value={{ active, phase, variant, message, trigger }}>
+    <TransitionContext.Provider value={{ active, phase, variant, message, trigger, navTrigger }}>
       {children}
     </TransitionContext.Provider>
   );

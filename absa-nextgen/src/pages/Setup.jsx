@@ -158,6 +158,7 @@ export default function Setup() {
       ...user,
       name: form.name,
       strategy: selectedTrack,
+      isSetupComplete: true,
       grossSalary: gross,
       salary: submittedNet,
       netSalary: submittedNet,

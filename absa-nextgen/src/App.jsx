@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+﻿import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useRef } from "react";
 
 /* ================= SCROLL FIX ================= */
@@ -33,7 +33,7 @@ import "./styles/tour.css";
 
 /* ================= PROTECTED ROUTE ================= */
 function ProtectedRoute({ children }) {
-  const session = sessionStorage.getItem("session");
+  const session = localStorage.getItem("session");
 
   // not logged in
   if (!session) {
@@ -96,9 +96,9 @@ export default function App() {
           style={{ position: "fixed", zIndex: 0 }}
           spacing={10}
           speed={0.0004}
-          amplitude={[5, 8, 2.5]}
-          opacity={[0.045, 0.018]}
-          fadeAlpha={0.4}
+          amplitude={[5, 9, 2.5]}
+          opacity={[0.035, 0.013]}
+          fadeAlpha={0.44}
         />
         <AppOverlay />
         <CustomCursor />
@@ -264,3 +264,4 @@ export default function App() {
     </BrowserRouter>
   );
 }
+

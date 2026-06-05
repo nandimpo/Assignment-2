@@ -1,31 +1,135 @@
-import { useState, useEffect } from "react";
+import { useUser } from "../context/UserContext";
+
+const TRACK_ROUTES = {
+  property:   "/property",
+  balanced:   "/balanced",
+  catchup:    "/catchup",
+  correction: "/correction",
+  foundation: "/foundation",
+};
+
+/**
+ * Calculates whether each milestone has been financially achieved
+ * based on the user's actual saved amounts.
+ */
+function calcMilestoneStatus(user) {
+  const savings  = Number(user?.savings)  || 0;
+  const expenses = Number(user?.expenses) || 0;
+  const goal     = Number(user?.depositAmount || user?.goalAmount) || 1000000;
+  const debt     = Number(user?.breakdown?.debt) * 12 || 0; // annualised
+
+  const strategy = user?.strategy || "property";
+
+  switch (strategy) {
+    case "property":
+    case "balanced":
+    case "foundation":
+      return {
+        emergencyFund: {
+          achieved: savings >= expenses * 3,
+          target:   expenses * 3,
+          label:    "Emergency Fund (3× expenses)",
+          hint:     `Save R${(Math.max(0, expenses * 3 - savings)).toLocaleString("en-ZA")} more in your Snapshot`,
+        },
+        deposit: {
+          achieved: savings >= goal,
+          target:   goal,
+          label:    strategy === "balanced" ? "Investing Started" : "Deposit Saved",
+          hint:     `Save R${(Math.max(0, goal - savings)).toLocaleString("en-ZA")} more toward your goal`,
+        },
+        purchase: {
+          achieved: savings >= goal * 1.1,
+          target:   goal * 1.1,
+          label:    strategy === "balanced" ? "Financial Independence" : "Property Bought",
+          hint:     "Complete your deposit milestone first, then confirm purchase",
+        },
+      };
+
+    case "catchup":
+      return {
+        emergencyFund: {
+          achieved: debt === 0 || savings > debt,
+          target:   debt,
+          label:    "Debt Cleared",
+          hint:     "Reduce your debt repayments to zero in your Snapshot breakdown",
+        },
+        deposit: {
+          achieved: savings >= expenses * 3,
+          target:   expenses * 3,
+          label:    "Emergency Fund",
+          hint:     `Save R${(Math.max(0, expenses * 3 - savings)).toLocaleString("en-ZA")} more`,
+        },
+        purchase: {
+          achieved: savings >= goal,
+          target:   goal,
+          label:    "Wealth Building",
+          hint:     `Save R${(Math.max(0, goal - savings)).toLocaleString("en-ZA")} more toward your target`,
+        },
+      };
+
+    case "correction":
+      return {
+        emergencyFund: {
+          achieved: (Number(user?.netSalary || user?.salary) || 0) > (Number(user?.expenses) || 0),
+          target:   null,
+          label:    "Budget Balanced",
+          hint:     "Update your income and expenses in the Snapshot so income exceeds expenses",
+        },
+        deposit: {
+          achieved: savings >= expenses * 2,
+          target:   expenses * 2,
+          label:    "Debt Reducing",
+          hint:     `Save R${(Math.max(0, expenses * 2 - savings)).toLocaleString("en-ZA")} more while reducing debt`,
+        },
+        purchase: {
+          achieved: savings >= expenses * 6,
+          target:   expenses * 6,
+          label:    "Debt Free",
+          hint:     `Save R${(Math.max(0, expenses * 6 - savings)).toLocaleString("en-ZA")} more to reach debt-free status`,
+        },
+      };
+
+    default:
+      return {
+        emergencyFund: { achieved: false, target: expenses * 3, label: "Emergency Fund", hint: "Update your savings in the Snapshot" },
+        deposit:       { achieved: false, target: goal,          label: "Goal Reached",   hint: "Update your savings in the Snapshot" },
+        purchase:      { achieved: false, target: goal * 1.1,    label: "Complete",        hint: "Complete previous milestones first" },
+      };
+  }
+}
 
 export default function useProgress() {
-  const [progress, setProgress] = useState(() => {
-    const saved = localStorage.getItem("globalProgress");
-    return saved
-      ? JSON.parse(saved)
-      : {
-          emergencyFund: false,
-          deposit: false,
-          purchase: false,
-        };
-  });
+  const { user, updateUser } = useUser();
 
-  useEffect(() => {
-    localStorage.setItem("globalProgress", JSON.stringify(progress));
-  }, [progress]);
+  const milestoneStatus = calcMilestoneStatus(user);
 
-  const toggle = (key) => {
-    setProgress((prev) => ({
-      ...prev,
-      [key]: !prev[key],
-    }));
+  // Progress is derived from actual financial data — not manually toggled
+  const progress = {
+    emergencyFund: milestoneStatus.emergencyFund.achieved,
+    deposit:       milestoneStatus.deposit.achieved,
+    purchase:      milestoneStatus.purchase.achieved,
   };
 
-  const completed = Object.values(progress).filter(Boolean).length;
-  const total = Object.keys(progress).length;
-  const percent = Math.round((completed / total) * 100);
+  // Persist to user context so snapshot + tracks stay in sync
+  const currentStored = JSON.stringify(user?.milestones);
+  const computed      = JSON.stringify(progress);
+  if (currentStored !== computed) {
+    // Update asynchronously to avoid render-time state updates
+    setTimeout(() => updateUser({ milestones: progress }), 0);
+  }
 
-  return { progress, toggle, percent };
+  const trackRoute = TRACK_ROUTES[user?.strategy] || "/strategy";
+  const trackName  = {
+    property:   "Property Track",
+    balanced:   "Balanced Track",
+    catchup:    "Catch-Up Track",
+    correction: "Lifestyle Correction Track",
+    foundation: "Foundation Track",
+  }[user?.strategy] || "your track";
+
+  const completed = Object.values(progress).filter(Boolean).length;
+  const total     = Object.keys(progress).length;
+  const percent   = Math.round((completed / total) * 100);
+
+  return { progress, milestoneStatus, trackRoute, trackName, percent };
 }

@@ -10,15 +10,7 @@ export default function CatchUpTrack() {
 
   // ✅ ALL HOOKS FIRST
   const [extraSaving, setExtraSaving] = useState(0);
-  const {
-    progress: milestoneProgress,
-    toggle,
-    percent,
-  } = useProgress("catchUpProgress", {
-    emergencyFund: false,
-    deposit: false,
-    purchase: false,
-  });
+  const { progress: milestoneProgress, milestoneStatus, percent } = useProgress();
 
   /* ================= DATA ================= */
   const income = Number(user?.netSalary || user?.salary) || 0;
@@ -244,7 +236,6 @@ export default function CatchUpTrack() {
                 >
                   <div
                     className={`step ${isCompleted ? "completed" : ""} ${isCurrent ? "current" : ""} ${isLocked ? "locked" : ""}`}
-                    onClick={() => !isLocked && toggle(step)}
                   >
                     {isCompleted ? "✓" : index + 1}
                   </div>

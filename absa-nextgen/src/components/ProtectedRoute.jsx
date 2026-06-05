@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+﻿import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import AppNav from "../components/AppNav";
 import "../styles/home.css";
@@ -175,3 +175,4 @@ export default function Home() {
     </div>
   );
 }
+

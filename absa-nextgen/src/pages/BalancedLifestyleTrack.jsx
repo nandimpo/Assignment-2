@@ -1,371 +1,196 @@
 import { useState, useEffect } from "react";
 import { useUser } from "../context/UserContext";
+import useProgress from "../hooks/useProgress";
 import AppNav from "../components/AppNav";
 import "../styles/track.css";
-import { Wallet, TrendingUp, PiggyBank } from "lucide-react";
+import { Wallet, TrendingUp, PiggyBank, BookOpen, AlertTriangle } from "lucide-react";
 import TypewriterHeading from "../components/TypewriterHeading";
 
 export default function BalancedLifestyleTrack() {
   const { user } = useUser();
 
-  // ✅ ALL useState HOOKS FIRST
   const [investmentPct, setInvestmentPct] = useState(60);
-  const [progress, setProgress] = useState(() => {
-    const saved = localStorage.getItem("balancedProgress");
-    return saved
-      ? JSON.parse(saved)
-      : {
-          emergencyFund: false,
-          deposit: false,
-          purchase: false,
-        };
-  });
+  const { progress, milestoneStatus, percent: progressPercent } = useProgress();
 
-  // ✅ ALL useEffect HOOKS NEXT
-  useEffect(() => {
-    localStorage.setItem("balancedProgress", JSON.stringify(progress));
-  }, [progress]);
+  const income   = Number(user?.netSalary || user?.salary) || 0;
+  const expenses = Number(user?.expenses) || 0;
+  const savings  = income - expenses;
+  const investing    = Math.round((savings * investmentPct) / 100);
+  const monthlySaved = savings - investing;
 
-  const _income = Number(user?.netSalary || user?.salary) || 0;
-  const _expenses = Number(user?.expenses) || 0;
-  const _savings = _income - _expenses;
-  const _investing = Math.round((_savings * investmentPct) / 100);
-  const _monthlySaved = _savings - _investing;
 
-  useEffect(() => {
-    if (_monthlySaved >= _expenses * 3) {
-      setProgress((prev) => ({ ...prev, emergencyFund: true }));
-    }
-  }, [_monthlySaved, _expenses]);
+  const totalFlow    = expenses + investing + monthlySaved || 1;
+  const spendingPct  = (expenses     / totalFlow) * 100;
+  const investingPct = (investing    / totalFlow) * 100;
+  const savingPct    = (monthlySaved / totalFlow) * 100;
 
-  // ✅ ALL CALCULATIONS AFTER HOOKS
+  const portfolio = { local: user?.localPct || 60, offshore: user?.offshorePct || 40 };
 
-  /* ================= USER DATA ================= */
-  const income = _income;
-  const expenses = _expenses;
-  const savings = _savings;
+  const steps = ["emergencyFund", "deposit", "purchase"];
+  const stepLabels = { emergencyFund: "Emergency Fund", deposit: "Deposit", purchase: "Purchase" };
 
-  /* ================= BALANCED LOGIC ================= */
-  const investing = _investing;
-  const monthlySaved = _monthlySaved;
-
-  const totalFlow = expenses + investing + monthlySaved;
-
-  const spendingPct = totalFlow ? (expenses / totalFlow) * 100 : 0;
-  const investingPct = totalFlow ? (investing / totalFlow) * 100 : 0;
-  const savingPct = totalFlow ? (monthlySaved / totalFlow) * 100 : 0;
-
-  /* ================= PORTFOLIO ================= */
-  const portfolio = {
-    local: user?.localPct || 60,
-    offshore: user?.offshorePct || 40,
-  };
-
-  /* ================= PROGRESS CALCULATIONS ================= */
-  const completed = Object.values(progress).filter(Boolean).length;
-  const totalSteps = Object.keys(progress).length;
-  const progressPercent = Math.round((completed / totalSteps) * 100);
-
-  /* ================= HANDLERS ================= */
-  const toggleMilestone = (key) => {
-    setProgress((prev) => ({
-      ...prev,
-      [key]: !prev[key],
-    }));
-  };
-
-  /* ================= INSIGHTS ================= */
-  let insight1 = "";
-  let insight2 = "";
-
+  let insight1 = "", insight2 = "";
   if (investmentPct >= 60) {
-    insight1 =
-      "You are maintaining a strong balance between spending and investing.";
-    insight2 =
-      "Increasing your investment slightly could significantly grow long-term wealth.";
+    insight1 = "Strong balance between spending and investing.";
+    insight2 = "Increasing your investment slightly could significantly grow long-term wealth.";
   } else if (investmentPct >= 40) {
-    insight1 =
-      "You have a moderate balance. Increasing investing could improve outcomes.";
-    insight2 =
-      "Try shifting more towards investments to accelerate portfolio growth.";
+    insight1 = "Moderate balance — increasing investing could improve outcomes.";
+    insight2 = "Try shifting more towards investments to accelerate portfolio growth.";
   } else {
-    insight1 =
-      "You are prioritising spending over investing — consider rebalancing.";
+    insight1 = "You're prioritising spending over investing — consider rebalancing.";
     insight2 = "Reducing lifestyle costs could free up more for investments.";
   }
 
-  const steps = ["emergencyFund", "deposit", "purchase"];
-  const stepLabels = {
-    emergencyFund: "Emergency Fund",
-    deposit: "Deposit",
-    purchase: "Purchase",
-  };
-  const timelineLabels = {
-    emergencyFund: "Emergency Fund",
-    deposit: "Build Deposit",
-    purchase: "Purchase Property",
-  };
+  const milestoneInsight =
+    progressPercent === 0  ? "Start by building your emergency fund." :
+    progressPercent < 50   ? "Great start — now focus on your deposit." :
+    progressPercent < 100  ? "You're close — prepare for purchase." :
+                             "All milestones complete.";
 
   return (
     <div className="track-page">
       <AppNav />
 
       <div className="track-container">
-        {/* ================= HEADER ================= */}
+
+        {/* HEADER */}
+        <p className="tracks-eyebrow">Balanced Lifestyle</p>
         <TypewriterHeading tag="h1" text="Balanced Lifestyle & Investing Track" speed={50} />
-        <p className="subtitle">
-          Enjoy your life while building long-term wealth
-        </p>
+        <p className="subtitle">Enjoy your life while building long-term wealth</p>
 
-        {/* ================= SNAPSHOT ================= */}
-        <div className="track-card">
-          <h2>Financial Balance Snapshot</h2>
+        {/* ROW 1: SNAPSHOT + MILESTONES */}
+        <div className="bl-row">
 
-          <div className="grid-2" style={{ marginBottom: "16px" }}>
-            <p style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <Wallet size={20} /> Savings: R{monthlySaved.toLocaleString()}
-            </p>
-            <p style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <TrendingUp size={20} /> Expenses: R{expenses.toLocaleString()}
-            </p>
-            <p style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <PiggyBank size={20} /> Investing: R{investing.toLocaleString()}
-            </p>
-          </div>
-
-          {/* SEGMENTED PROGRESS BAR */}
-          <div
-            className="progress-bar"
-            style={{ display: "flex", overflow: "hidden" }}
-          >
-            <div
-              style={{
-                width: `${spendingPct}%`,
-                height: "100%",
-                background: "#d6a85a",
-              }}
-            />
-            <div
-              style={{
-                width: `${investingPct}%`,
-                height: "100%",
-                background: "#4facfe",
-              }}
-            />
-            <div
-              style={{
-                width: `${savingPct}%`,
-                height: "100%",
-                background: "#84a794",
-              }}
-            />
-          </div>
-
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              marginTop: "6px",
-            }}
-          >
-            <span className="small">Spending</span>
-            <span className="small">Investing</span>
-            <span className="small">Saving</span>
-          </div>
-        </div>
-
-        {/* ================= MILESTONES STEPPER ================= */}
-        <div className="track-card">
-          <h2>Milestones</h2>
-
-          <div className="stepper">
-            {steps.map((step, index) => {
-              const isCompleted = progress[step];
-              const isCurrent =
-                !progress[step] && (index === 0 || progress[steps[index - 1]]);
-              const isLocked = index > 0 && !progress[steps[index - 1]];
-
-              return (
-                <div key={step} className="step-wrapper">
-                  <div
-                    className={`step ${isCompleted ? "completed" : ""} ${isCurrent ? "current" : ""} ${isLocked ? "locked" : ""}`}
-                    onClick={() => !isLocked && toggleMilestone(step)}
-                  >
-                    {isCompleted ? "✓" : index + 1}
-                  </div>
-                  <span className="step-label">{stepLabels[step]}</span>
-                  {index < steps.length - 1 && (
-                    <div
-                      className={`step-line ${progress[step] ? "filled" : ""}`}
-                    />
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          <p className="small" style={{ marginTop: "12px" }}>
-            {progressPercent}% complete
-          </p>
-
-          <p className="insight neutral">
-            {progressPercent === 0 && "Start by building your emergency fund."}
-            {progressPercent > 0 &&
-              progressPercent < 50 &&
-              "Great start — now focus on your deposit."}
-            {progressPercent >= 50 &&
-              progressPercent < 100 &&
-              "You're close — prepare for purchase."}
-            {progressPercent === 100 &&
-              "🎉 You've completed your property journey."}
-          </p>
-        </div>
-
-        {/* ================= 5-YEAR JOURNEY ================= */}
-        <div className="track-card">
-          <h2>5-Year Financial Journey</h2>
-
-          {/* HORIZONTAL TIMELINE */}
-          <div
-            style={{
-              position: "relative",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "flex-start",
-              marginTop: "30px",
-              paddingBottom: "20px",
-            }}
-          >
-            {/* BACKGROUND LINE */}
-            <div
-              style={{
-                position: "absolute",
-                top: "20px",
-                left: "0",
-                right: "0",
-                height: "3px",
-                background: "#1a1f1e",
-                zIndex: 0,
-              }}
-            />
-            {/* FILLED LINE */}
-            <div
-              style={{
-                position: "absolute",
-                top: "20px",
-                left: "0",
-                height: "3px",
-                width: `${progressPercent}%`,
-                background: "linear-gradient(to right, #d6a85a, #84a794)",
-                zIndex: 1,
-                transition: "width 0.4s ease",
-              }}
-            />
-
-            {steps.map((step, index) => {
-              const isCompleted = progress[step];
-              const isCurrent =
-                !progress[step] && (index === 0 || progress[steps[index - 1]]);
-              const isLocked = index > 0 && !progress[steps[index - 1]];
-
-              return (
-                <div
-                  key={step}
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    flex: 1,
-                    zIndex: 2,
-                  }}
-                >
-                  <div
-                    className={`step ${isCompleted ? "completed" : ""} ${isCurrent ? "current" : ""} ${isLocked ? "locked" : ""}`}
-                    onClick={() => !isLocked && toggleMilestone(step)}
-                  >
-                    {isCompleted ? "✓" : index + 1}
-                  </div>
-                  <span className="step-label">{timelineLabels[step]}</span>
-                </div>
-              );
-            })}
-          </div>
-
-          <p className="small">{progressPercent}% complete</p>
-
-          <p className="insight neutral">
-            {progressPercent < 25 && "Strong start — build your foundation."}
-            {progressPercent >= 25 &&
-              progressPercent < 50 &&
-              "You're gaining momentum."}
-            {progressPercent >= 50 &&
-              progressPercent < 75 &&
-              "Halfway there — stay consistent."}
-            {progressPercent >= 75 &&
-              progressPercent < 100 &&
-              "Almost there — final push."}
-            {progressPercent === 100 &&
-              "🎉 Goal achieved — financial milestone complete."}
-          </p>
-        </div>
-
-        {/* ================= PORTFOLIO ================= */}
-        <div className="track-card">
-          <h2>Portfolio Mix</h2>
-
-          <div className="grid-2">
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <div
-                style={{
-                  width: "100px",
-                  height: "100px",
-                  borderRadius: "50%",
-                  background: `conic-gradient(#84a794 0% ${portfolio.local}%, #d6a85a ${portfolio.local}% 100%)`,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <div
-                  style={{
-                    width: "60px",
-                    height: "60px",
-                    borderRadius: "50%",
-                    background: "#0c1110",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: "12px",
-                  }}
-                >
-                  {portfolio.local}%
-                </div>
+          {/* FINANCIAL SNAPSHOT */}
+          <div className="track-card">
+            <h3>Financial Snapshot</h3>
+            <div className="bl-stats">
+              <div className="bl-stat">
+                <Wallet size={15} />
+                <span className="bl-stat-label">Monthly Savings</span>
+                <strong>R{monthlySaved.toLocaleString()}</strong>
+              </div>
+              <div className="bl-stat">
+                <TrendingUp size={15} />
+                <span className="bl-stat-label">Investing</span>
+                <strong>R{investing.toLocaleString()}</strong>
+              </div>
+              <div className="bl-stat">
+                <PiggyBank size={15} />
+                <span className="bl-stat-label">Expenses</span>
+                <strong>R{expenses.toLocaleString()}</strong>
               </div>
             </div>
 
-            <div>
-              <p>• Local (JSE): {portfolio.local}%</p>
-              <p>• Offshore: {portfolio.offshore}%</p>
-              <button className="pill outline" style={{ marginTop: "12px" }}>
-                Open Investment Studio →
-              </button>
+            {/* SEGMENTED BAR */}
+            <div className="bl-bar" style={{ marginTop: 14 }}>
+              <div style={{ width: `${spendingPct}%`,  background: "#d6a85a" }} />
+              <div style={{ width: `${investingPct}%`, background: "#4facfe" }} />
+              <div style={{ width: `${savingPct}%`,    background: "#84a794" }} />
+            </div>
+            <div className="bl-bar-labels">
+              <span>Spending</span>
+              <span>Investing</span>
+              <span>Saving</span>
+            </div>
+
+            {/* ALLOCATION SLIDER */}
+            <div style={{ marginTop: 16 }}>
+              <label className="bl-slider-label">Investment allocation: {investmentPct}%</label>
+              <input
+                type="range" min="20" max="80" value={investmentPct}
+                onChange={(e) => setInvestmentPct(Number(e.target.value))}
+                style={{ width: "100%", marginTop: 6 }}
+              />
+            </div>
+          </div>
+
+          {/* MILESTONES */}
+          <div className="track-card">
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
+              <h3>Milestones</h3>
+              <span className="milestones-hint">Tap to mark done</span>
+            </div>
+
+            <div className="bl-stepper">
+              {steps.map((step, index) => {
+                const isCompleted = progress[step];
+                const isCurrent   = !progress[step] && (index === 0 || progress[steps[index - 1]]);
+                const isLocked    = index > 0 && !progress[steps[index - 1]];
+                return (
+                  <div key={step} className="bl-step-item">
+                    <div className="bl-step-col">
+                      <div
+                        className={`step ${isCompleted ? "completed" : ""} ${isCurrent ? "current" : ""} ${isLocked ? "locked" : ""}`}
+                        title={isCompleted ? "Achieved" : isLocked ? "Complete previous milestone first" : "Not yet reached — update your savings"}
+                      >
+                        {isCompleted ? "✓" : index + 1}
+                      </div>
+                      {index < steps.length - 1 && <div className={`bl-vline ${progress[step] ? "filled" : ""}`} />}
+                    </div>
+                    <div className="bl-step-text">
+                      <span className="step-label">{milestoneStatus?.[step]?.label || stepLabels[step]}</span>
+                      {isCurrent && <span className="step-cta" style={{ fontSize: 10, color: "#84a794" }}>{milestoneStatus?.[step]?.hint || "Update your savings →"}</span>}
+                      {isLocked  && <span className="step-locked-label">Locked</span>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <p className="muted" style={{ marginTop: 12 }}>{progressPercent}% complete</p>
+            <p className="small" style={{ marginTop: 4, color: "#c8d8d4" }}>{milestoneInsight}</p>
+          </div>
+        </div>
+
+        {/* ROW 2: PORTFOLIO + INSIGHTS */}
+        <div className="bl-row">
+
+          {/* PORTFOLIO MIX */}
+          <div className="track-card">
+            <h3>Portfolio Mix</h3>
+            <div style={{ display: "flex", gap: 20, alignItems: "center", marginTop: 12 }}>
+              <div style={{
+                width: 90, height: 90, borderRadius: "50%", flexShrink: 0,
+                background: `conic-gradient(#84a794 0% ${portfolio.local}%, #d6a85a ${portfolio.local}% 100%)`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>
+                <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#0c1110", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12 }}>
+                  {portfolio.local}%
+                </div>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                <p className="small" style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#84a794", display: "inline-block" }} />
+                  Local (JSE): {portfolio.local}%
+                </p>
+                <p className="small" style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#d6a85a", display: "inline-block" }} />
+                  Offshore: {portfolio.offshore}%
+                </p>
+                <button className="pill outline" style={{ marginTop: 8 }}>Open Investment Studio →</button>
+              </div>
+            </div>
+          </div>
+
+          {/* AI INSIGHTS */}
+          <div className="track-card">
+            <h3>AI Insights</h3>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 10 }}>
+              <div className="insight"><p>{insight1}</p></div>
+              <div className="insight"><p>{insight2}</p></div>
             </div>
           </div>
         </div>
 
-        {/* ================= STRATEGY GUIDE ================= */}
+        {/* ROW 3: STRATEGY GUIDE */}
         <div className="track-card">
-          <h2>Strategy Guide</h2>
-
-          <div className="grid-2">
+          <h3>Strategy Guide</h3>
+          <div className="grid-2" style={{ marginTop: 14 }}>
             <div>
-              <h3>📌 What You Should Do</h3>
+              <p style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 600, marginBottom: 8 }}>
+                <BookOpen size={14} /> What to do
+              </p>
               <ul className="list">
                 <li>Invest consistently every month (even small amounts)</li>
                 <li>Keep lifestyle inflation under control</li>
@@ -373,9 +198,10 @@ export default function BalancedLifestyleTrack() {
                 <li>Increase contributions when income grows</li>
               </ul>
             </div>
-
             <div>
-              <h3>⚠️ Risks to Watch</h3>
+              <p style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 600, marginBottom: 8 }}>
+                <AlertTriangle size={14} /> Risks to watch
+              </p>
               <ul className="list">
                 <li>Spending increases as income grows (lifestyle creep)</li>
                 <li>Investing too little to make meaningful progress</li>
@@ -384,53 +210,15 @@ export default function BalancedLifestyleTrack() {
               </ul>
             </div>
           </div>
-
-          <div className="explanation-box">
-            <h3>🧠 Real Explanation</h3>
-            <p>
-              This strategy works because it balances enjoying your life today
-              while still investing for the future. The key is consistency — not
-              intensity. Small, regular investments over time compound into
-              meaningful wealth.
-            </p>
-            <p>
-              The biggest risk is becoming too comfortable. If your lifestyle
-              keeps increasing, your ability to build wealth slows down
-              significantly.
+          <div className="explanation-box" style={{ marginTop: 14 }}>
+            <p style={{ lineHeight: 1.7 }}>
+              This strategy works because it balances enjoying life today while investing for the future.
+              The key is consistency — not intensity. Small, regular investments compound into meaningful wealth over time.
+              The biggest risk is lifestyle creep: if your spending keeps rising, wealth-building slows significantly.
             </p>
           </div>
         </div>
 
-        {/* ================= ADJUST + INSIGHTS ================= */}
-        <div className="track-grid">
-          <div className="track-card">
-            <h3>Adjust Balance</h3>
-
-            <p className="small">Lifestyle vs Investment</p>
-
-            <div className="slider-group">
-              <label>Investment Allocation: {investmentPct}%</label>
-              <input
-                type="range"
-                min="20"
-                max="80"
-                value={investmentPct}
-                onChange={(e) => setInvestmentPct(Number(e.target.value))}
-              />
-              <span className="slider-hint">
-                Adjust how much of your savings go into investments.
-              </span>
-            </div>
-          </div>
-
-          <div className="track-card">
-            <h3>AI Financial Insights</h3>
-            <div className="insight-block">
-              <div className="insight">💡 {insight1}</div>
-              <div className="insight">🔔 {insight2}</div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

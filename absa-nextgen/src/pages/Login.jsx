@@ -1,5 +1,6 @@
-import { useNavigate } from "react-router-dom";
+﻿import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import "../styles/login.css";
 import planet from "../assets/planet.png";
 import useTransitionNavigate from "../hooks/useTransitionNavigate";
@@ -14,13 +15,14 @@ export default function Login() {
   });
 
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email);
   const passwordValid = form.password.length >= 6;
 
   //  If already logged in
   useEffect(() => {
-    const session = sessionStorage.getItem("session");
+    const session = localStorage.getItem("session");
     if (session) navigate("/home");
   }, [navigate]);
 
@@ -42,10 +44,11 @@ export default function Login() {
       return;
     }
 
-    sessionStorage.setItem("session", JSON.stringify({ loggedIn: true }));
+    localStorage.setItem("session", JSON.stringify({ loggedIn: true }));
 
     const firstName = user.name?.split(" ")[0] || "back";
-    transitionTo("/home", "green", `Welcome back, ${firstName}.`);
+    const destination = user.isSetupComplete === false ? "/setup" : "/home";
+    transitionTo(destination, "green", `Welcome back, ${firstName}.`);
   };
 
   return (
@@ -94,13 +97,15 @@ export default function Login() {
 
             <div className="input-wrap">
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="Password"
                 value={form.password}
                 className={passwordValid ? "input-valid" : ""}
                 onChange={(e) => { setForm({ ...form, password: e.target.value }); setError(""); }}
               />
-              {passwordValid && <span className="input-check">✓</span>}
+              <span className="eye-toggle" onClick={() => setShowPassword(p => !p)}>
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </span>
             </div>
 
             <button className="submit">Login</button>
@@ -115,3 +120,4 @@ export default function Login() {
     </div>
   );
 }
+
