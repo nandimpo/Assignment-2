@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import AppNav from "../components/AppNav";
 import "../styles/setup.css";
 import { useUser } from "../context/UserContext";
+import { calcMonthlyTax } from "../utils/tax";
 import { Home, Wallet, Zap, RefreshCw, Building2, Car, ShoppingBag, CreditCard } from "lucide-react";
 
 export default function Setup() {
@@ -10,9 +11,9 @@ export default function Setup() {
   const { user, setUser } = useUser();
 
   const [form, setForm] = useState({
-    name: user?.name || "",
-    salary: user?.salary || "",
-    expenses: user?.expenses || "",
+    name:       user?.name || "",
+    grossSalary: user?.grossSalary || user?.salary || "",
+    expenses:   user?.expenses || "",
     housePrice: user?.housePrice || "",
     goalAmount: user?.goalAmount || "",
   });
@@ -52,7 +53,9 @@ export default function Setup() {
     });
   };
 
-  const income = Number(form.salary) || 0;
+  const grossSalary = Number(form.grossSalary) || 0;
+  const { paye, uif, netPay } = calcMonthlyTax(grossSalary);
+  const income = netPay;
   const expenses = Number(form.expenses) || 0;
 
   const debtToIncome =
@@ -65,33 +68,33 @@ export default function Setup() {
     if (!user) return;
 
     setForm({
-      name: user.name || "",
-      salary: user.salary || "",
-      expenses: user.expenses || "",
-      housePrice: user.housePrice || "",
+      name:        user.name || "",
+      grossSalary: user.grossSalary || user.salary || "",
+      expenses:    user.expenses || "",
+      housePrice:  user.housePrice || "",
     });
 
     setSelectedTrack(user.strategy || "property");
   }, []); // 👈 IMPORTANT: empty dependency
 
   useEffect(() => {
-    const salary = Number(form.salary);
-    const expenses = Number(form.expenses);
+    const gross = Number(form.grossSalary);
+    const exp = Number(form.expenses);
 
-    if (!salary || !expenses) return;
+    if (!gross || !exp) return;
 
-    const savings = salary - expenses;
-    const rate = (savings / salary) * 100;
+    const { netPay: net } = calcMonthlyTax(gross);
+    const savings = net - exp;
+    const rate = net > 0 ? (savings / net) * 100 : 0;
 
     let percent = 10;
-
     if (rate < 15) percent = 5;
     else if (rate < 30) percent = 10;
     else percent = 15;
 
     setSuggestedPercent(percent);
     setUserPercent(percent);
-  }, [form.salary, form.expenses]);
+  }, [form.grossSalary, form.expenses]);
 
   // Goal amount — either housePrice (property) or goalAmount (other tracks)
   const rawGoal = selectedTrack === "property"
@@ -102,7 +105,7 @@ export default function Setup() {
     ? Math.round((rawGoal * userPercent) / 100)
     : rawGoal;
 
-  const monthlySavings = Number(form.salary || 0) - Number(form.expenses || 0);
+  const monthlySavings = income - expenses;
 
   const monthsToGoal = monthlySavings > 0
     ? Math.ceil(depositAmount / monthlySavings)
@@ -125,8 +128,8 @@ export default function Setup() {
 
   /* ================= SUBMIT ================= */
   const handleSubmit = () => {
-    const salary = Number(form.salary);
-    const expenses = Number(form.expenses);
+    const gross = Number(form.grossSalary);
+    const exp = Number(form.expenses);
     const housePrice = selectedTrack === "property" ? Number(form.housePrice) : 0;
 
     if (!form.name.trim()) {
@@ -134,18 +137,20 @@ export default function Setup() {
       return;
     }
 
-    if (!salary || !expenses) {
+    if (!gross || !exp) {
       alert("Please fill in all fields");
       return;
     }
 
-    if (salary <= 0 || expenses < 0) {
+    if (gross <= 0 || exp < 0) {
       alert("Please enter valid positive numbers");
       return;
     }
 
-    if (expenses >= salary) {
-      alert("Your expenses cannot be greater than or equal to your salary");
+    const { paye: submittedPAYE, uif: submittedUIF, netPay: submittedNet } = calcMonthlyTax(gross);
+
+    if (exp >= submittedNet) {
+      alert("Your expenses cannot exceed your net take-home pay");
       return;
     }
 
@@ -153,16 +158,19 @@ export default function Setup() {
       ...user,
       name: form.name,
       strategy: selectedTrack,
-      salary,
-      expenses,
+      grossSalary: gross,
+      salary: submittedNet,
+      netSalary: submittedNet,
+      paye: submittedPAYE,
+      uif: submittedUIF,
+      expenses: exp,
       housePrice,
       goalAmount: rawGoal,
       depositPercent: userPercent,
       depositAmount,
       monthsToGoal,
-      savings: salary - expenses,
-      // ✅ ADD THIS
-      breakdown: breakdown,
+      savings: submittedNet - exp,
+      breakdown,
     };
 
     setUser(updatedUser); // ✅ THIS replaces localStorage.setItem
@@ -222,10 +230,10 @@ export default function Setup() {
                 <span className="metric-label">Disposable</span>
                 <strong>R{disposableIncome.toLocaleString("en-ZA")}</strong>
               </div>
-              {form.salary && form.expenses && (
+              {grossSalary > 0 && form.expenses && (
                 <div className="metric-pill">
                   <span className="metric-label">Savings rate</span>
-                  <strong>{Math.round((monthlySavings / Number(form.salary)) * 100)}%</strong>
+                  <strong>{income > 0 ? Math.round((monthlySavings / income) * 100) : 0}%</strong>
                 </div>
               )}
             </div>
@@ -238,8 +246,18 @@ export default function Setup() {
             <div className="setup-section">
               <p className="section-label">Your details</p>
               <div className="input-row">
-                <input type="text"   name="name"       placeholder="Your name"          value={form.name}       onChange={handleChange} />
-                <input type="number" name="salary"     placeholder="Monthly salary (R)" value={form.salary}     onChange={handleChange} />
+                <input type="text" name="name" placeholder="Your name" value={form.name} onChange={handleChange} />
+                <div className="labelled-input">
+                  <label>Gross monthly salary (R)</label>
+                  <input type="number" name="grossSalary" placeholder="e.g. 35 000" value={form.grossSalary} onChange={handleChange} />
+                  {grossSalary > 0 && (
+                    <div className="tax-inline">
+                      <span>PAYE <strong>R{paye.toLocaleString("en-ZA")}</strong></span>
+                      <span>UIF <strong>R{uif.toLocaleString("en-ZA")}</strong></span>
+                      <span>Take-home <strong className="tax-net">R{income.toLocaleString("en-ZA")}</strong></span>
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="input-row">
                 <input type="number" name="expenses" placeholder="Monthly expenses (R)" value={form.expenses} onChange={handleChange} />

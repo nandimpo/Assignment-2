@@ -1,7 +1,7 @@
 export function getTrackProgression(user) {
   if (!user) return null;
 
-  const income = Number(user.salary) || 0;
+  const income = Number(user.netSalary || user.salary) || 0;
   const expenses = Number(user.expenses) || 0;
   const savings = income - expenses;
   const debt = Number(user.debt) || 0;

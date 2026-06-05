@@ -28,6 +28,7 @@ import LifestyleCorrectionTrack from "./pages/LifestyleCorrectionTrack";
 import PropertyStudio from "./pages/PropertyStudio";
 import CarStudio from "./pages/CarStudio";
 import InvestingStudio from "./pages/InvestingStudio";
+import WaveCanvas from "./components/WaveCanvas";
 import "./styles/tour.css";
 
 /* ================= PROTECTED ROUTE ================= */
@@ -91,6 +92,14 @@ export default function App() {
   return (
     <BrowserRouter basename={import.meta.env.BASE_URL}>
       <TransitionProvider>
+        <WaveCanvas
+          style={{ position: "fixed", zIndex: 0 }}
+          spacing={10}
+          speed={0.0004}
+          amplitude={[5, 8, 2.5]}
+          opacity={[0.045, 0.018]}
+          fadeAlpha={0.4}
+        />
         <AppOverlay />
         <CustomCursor />
         <ScrollToTop />

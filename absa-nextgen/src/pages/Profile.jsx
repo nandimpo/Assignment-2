@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import AppNav from "../components/AppNav";
 import "../styles/profile.css";
 import { useUser } from "../context/UserContext";
+import TypewriterHeading from "../components/TypewriterHeading";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -12,7 +13,7 @@ export default function Profile() {
   const [showTour, setShowTour] = useState(false);
   const [spotlight, setSpotlight] = useState(null);
 
-  const income = Number(user?.salary) || 0;
+  const income = Number(user?.netSalary || user?.salary) || 0;
   const expenses = Number(user?.expenses) || 0;
   const savings = Math.max(income - expenses, 0);
   const savingsRate = income > 0 ? Math.round((savings / income) * 100) : 0;
@@ -206,7 +207,7 @@ export default function Profile() {
                 </div>
 
                 <div className="profile-info">
-                  <h2>{user?.name || "User"}</h2>
+                  <TypewriterHeading tag="h2" text={user?.name || "User"} speed={60} />
                   <p>Financial growth journey</p>
                   <span className="tag">
                     {{

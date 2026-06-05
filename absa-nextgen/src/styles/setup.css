@@ -224,6 +224,25 @@
   margin-bottom: 0;
 }
 
+/* ── TAX INLINE BREAKDOWN ── */
+.tax-inline {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  color: #8fa3a0;
+  margin-top: 4px;
+}
+
+.tax-inline strong {
+  color: #d7e3e0;
+  font-weight: 600;
+}
+
+.tax-net {
+  color: #84a794 !important;
+}
+
 /* ── GOAL INPUT HINT ── */
 .goal-input-wrap {
   display: flex;

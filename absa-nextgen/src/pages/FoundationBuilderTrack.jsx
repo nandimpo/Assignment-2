@@ -3,6 +3,7 @@ import { useUser } from "../context/UserContext";
 import AppNav from "../components/AppNav";
 import "../styles/track.css";
 import useProgress from "../hooks/useProgress";
+import TypewriterHeading from "../components/TypewriterHeading";
 
 export default function FoundationBuilderTrack() {
   // ================= USER CONTEXT =================
@@ -23,7 +24,7 @@ export default function FoundationBuilderTrack() {
   const [savingsAdjust, setSavingsAdjust] = useState(0);
 
   // ================= CALCULATIONS (after all hooks) =================
-  const income = Number(user?.salary) || 0;
+  const income = Number(user?.netSalary || user?.salary) || 0;
   const expenses = Number(user?.expenses) || 0;
   const savings = income - expenses;
 
@@ -110,7 +111,7 @@ export default function FoundationBuilderTrack() {
 
       <div className="track-container">
         {/* ================= HEADER ================= */}
-        <h1>Foundation Builder Track</h1>
+        <TypewriterHeading tag="h1" text="Foundation Builder Track" speed={50} />
         <p className="subtitle">
           Build your financial base before investing and long-term growth.
         </p>

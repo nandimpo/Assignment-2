@@ -1,10 +1,22 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import "../styles/nav.css";
 import logo from "../assets/logo.png";
+import { useUser } from "../context/UserContext";
+
+const TRACK_ROUTES = {
+  property:   "/property",
+  balanced:   "/balanced",
+  catchup:    "/catchup",
+  correction: "/correction",
+  foundation: "/foundation",
+};
 
 export default function AppNav() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useUser();
+
+  const trackRoute = TRACK_ROUTES[user?.strategy] || "/strategy";
 
   const isActive = (path) => location.pathname === path;
 
@@ -43,13 +55,13 @@ export default function AppNav() {
 
         <button
           className={
-            ["/strategy", "/property", "/balanced", "/foundation", "/correction", "/tracks"].some(
+            ["/strategy", "/property", "/balanced", "/foundation", "/correction", "/catchup", "/tracks"].some(
               (p) => location.pathname.startsWith(p)
             )
               ? "active"
               : ""
           }
-          onClick={() => navigate("/strategy")}
+          onClick={() => navigate(trackRoute)}
         >
           Tracks
         </button>

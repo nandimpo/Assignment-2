@@ -18,7 +18,7 @@ const DEFAULTS = {
 export default function SimulationLab() {
   const navigate = useNavigate();
   const { user } = useUser();
-  const [salary, setSalary] = useState(user?.salary || DEFAULTS.salary);
+  const [salary, setSalary] = useState(user?.netSalary || user?.salary || DEFAULTS.salary);
   const [rent, setRent] = useState(user?.expenses || DEFAULTS.rent);
   const [price, setPrice] = useState(DEFAULTS.price);
   const [interest, setInterest] = useState(DEFAULTS.interest);

@@ -12,7 +12,7 @@ export default function Home() {
 
   /* EXISTING DATA (UNCHANGED) */
 
-  const income = user?.salary || 55000;
+  const income = user?.netSalary || user?.salary || 55000;
   const expenses = user?.expenses || 29000;
   const net = income - expenses;
   const savingsRate = Math.round((net / income) * 100);

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import AppNav from "../components/AppNav";
 import "../styles/track.css";
+import TypewriterHeading from "../components/TypewriterHeading";
 import { getTrackProgression } from "../utils/trackProgression";
 import { useUser } from "../context/UserContext";
 import useProgress from "../hooks/useProgress";
@@ -24,7 +25,7 @@ export default function LifestyleCorrectionTrack() {
   }
 
   // ================= USER DATA =================
-  const income = Number(user?.salary) || 0;
+  const income = Number(user?.netSalary || user?.salary) || 0;
   const expenses = Number(user?.expenses) || 0;
   const debt = Number(user?.debt) || 0;
   const savings = income - expenses;
@@ -98,7 +99,7 @@ export default function LifestyleCorrectionTrack() {
 
       <div className="track-container">
         {/* ================= HEADER ================= */}
-        <h1>Lifestyle Correction Track</h1>
+        <TypewriterHeading tag="h1" text="Lifestyle Correction Track" speed={50} />
         <p className="subtitle">
           Rebalance your finances by reducing debt and controlling spending.
         </p>

@@ -163,7 +163,7 @@ export default function StrategyTrack() {
   const simulateFuture = () => {
     if (!user) return null;
     const baseSavings = user.savings || 0;
-    const monthly = user.salary * 0.2;
+    const monthly = (user.netSalary || user.salary) * 0.2;
     return {
       property:   Math.round((1000000 - baseSavings) / monthly),
       balanced:   Math.round((1000000 - baseSavings) / (monthly * 0.7)),

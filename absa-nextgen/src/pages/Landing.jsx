@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import LandingNav from "../components/LandingNav";
 import Intro from "../components/Intro";
 import TypewriterHeading from "../components/TypewriterHeading";
-import WaveCanvas from "../components/WaveCanvas";
 import "../styles/landing.css";
 
 import {
@@ -77,14 +76,7 @@ export default function Landing() {
       <LandingNav scrollTo={scrollToSection} />
 
       {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• WAVE BACKGROUND â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
-      <WaveCanvas
-        spacing={12}
-        speed={0.0003}
-        amplitude={[3, 6, 2]}
-        opacity={[0.045, 0.018]}
-        fadeAlpha={0.38}
-        style={{ position: "absolute", top: "100vh", left: 0, width: "100%", height: "calc(100% - 100vh)", zIndex: 0 }}
-      />
+      
 
       {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• HERO â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
       <section id="hero" className="hero">

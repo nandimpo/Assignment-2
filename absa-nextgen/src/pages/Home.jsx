@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Tour from "../components/Tour";
 import AppNav from "../components/AppNav";
 import "../styles/home.css";
+import TypewriterHeading from "../components/TypewriterHeading";
 import { Home as HomeIcon, Scale, Shield, RefreshCw, Building2, TrendingUp, CreditCard, Target, GraduationCap } from "lucide-react";
 import { useUser } from "../context/UserContext";
 
@@ -10,7 +11,7 @@ export default function Home() {
   const navigate = useNavigate();
   const { user } = useUser();
 
-  const income = Number(user?.salary) || 0;
+  const income = Number(user?.netSalary || user?.salary) || 0;
   const expenses = Number(user?.expenses) || 0;
   const net = income - expenses;
 
@@ -91,7 +92,7 @@ export default function Home() {
       <div className="container">
         {/* HEADER */}
         <section className="home-header fade-in" id="home-header">
-          <h2>Welcome back, {user?.name || "User"}</h2>
+          <TypewriterHeading tag="h2" text={`Welcome back, ${user?.name || "User"}`} speed={50} />
           <p>
             You are on the{" "}
             <span className="accent">{user?.strategy || "Property"}</span> track
@@ -180,7 +181,7 @@ export default function Home() {
         {/* HERO */}
         <section className="hero-row fade-in" id="hero">
           <div>
-            <h2>Take control of your financial future</h2>
+            <TypewriterHeading tag="h2" text="Take control of your financial future" speed={40} delay={200} />
             <p className="muted">
               Track, simulate, and move forward with clarity.
             </p>

@@ -18,6 +18,23 @@ body {
   width: 100%;
 }
 
+/* Ensure all page content renders above the fixed WaveCanvas (z-index: 0) */
+.money,
+.track-page,
+.home,
+.setup-page,
+.profile,
+.simulation-page,
+.learn-page,
+.sim-page,
+.landing,
+.login-page,
+.dashboard,
+.nav {
+  position: relative;
+  z-index: 1;
+}
+
 /* ================= GLOBAL CUSTOM CURSOR ================= */
 
 .custom-cursor {

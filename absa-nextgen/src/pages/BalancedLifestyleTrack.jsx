@@ -3,6 +3,7 @@ import { useUser } from "../context/UserContext";
 import AppNav from "../components/AppNav";
 import "../styles/track.css";
 import { Wallet, TrendingUp, PiggyBank } from "lucide-react";
+import TypewriterHeading from "../components/TypewriterHeading";
 
 export default function BalancedLifestyleTrack() {
   const { user } = useUser();
@@ -25,7 +26,7 @@ export default function BalancedLifestyleTrack() {
     localStorage.setItem("balancedProgress", JSON.stringify(progress));
   }, [progress]);
 
-  const _income = Number(user?.salary) || 0;
+  const _income = Number(user?.netSalary || user?.salary) || 0;
   const _expenses = Number(user?.expenses) || 0;
   const _savings = _income - _expenses;
   const _investing = Math.round((_savings * investmentPct) / 100);
@@ -111,7 +112,7 @@ export default function BalancedLifestyleTrack() {
 
       <div className="track-container">
         {/* ================= HEADER ================= */}
-        <h1>Balanced Lifestyle &amp; Investing Track</h1>
+        <TypewriterHeading tag="h1" text="Balanced Lifestyle & Investing Track" speed={50} />
         <p className="subtitle">
           Enjoy your life while building long-term wealth
         </p>

@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import AppNav from "../components/AppNav";
 import "../styles/track.css";
 import ExplainerPanel from "../components/ExplainerPanel";
+import TypewriterHeading from "../components/TypewriterHeading";
 import { useUser } from "../context/UserContext";
 import useProgress from "../hooks/useProgress";
 
@@ -41,7 +42,7 @@ export default function PropertyTrack() {
   }, [percent, progress.deposit]);
 
   // ✅ ALL CALCULATIONS AFTER HOOKS
-  const income = Number(user?.salary) || 0;
+  const income = Number(user?.netSalary || user?.salary) || 0;
   const expenses = Number(user?.expenses) || 0;
   const savings = Math.max(income - expenses, 0);
 
@@ -150,7 +151,7 @@ export default function PropertyTrack() {
       <AppNav />
 
       <div className="track-container">
-        <h1>Property Strategy Path</h1>
+        <TypewriterHeading tag="h1" text="Property Strategy Path" speed={50} />
 
         <p className="subtitle">
           Based on your current behaviour, your savings rate is{" "}
