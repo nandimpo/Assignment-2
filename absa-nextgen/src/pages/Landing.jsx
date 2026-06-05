@@ -133,7 +133,7 @@ export default function Landing() {
       <section id="trust" className="section container fade-in">
         <div className="text">
           <p className="eyebrow">THE PLATFORM</p>
-          <TypewriterHeading text="More than banking â€” it's your financial system" />
+          <TypewriterHeading text="More than banking - it's your financial system" />
           <p>
             ABSA Wealth Studio combines real financial data, structured
             decision-making, and guided education into one powerful experience.

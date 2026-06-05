@@ -4,6 +4,7 @@ import useProgress from "../hooks/useProgress";
 import AppNav from "../components/AppNav";
 import "../styles/track.css";
 import { Wallet, TrendingUp, PiggyBank, BookOpen, AlertTriangle } from "lucide-react";
+import MonthlySavingsTracker from "../components/MonthlySavingsTracker";
 import TypewriterHeading from "../components/TypewriterHeading";
 
 export default function BalancedLifestyleTrack() {
@@ -142,6 +143,13 @@ export default function BalancedLifestyleTrack() {
             <p className="small" style={{ marginTop: 4, color: "#c8d8d4" }}>{milestoneInsight}</p>
           </div>
         </div>
+
+        {/* MONTHLY SAVINGS TRACKER */}
+        <MonthlySavingsTracker
+          monthlyTarget={monthlySaved}
+          goalAmount={Number(user?.goalAmount) || 1000000}
+          goalLabel="investment goal"
+        />
 
         {/* ROW 2: PORTFOLIO + INSIGHTS */}
         <div className="bl-row">

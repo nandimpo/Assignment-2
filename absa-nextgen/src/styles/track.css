@@ -477,6 +477,251 @@ h1 {
   color: #9aa5a6;
 }
 
+/* ── MONTHLY SAVINGS TRACKER ─────────────────────────────────────────────── */
+.mst-card {
+  background: linear-gradient(145deg, #0c1110, #111817);
+  border: 1px solid rgba(132, 167, 148, 0.2);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.mst-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.mst-sub {
+  font-size: 12px;
+  color: #8fa3a0;
+  margin-top: 4px;
+}
+
+.mst-totals {
+  display: flex;
+  gap: 20px;
+  flex-shrink: 0;
+}
+
+.mst-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.mst-stat-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #8fa3a0;
+}
+
+.mst-stat-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #f4f6fc;
+}
+
+.mst-progress-bar {
+  height: 6px;
+  background: #1a1f1e;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.mst-progress-fill {
+  height: 100%;
+  background: linear-gradient(to right, #d6a85a, #84a794);
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.mst-goal-label {
+  font-size: 11px;
+  color: #8fa3a0;
+  margin-top: -6px;
+}
+
+/* CHECK-IN ROW */
+.mst-checkin {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(178, 200, 188, 0.04);
+  border: 1px solid rgba(178, 200, 188, 0.1);
+}
+
+.mst-checkin--done {
+  border-color: rgba(132, 167, 148, 0.3);
+  background: rgba(132, 167, 148, 0.06);
+}
+
+.mst-checkin-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.mst-checkin-sub {
+  font-size: 12px;
+  color: #8fa3a0;
+  margin: 2px 0 0;
+}
+
+.mst-confirm-btn {
+  margin-left: auto;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #84a794, #2c3a36);
+  border: none;
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: 0.2s ease;
+  flex-shrink: 0;
+}
+
+.mst-confirm-btn:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
+/* HISTORY */
+.mst-history-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mst-history-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(178, 200, 188, 0.04);
+  font-size: 12px;
+  color: #c8d8d4;
+}
+
+.mst-history-item span:nth-child(2) { flex: 1; }
+
+.mst-remove {
+  background: none;
+  border: none;
+  color: #555;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0 4px;
+  margin-left: auto;
+}
+
+.mst-remove:hover { color: #ff6b6b; }
+
+/* YES / NO BUTTONS */
+.mst-checkin-btns { display: flex; gap: 8px; flex-shrink: 0; }
+
+.mst-yes-btn {
+  padding: 7px 16px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #84a794, #2c3a36);
+  border: none; color: white; font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: 0.2s ease;
+}
+.mst-yes-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+
+.mst-no-btn {
+  padding: 7px 16px;
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid rgba(214, 168, 90, 0.4);
+  color: #d6a85a; font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: 0.2s ease;
+}
+.mst-no-btn:hover { background: rgba(214, 168, 90, 0.1); }
+
+/* MISSED STATE */
+.mst-checkin--missed { border-color: rgba(214, 168, 90, 0.3); background: rgba(214, 168, 90, 0.05); }
+.mst-remove-inline {
+  background: none; border: 1px solid rgba(178,200,188,0.15); border-radius: 8px;
+  color: #8fa3a0; font-size: 11px; padding: 4px 10px; cursor: pointer;
+  flex-shrink: 0;
+}
+.mst-remove-inline:hover { color: #f4f6fc; }
+
+/* STREAK CHIPS */
+.mst-streak { display: flex; gap: 10px; }
+.mst-streak-item { font-size: 11px; padding: 3px 10px; border-radius: 999px; font-weight: 600; }
+.mst-streak-item.saved  { background: rgba(132,167,148,0.15); color: #84a794; }
+.mst-streak-item.missed { background: rgba(214,168,90,0.15);  color: #d6a85a; }
+
+/* MISSED PANEL */
+.mst-missed-panel {
+  background: rgba(214, 168, 90, 0.04);
+  border: 1px solid rgba(214, 168, 90, 0.2);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.mst-missed-header { display: flex; align-items: center; gap: 8px; }
+.mst-missed-header h4 { margin: 0; font-size: 14px; color: #d6a85a; }
+.mst-missed-intro { font-size: 13px; color: #c8d8d4; margin: 0; }
+
+/* TIPS */
+.mst-tips { display: flex; flex-direction: column; gap: 8px; }
+.mst-tip {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 10px 12px; border-radius: 10px;
+  background: rgba(178,200,188,0.04);
+}
+.mst-tip-icon { flex-shrink: 0; font-size: 15px; }
+.mst-tip p { margin: 0; font-size: 13px; color: #c8d8d4; line-height: 1.5; }
+
+/* CATCH-UP */
+.mst-catchup {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; color: #9aa5a6;
+}
+.mst-partial { display: flex; gap: 10px; align-items: center; }
+.mst-partial input {
+  flex: 1; background: rgba(178,200,188,0.06); border: 1px solid rgba(178,200,188,0.15);
+  border-radius: 10px; padding: 8px 12px; color: white; font-size: 13px; outline: none;
+}
+.mst-partial input:disabled { opacity: 0.5; }
+
+/* ADJUST SUGGESTION */
+.mst-adjust-suggestion {
+  background: rgba(132,167,148,0.06); border: 1px solid rgba(132,167,148,0.2);
+  border-radius: 10px; padding: 12px 14px;
+}
+.mst-adjust-text { font-size: 13px; color: #c8d8d4; margin: 6px 0 0; line-height: 1.6; }
+
+/* MISSED HISTORY */
+.mst-history-item--missed { opacity: 0.8; }
+.mst-missed-label { color: #d6a85a; font-size: 12px; }
+
+/* PROPERTY TRACK ROW */
+.pt-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+@media (max-width: 800px) {
+  .pt-row { grid-template-columns: 1fr; }
+}
+
 /* BALANCED LIFESTYLE LAYOUT */
 .bl-row {
   display: grid;
