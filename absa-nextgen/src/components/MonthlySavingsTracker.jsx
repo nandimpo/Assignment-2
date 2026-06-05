@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useUser } from "../context/UserContext";
-import { CheckCircle, Circle, XCircle, TrendingUp, AlertTriangle, RefreshCw } from "lucide-react";
+import { CheckCircle, Circle, XCircle, TrendingUp, AlertTriangle, RefreshCw, Lightbulb, CalendarClock, Target, BarChart2 } from "lucide-react";
 
 export default function MonthlySavingsTracker({ monthlyTarget, goalAmount, goalLabel = "goal" }) {
   const { user, updateUser } = useUser();
   const [showMissedPanel, setShowMissedPanel] = useState(false);
   const [partialAmount, setPartialAmount]     = useState("");
+  const [flashing, setFlashing]               = useState(false);
+  const [flashGreen, setFlashGreen]           = useState(false);
 
   const log        = user?.savingsLog || [];
   const totalSaved = log.reduce((sum, e) => sum + (e.amount || 0), 0);
@@ -43,6 +45,8 @@ export default function MonthlySavingsTracker({ monthlyTarget, goalAmount, goalL
     const newLog = [...log, { month: thisMonth, amount: 0, missed: true }];
     updateUser({ savingsLog: newLog });
     setShowMissedPanel(true);
+    setFlashing(true);
+    setTimeout(() => setFlashing(false), 2400);
   };
 
   const removeEntry = (month) => {
@@ -53,14 +57,17 @@ export default function MonthlySavingsTracker({ monthlyTarget, goalAmount, goalL
   };
 
   const missedTips = [
-    { icon: "💡", tip: "Review your fixed expenses — even a R500 cut frees up meaningful savings." },
-    { icon: "🔄", tip: `Try saving R${catchUpAmount.toLocaleString("en-ZA")} next month to catch up (50% extra).` },
-    { icon: "📅", tip: "Set up an automatic transfer on payday — save before you spend." },
-    { icon: "🎯", tip: `Your goal is R${goalAmount.toLocaleString("en-ZA")}. Every month missed adds ~1 month to your timeline.` },
-    { icon: "📉", tip: "Check your spending breakdown in the Snapshot — lifestyle and transport are usually the biggest levers." },
+    { icon: <Lightbulb size={14} color="#d6a85a" />, tip: "Review your fixed expenses — even a R500 cut frees up meaningful savings." },
+    { icon: <RefreshCw size={14} color="#84a794" />, tip: `Try saving R${catchUpAmount.toLocaleString("en-ZA")} next month to catch up (50% extra).` },
+    { icon: <CalendarClock size={14} color="#84a794" />, tip: "Set up an automatic transfer on payday — save before you spend." },
+    { icon: <Target size={14} color="#d6a85a" />, tip: `Your goal is R${goalAmount.toLocaleString("en-ZA")}. Every month missed adds ~1 month to your timeline.` },
+    { icon: <BarChart2 size={14} color="#8fa3a0" />, tip: "Check your spending breakdown in the Snapshot — lifestyle and transport are usually the biggest levers." },
   ];
 
   return (
+    <>
+    {flashing && <div className="mst-flash" />}
+    {flashGreen && <div className="mst-flash mst-flash--green" />}
     <div className="mst-card">
 
       {/* HEADER */}
@@ -92,8 +99,8 @@ export default function MonthlySavingsTracker({ monthlyTarget, goalAmount, goalL
         <div className="mst-progress-fill" style={{ width: `${progress}%` }} />
       </div>
       <div className="mst-streak">
-        <span className="mst-streak-item saved">✓ {savedMonths} saved</span>
-        {missedMonths > 0 && <span className="mst-streak-item missed">✗ {missedMonths} missed</span>}
+        <span className="mst-streak-item saved"><CheckCircle size={11} /> {savedMonths} saved</span>
+        {missedMonths > 0 && <span className="mst-streak-item missed"><XCircle size={11} /> {missedMonths} missed</span>}
       </div>
 
       {/* THIS MONTH CHECK-IN */}
@@ -105,8 +112,8 @@ export default function MonthlySavingsTracker({ monthlyTarget, goalAmount, goalL
             <p className="mst-checkin-sub">Be honest — tracking missed months helps you recover faster</p>
           </div>
           <div className="mst-checkin-btns">
-            <button className="mst-yes-btn" onClick={() => confirmSaved()}>Yes ✓</button>
-            <button className="mst-no-btn" onClick={confirmMissed}>No ✗</button>
+            <button className="mst-yes-btn" onClick={() => confirmSaved()}><CheckCircle size={13} /> Yes</button>
+            <button className="mst-no-btn" onClick={confirmMissed}><XCircle size={13} /> No</button>
           </div>
         </div>
       ) : thisEntry?.missed ? (
@@ -166,10 +173,18 @@ export default function MonthlySavingsTracker({ monthlyTarget, goalAmount, goalL
             <button
               className="mst-confirm-btn"
               onClick={() => {
-                if (partialAmount > 0) {
-                  removeEntry(thisMonth);
-                  setTimeout(() => confirmSaved(Math.min(Number(partialAmount), monthlyTarget)), 50);
-                }
+                const amount = Math.min(Number(partialAmount), monthlyTarget);
+                if (!partialAmount || amount <= 0) return;
+                const newLog = [
+                  ...log.filter(e => e.month !== thisMonth),
+                  { month: thisMonth, amount, missed: false },
+                ];
+                const newSavings = newLog.filter(e => !e.missed).reduce((sum, e) => sum + e.amount, 0);
+                updateUser({ savingsLog: newLog, savings: newSavings });
+                setPartialAmount("");
+                setShowMissedPanel(false);
+                setFlashGreen(true);
+                setTimeout(() => setFlashGreen(false), 2400);
               }}
               disabled={!partialAmount || Number(partialAmount) <= 0}
             >
@@ -213,5 +228,6 @@ export default function MonthlySavingsTracker({ monthlyTarget, goalAmount, goalL
         </div>
       )}
     </div>
+    </>
   );
 }

@@ -104,10 +104,9 @@ export default function CatchUpTrack() {
 
       <div className="track-container">
         {/* ================= HEADER ================= */}
-        <TypewriterHeading tag="h1" text="Catch-Up Wealth Track" speed={50} />
-        <p className="subtitle">
-          Accelerate your financial progress and close the gap
-        </p>
+        <p className="tracks-eyebrow">Catch-Up Wealth</p>
+        <TypewriterHeading tag="h1" text={`Welcome back, ${user?.name?.split(" ")[0] || "there"}`} speed={50} />
+        <TypewriterHeading tag="p" className="subtitle" text="You are on the Catch-Up track · accelerate your progress and close the gap" speed={18} delay={900} />
 
         {/* ================= STATUS ================= */}
         <div className="track-card">

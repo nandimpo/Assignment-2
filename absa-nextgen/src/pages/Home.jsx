@@ -4,7 +4,7 @@ import Tour from "../components/Tour";
 import AppNav from "../components/AppNav";
 import "../styles/home.css";
 import TypewriterHeading from "../components/TypewriterHeading";
-import { Home as HomeIcon, Scale, Shield, RefreshCw, Building2, TrendingUp, CreditCard, Target, GraduationCap } from "lucide-react";
+import { Home as HomeIcon, Scale, Shield, RefreshCw, Building2, TrendingUp, CreditCard, Target, GraduationCap, Info } from "lucide-react";
 import { useUser } from "../context/UserContext";
 
 export default function Home() {
@@ -33,6 +33,14 @@ export default function Home() {
   else if (savingsRate >= 10) healthScore = 60;
   else healthScore = 40;
   let healthLabel = healthScore >= 80 ? "Excellent" : healthScore >= 65 ? "Good" : healthScore >= 50 ? "Moderate" : "Needs Attention";
+
+  const trackNames = {
+    property:   "Property Path",
+    balanced:   "Balanced Lifestyle",
+    foundation: "Foundation Builder",
+    correction: "Lifestyle Correction",
+    catchup:    "Catch-Up Wealth",
+  };
 
   const trackDetails = {
     property:   { explanation: "Save aggressively toward a home deposit in 3–5 years.", tradeoffs: "Reduced lifestyle flexibility." },
@@ -71,8 +79,8 @@ export default function Home() {
 
         {/* ── HEADER ── */}
         <section className="home-header fade-in" id="home-header">
-          <TypewriterHeading tag="h2" text={`Welcome back, ${user?.name || "User"}`} speed={50} />
-          <p>You are on the <span className="accent">{user?.strategy || "—"}</span> track</p>
+          <TypewriterHeading tag="h2" text={`Welcome back, ${user?.name?.split(" ")[0] || "there"}`} speed={50} />
+          <TypewriterHeading tag="p" className="subtitle" text={`You are on the ${trackNames[user?.strategy] || "—"} track`} speed={18} delay={900} />
         </section>
 
         {/* ── ROW 1: NEXT STEP + HEALTH ── */}
@@ -88,9 +96,10 @@ export default function Home() {
           <section className="health-card" id="health">
             <div className="score-ring">{healthScore}</div>
             <div>
-              <h3>
+              <h3 style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 Financial Health
-                <span className="info-hover">ⓘ
+                <span className="info-hover" style={{ display: "flex", alignItems: "center" }}>
+                  <Info size={14} strokeWidth={1.5} />
                   <div className="tooltip">Based on:<br />• Savings rate<br />• Spending behaviour<br />• Setup progress</div>
                 </span>
               </h3>
@@ -174,7 +183,7 @@ export default function Home() {
                   <div className="preview-card-body">
                     <div className="preview-card-title-row">
                       <span className="preview-card-name">{name}</span>
-                      <span className={`badge ${isActive ? "active-badge" : "available-badge"}`}>{isActive ? "Active" : "Available"}</span>
+                      {isActive && <span className="badge active-badge">Active</span>}
                     </div>
                     <p className="preview-card-sub">{sub}</p>
                     <p className="preview-card-focus"><span className="label">Focus</span> {focus}</p>
@@ -200,7 +209,6 @@ export default function Home() {
               <div key={label} className="sim-card available" onClick={() => navigate("/simulation")}>
                 <div className="sim-card-top">
                   <span className="sim-icon"><Icon size={20} strokeWidth={1.5} /></span>
-                  <span className="badge available-badge">Available</span>
                 </div>
                 <h4>{label}</h4>
                 <p className="muted">{desc}</p>

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import AppNav from "../components/AppNav";
+import TypewriterHeading from "../components/TypewriterHeading";
 import "../styles/simulation.css";
 
 import {
@@ -58,10 +59,10 @@ export default function InvestingStudio() {
 
   let verdict =
     diff > 80000
-      ? "🌍 Offshore investing significantly outperforms local."
+      ? "Offshore investing significantly outperforms local."
       : diff > 20000
-        ? "⚖️ Offshore has an edge, but balance is strong."
-        : "🏠 Local investing performs similarly — lower risk.";
+        ? "Offshore has an edge, but a balanced portfolio is strong."
+        : "Local investing performs similarly — lower risk.";
 
   /* ================= UI ================= */
 
@@ -70,8 +71,8 @@ export default function InvestingStudio() {
       <AppNav />
 
       <div className="sim-container">
-        <h1>Local vs Offshore Investing Studio</h1>
-        <p>Should you invest locally or globally?</p>
+        <TypewriterHeading tag="h1" text="Local vs Offshore Investing Studio" speed={50} />
+        <TypewriterHeading tag="p" className="subtitle" text="Should you invest locally or globally?" speed={18} delay={1100} />
 
         <div className="sim-grid">
           {/* INPUTS */}
@@ -191,9 +192,10 @@ export default function InvestingStudio() {
         <div className="sim-card">
           <h3>Studio Verdict</h3>
           <p>
-            Offshore investing could outperform local by{" "}
-            <strong>R{diff.toLocaleString()}</strong>, but a balanced portfolio
-            reduces risk.
+            {diff >= 0
+              ? <>Offshore investing outperforms local by <strong>R{diff.toLocaleString()}</strong>, but a balanced portfolio reduces risk.</>
+              : <>Local investing outperforms offshore by <strong>R{Math.abs(diff).toLocaleString()}</strong> in this scenario.</>
+            }
           </p>
           <p>{verdict}</p>
         </div>

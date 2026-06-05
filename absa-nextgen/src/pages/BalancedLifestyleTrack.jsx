@@ -56,8 +56,8 @@ export default function BalancedLifestyleTrack() {
 
         {/* HEADER */}
         <p className="tracks-eyebrow">Balanced Lifestyle</p>
-        <TypewriterHeading tag="h1" text="Balanced Lifestyle & Investing Track" speed={50} />
-        <p className="subtitle">Enjoy your life while building long-term wealth</p>
+        <TypewriterHeading tag="h1" text={`Welcome back, ${user?.name?.split(" ")[0] || "there"}`} speed={50} />
+        <TypewriterHeading tag="p" className="subtitle" text="You are on the Balanced Lifestyle track · enjoy life while building wealth" speed={18} delay={900} />
 
         {/* ROW 1: SNAPSHOT + MILESTONES */}
         <div className="bl-row">

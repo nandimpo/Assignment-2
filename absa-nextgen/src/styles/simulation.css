@@ -1,40 +1,59 @@
 ﻿.simulation-page {
-  background: #0e1111;
+  background: transparent;
   min-height: 100vh;
-  color: white;
-  font-family: "Inter", sans-serif;
+  color: #f4f6fc;
 }
 
-.simulation-header {
-  padding: 40px 60px 20px;
-  margin-bottom: 30px;
+.sim-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 100px 20px 60px;
 }
 
-.simulation-header h1 {
-  font-family: "Montserrat", sans-serif;
-  font-size: 36px;
-  margin-bottom: 8px;
+.sim-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #84a794;
+  margin-bottom: 6px;
 }
 
-.simulation-header p {
-  color: #aaa;
+.sim-container h1 {
+  font-size: 32px;
+  font-weight: 700;
+  color: #f4f6fc;
+  margin: 0 0 8px;
+}
+
+.sim-subtitle {
+  color: #8fa3a0;
+  font-size: 14px;
+  margin-bottom: 0;
 }
 
 .simulation-list {
-  padding: 20px 60px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
+  margin-top: 24px;
 }
 
 .simulation-card {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: linear-gradient(145deg, #1a1f1f, #141818);
-  padding: 20px;
-  border-radius: 12px;
-  transition: 0.3s ease;
+  gap: 20px;
+  background: linear-gradient(145deg, #0c1110, #111817);
+  border: 1px solid rgba(178, 200, 188, 0.12);
+  padding: 24px;
+  border-radius: 16px;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.simulation-card:hover {
+  border-color: rgba(132, 167, 148, 0.4);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
 }
 
 .simulation-card:hover {
@@ -44,22 +63,41 @@
 
 .sim-left {
   display: flex;
-  gap: 15px;
+  gap: 16px;
   align-items: center;
+  flex: 1;
+  min-width: 0;
 }
 
-.sim-icon {
-  font-size: 24px;
+.sim-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(132, 167, 148, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #84a794;
+  flex-shrink: 0;
+}
+
+.sim-info h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 4px;
+  color: #f4f6fc;
 }
 
 .sim-desc {
-  color: #bbb;
-  font-size: 14px;
+  color: #c8d8d4;
+  font-size: 13px;
+  margin: 0 0 2px;
 }
 
 .sim-detail {
-  color: #888;
+  color: #8fa3a0;
   font-size: 12px;
+  margin: 0;
 }
 
 .sim-btn {
@@ -172,15 +210,10 @@
 }
 
 .sim-page {
-  font-size: 14px; /* global scale down */
+  font-size: 14px;
   background: transparent;
   min-height: 100vh;
   overflow-x: hidden;
-}
-.sim-container {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 40px 20px;
 }
 /* GRID */
 
@@ -462,6 +495,13 @@ input[type="range"] {
   opacity: 0.9;
 }
 
+.sim-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #f4f6fc;
+}
+
 .finance-orb {
   position: fixed;
   bottom: 30px;
@@ -675,7 +715,7 @@ input[type="range"] {
   opacity: 0.6;
 }
 .how-it-works-bar.interactive {
-  margin-top: 40px;
+  margin-top: 0;
   padding: 16px;
   border-radius: 14px;
 

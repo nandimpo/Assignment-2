@@ -15,14 +15,15 @@ const TRACK_ROUTES = {
 export default function AppNav() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useUser();
+  const { user, setUser } = useUser();
   const { navTrigger } = useTransition();
 
   const go = (path) => navTrigger(path);
 
   const handleLogout = () => {
     localStorage.removeItem("session");
-    navigate("/login");
+    setUser({});
+    navigate("/login", { replace: true });
   };
 
   const trackRoute = TRACK_ROUTES[user?.strategy] || "/strategy";

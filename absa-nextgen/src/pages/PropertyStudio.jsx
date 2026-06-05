@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { BarChart2, Cpu, HelpCircle } from "lucide-react";
+import TypewriterHeading from "../components/TypewriterHeading";
 import "../styles/simulation.css";
 import AppNav from "../components/AppNav";
 import ExplainerPanel from "../components/ExplainerPanel";
@@ -127,10 +129,8 @@ The outcome is highly sensitive to interest rates, time horizon, and your income
       <AppNav />
 
       <div className="sim-container">
-        <h1>Property vs Renting Studio</h1>
-        <p className="subtitle">
-          Simulate the financial impact of renting versus buying property
-        </p>
+        <TypewriterHeading tag="h1" text="Property vs Renting Studio" speed={50} />
+        <TypewriterHeading tag="p" className="subtitle" text="Simulate the financial impact of renting versus buying property" speed={18} delay={950} />
 
         <div className="sim-grid">
           {/* INPUTS */}
@@ -228,18 +228,18 @@ The outcome is highly sensitive to interest rates, time horizon, and your income
           >
             {/* HOVER PREVIEW */}
             <div className="hover-preview large">
-              <h4>📊 AI Financial Verdict</h4>
+              <h4 className="sim-section-title"><BarChart2 size={14} /> AI Financial Verdict</h4>
               <p>{verdict}</p>
               <span>Click to explore in full →</span>
             </div>
 
-            <h3>📊 AI Financial Verdict</h3>
+            <h3 className="sim-section-title"><BarChart2 size={16} /> AI Financial Verdict</h3>
             <p>{verdict}</p>
           </div>
 
           {/* AI INSIGHTS */}
           <div className="sim-card">
-            <h3>🤖 Smart Insights</h3>
+            <h3 className="sim-section-title"><Cpu size={16} /> Smart Insights</h3>
 
             {insights.map((item, index) => (
               <div key={index} className="insight">
@@ -258,7 +258,7 @@ The outcome is highly sensitive to interest rates, time horizon, and your income
           >
             {/* HOVER PREVIEW */}
             <div className="hover-preview large">
-              <h4>💡 Understanding the Model</h4>
+              <h4 className="sim-section-title"><HelpCircle size={14} /> Understanding the Model</h4>
               <p>
                 This simulation compares the total cost of renting versus buying
                 over a selected time horizon. The outcome is highly sensitive to
@@ -267,7 +267,7 @@ The outcome is highly sensitive to interest rates, time horizon, and your income
               <span>Click to read full breakdown →</span>
             </div>
 
-            <h3>💡 How this works</h3>
+            <h3 className="sim-section-title"><HelpCircle size={16} /> How this works</h3>
             <p className="explainer-text">
               Understand how rent, interest, and time influence your outcome.
             </p>

@@ -3,13 +3,9 @@ import { createContext, useContext, useEffect, useState } from "react";
 const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
-  const [user, setUser] = useState({});
-
-  // Load from localStorage once
-  useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-    setUser(storedUser);
-  }, []);
+  const [user, setUser] = useState(() =>
+    JSON.parse(localStorage.getItem("user") || "{}")
+  );
 
   // Sync to localStorage whenever user changes
   useEffect(() => {

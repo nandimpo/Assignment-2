@@ -240,9 +240,7 @@ export default function StrategyTrack() {
 
   useEffect(() => {
     const seen = localStorage.getItem("seenTrackTour");
-    if (!seen || user?.strategy !== recommendedTrack) {
-      setShowTour(true);
-    }
+    if (!seen) setShowTour(true);
   }, []);
 
   useEffect(() => {
@@ -265,12 +263,12 @@ export default function StrategyTrack() {
       const rect = el.getBoundingClientRect();
       const pad = 10;
       setSpotlight({
-        top: rect.top + window.scrollY - pad,
-        left: rect.left + window.scrollX - pad,
+        top: rect.top - pad,
+        left: rect.left - pad,
         width: rect.width + pad * 2,
         height: rect.height + pad * 2,
       });
-    }, 300);
+    }, 520);
   }, [tourStep, showTour]);
 
   useEffect(() => {
@@ -293,8 +291,8 @@ export default function StrategyTrack() {
         {/* ── HEADER ── */}
         <div id="track-header">
           <p className="tracks-eyebrow">Strategy Tracks</p>
-          <TypewriterHeading tag="h1" text="Your financial path" speed={50} />
-          <p className="subtitle">You are on the <strong>{tracks[selectedTrack]?.name || "—"}</strong> track. Explore all paths or jump straight in.</p>
+          <TypewriterHeading tag="h1" text={`Welcome back, ${user?.name?.split(" ")[0] || "there"}`} speed={50} />
+          <TypewriterHeading tag="p" className="subtitle" text={`You are on the ${tracks[selectedTrack]?.name || "—"} track · explore all paths or jump straight in`} speed={18} delay={900} />
         </div>
 
         {/* ── YOUR CURRENT TRACK — hero card ── */}

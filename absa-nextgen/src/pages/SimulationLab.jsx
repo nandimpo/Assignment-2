@@ -2,34 +2,23 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Home, TrendingUp, Scale } from "lucide-react";
 import AppNav from "../components/AppNav";
+import TypewriterHeading from "../components/TypewriterHeading";
 import "../styles/simulation.css";
 
 function SimulationCard({ sim, navigate, isRecommended, index }) {
   const Icon = sim.icon;
-  const [step, setStep] = useState(0);
-  const steps = ["Adjust variables", "See outcomes", "Get insights"];
-
-  useEffect(() => {
-    if (step === 0) console.log("User adjusting inputs");
-    if (step === 1) console.log("User viewing results");
-    if (step === 2) console.log("User reading insights");
-  }, [step]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (step < 2) setStep(step + 1);
-    }, 4000);
-    return () => clearTimeout(timer);
-  }, [step]);
 
   return (
     <div
       id={`card-${index}`}
       className={`simulation-card clickable ${isRecommended ? "recommended" : ""}`}
+      onClick={() => navigate(sim.route)}
     >
       <div className="sim-left">
-        <Icon size={24} className="sim-icon" />
-        <div>
+        <div className="sim-icon-wrap">
+          <Icon size={20} />
+        </div>
+        <div className="sim-info">
           <h3>{sim.title}</h3>
           <p className="sim-desc">{sim.description}</p>
           <p className="sim-detail">{sim.detail}</p>
@@ -39,39 +28,10 @@ function SimulationCard({ sim, navigate, isRecommended, index }) {
       <button
         id={`button-${index}`}
         className="sim-btn"
-        onClick={() => navigate(sim.route)}
+        onClick={(e) => { e.stopPropagation(); navigate(sim.route); }}
       >
         Open Studio →
       </button>
-
-      <div className="tooltip-box">
-        <h4>What you'll learn</h4>
-        <p>
-          Explore the financial impact of this decision over time using real
-          scenarios.
-        </p>
-        <span>Click to simulate →</span>
-      </div>
-
-      <p className="onboarding-text">
-        {step === 0 && "Start by adjusting your scenario."}
-        {step === 1 && "Watch how your decisions impact outcomes."}
-        {step === 2 && "Use insights to make smarter financial choices."}
-      </p>
-
-      <section className="how-it-works-bar interactive">
-        {steps.map((label, i) => (
-          <div
-            key={i}
-            className={`step ${step === i ? "active" : ""}`}
-            onClick={() => setStep(i)}
-          >
-            <span className="step-number">{i + 1}</span>
-            <span>{label}</span>
-            {i < steps.length - 1 && <span className="arrow">→</span>}
-          </div>
-        ))}
-      </section>
     </div>
   );
 }
@@ -155,10 +115,11 @@ export default function SimulationLab() {
       <AppNav />
 
       <div className="sim-container">
-        <section className="simulation-header" id="header">
-          <h1>Simulation Lab</h1>
-          <p>Test your decisions before making them</p>
-        </section>
+        <div id="header">
+          <p className="sim-eyebrow">Simulation Lab</p>
+          <TypewriterHeading tag="h1" text="Test your decisions before making them" speed={50} />
+          <TypewriterHeading tag="p" className="sim-subtitle" text="Run scenarios and compare outcomes before committing to a financial choice." speed={18} delay={1100} />
+        </div>
 
         <section className="simulation-list" id="list">
           {simulations.map((sim, index) => (

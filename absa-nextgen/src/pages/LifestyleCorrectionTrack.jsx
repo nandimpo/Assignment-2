@@ -95,10 +95,9 @@ export default function LifestyleCorrectionTrack() {
 
       <div className="track-container">
         {/* ================= HEADER ================= */}
-        <TypewriterHeading tag="h1" text="Lifestyle Correction Track" speed={50} />
-        <p className="subtitle">
-          Rebalance your finances by reducing debt and controlling spending.
-        </p>
+        <p className="tracks-eyebrow">Lifestyle Correction</p>
+        <TypewriterHeading tag="h1" text={`Welcome back, ${user?.name?.split(" ")[0] || "there"}`} speed={50} />
+        <TypewriterHeading tag="p" className="subtitle" text="You are on the Lifestyle Correction track · reduce debt and rebalance your spending" speed={18} delay={900} />
 
         {/* ================= FINANCIAL PATH ================= */}
         <div className="track-card">

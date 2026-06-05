@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import AppNav from "../components/AppNav";
+import TypewriterHeading from "../components/TypewriterHeading";
 import "../styles/simulation.css";
 import {
   LineChart,
@@ -18,7 +19,7 @@ import {
 
 export default function CarStudio() {
   /* ================= STATE ================= */
-  const [carPrice, setCarPrice] = useState(600000);
+  const [monthlyOverride, setMonthlyOverride] = useState(null);
   const [returnRate, setReturnRate] = useState(8);
   const [years, setYears] = useState(5);
   const [mode, setMode] = useState("expensive");
@@ -59,7 +60,7 @@ export default function CarStudio() {
     cheap: 4000,
   };
 
-  const monthlyPayment = scenarios[mode];
+  const monthlyPayment = monthlyOverride ?? scenarios[mode];
 
   /* ================= CALCULATIONS ================= */
   const totalCarCost = monthlyPayment * 12 * years;
@@ -93,10 +94,10 @@ export default function CarStudio() {
   /* ================= VERDICT ================= */
   const verdict =
     missedValue > 200000
-      ? "⚠️ This decision is financially expensive."
+      ? "This decision is financially expensive."
       : missedValue > 100000
-        ? "⚡ Consider a cheaper alternative."
-        : "✅ This is a balanced decision.";
+        ? "Consider a cheaper alternative."
+        : "This is a balanced decision.";
 
   /* ================= UI ================= */
   return (
@@ -104,33 +105,18 @@ export default function CarStudio() {
       <AppNav />
 
       <div className="scenario-toggle">
-        <button onClick={() => setMode("cheap")}>Cheap</button>
-        <button onClick={() => setMode("balanced")}>Balanced</button>
-        <button onClick={() => setMode("expensive")}>Expensive</button>
+        <button onClick={() => { setMode("cheap"); setMonthlyOverride(null); }}>Cheap</button>
+        <button onClick={() => { setMode("balanced"); setMonthlyOverride(null); }}>Balanced</button>
+        <button onClick={() => { setMode("expensive"); setMonthlyOverride(null); }}>Expensive</button>
       </div>
 
       <div className="sim-container">
-        <h1>Car vs Invest Studio</h1>
-        <p>What is the real cost of your car?</p>
+        <TypewriterHeading tag="h1" text="Car vs Invest Studio" speed={50} />
+        <TypewriterHeading tag="p" className="subtitle" text="What is the real cost of buying a car?" speed={18} delay={700} />
 
         <div className="sim-grid">
           {/* INPUT PANEL */}
           <div id="inputs" className="sim-card">
-            <div className="input-group">
-              <div className="input-header">
-                <span>Car Price</span>
-                <strong>R{carPrice.toLocaleString()}</strong>
-              </div>
-              <input
-                type="range"
-                min="100000"
-                max="1000000"
-                step="50000"
-                value={carPrice}
-                onChange={(e) => setCarPrice(Number(e.target.value))}
-              />
-            </div>
-
             <div className="input-group">
               <div className="input-header">
                 <span>Monthly Payment</span>
@@ -142,9 +128,7 @@ export default function CarStudio() {
                 max="20000"
                 step="500"
                 value={monthlyPayment}
-                onChange={() => {
-                  // controlled by mode, slider is display only
-                }}
+                onChange={(e) => setMonthlyOverride(Number(e.target.value))}
               />
             </div>
 

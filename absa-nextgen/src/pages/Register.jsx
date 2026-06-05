@@ -62,6 +62,13 @@ export default function Register() {
     // Create session
     localStorage.setItem("session", JSON.stringify({ loggedIn: true }));
 
+    // Reset all tour flags so new user sees every tour fresh
+    [
+      "homeTour", "snapshotTour", "schoolTour",
+      "seenProfileTour", "seenTour", "seenTrackTour",
+      "tourDone", "tourStep",
+    ].forEach((key) => localStorage.removeItem(key));
+
     const firstName = form.name.split(" ")[0];
     transitionTo("/setup", "green", `We're happy to have you, ${firstName}.`);
   };

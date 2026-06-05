@@ -6,7 +6,7 @@ import ExplainerPanel from "../components/ExplainerPanel";
 import TypewriterHeading from "../components/TypewriterHeading";
 import { useUser } from "../context/UserContext";
 import useProgress from "../hooks/useProgress";
-import { Target, TrendingUp, AlertTriangle, BookOpen, Lightbulb, FileText } from "lucide-react";
+import { Target, TrendingUp, AlertTriangle, BookOpen, Lightbulb, FileText, GraduationCap, Check } from "lucide-react";
 import MonthlySavingsTracker from "../components/MonthlySavingsTracker";
 
 export default function PropertyTrack() {
@@ -69,10 +69,8 @@ export default function PropertyTrack() {
 
         {/* HEADER */}
         <p className="tracks-eyebrow">Property Track</p>
-        <TypewriterHeading tag="h1" text="Property Strategy Path" speed={50} />
-        <p className="subtitle">
-          Savings rate: <span className="accent">{savingsRate}%</span> · Monthly surplus: <span className="accent">R{savings.toLocaleString("en-ZA")}</span>
-        </p>
+        <TypewriterHeading tag="h1" text={`Welcome back, ${user?.name?.split(" ")[0] || "there"}`} speed={50} />
+        <TypewriterHeading tag="p" className="subtitle" text={`You are on the Property track · ${savingsRate}% savings rate · R${savings.toLocaleString("en-ZA")} surplus`} speed={18} delay={900} />
 
         {/* ROW 1: DEPOSIT PROGRESS + TIMELINE */}
         <div className="pt-row">
@@ -133,7 +131,7 @@ export default function PropertyTrack() {
                     <div className="ms-circle-row">
                       {index > 0 && <div className={`ms-line ${progress[milestones[index-1].key] ? "filled" : ""}`} />}
                       <div className={`step ${isCompleted ? "completed" : ""} ${isCurrent ? "current" : ""} ${isLocked ? "locked" : ""}`} title={isCompleted ? "Achieved" : isLocked ? "Complete previous milestone first" : hint}>
-                        {isCompleted ? "✓" : index + 1}
+                        {isCompleted ? <Check size={14} /> : index + 1}
                       </div>
                       {index < milestones.length - 1 && <div className={`ms-line ${isCompleted ? "filled" : ""}`} />}
                     </div>
@@ -245,7 +243,7 @@ export default function PropertyTrack() {
       <ExplainerPanel show={showPanel} onClose={() => setShowPanel(false)} content={content} />
 
       <div className="finance-orb" onClick={() => navigate("/learn")} title="Finance School">
-        🎓
+        <GraduationCap size={22} color="#0a1210" />
       </div>
     </div>
   );

@@ -99,10 +99,9 @@ export default function FoundationBuilderTrack() {
 
       <div className="track-container">
         {/* ================= HEADER ================= */}
-        <TypewriterHeading tag="h1" text="Foundation Builder Track" speed={50} />
-        <p className="subtitle">
-          Build your financial base before investing and long-term growth.
-        </p>
+        <p className="tracks-eyebrow">Foundation Builder</p>
+        <TypewriterHeading tag="h1" text={`Welcome back, ${user?.name?.split(" ")[0] || "there"}`} speed={50} />
+        <TypewriterHeading tag="p" className="subtitle" text="You are on the Foundation track · build your financial base from the ground up" speed={18} delay={900} />
 
         {/* ================= EMERGENCY FUND STATUS ================= */}
         <div className="track-card">
