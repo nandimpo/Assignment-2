@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
 import AppNav from "../components/AppNav";
 import { Home, TrendingUp, Shield, Scale, Zap, ArrowRight } from "lucide-react";
-import TypewriterHeading from "../components/TypewriterHeading";
+import SlideIn from "../components/SlideIn";
 import { useEffect, useState } from "react";
 import { getTrackProgression } from "../utils/trackProgression";
 
@@ -291,8 +291,8 @@ export default function StrategyTrack() {
         {/* ── HEADER ── */}
         <div id="track-header">
           <p className="tracks-eyebrow">Strategy Tracks</p>
-          <TypewriterHeading tag="h1" text={`Welcome back, ${user?.name?.split(" ")[0] || "there"}`} speed={50} />
-          <TypewriterHeading tag="p" className="subtitle" text={`You are on the ${tracks[selectedTrack]?.name || "—"} track · explore all paths or jump straight in`} speed={18} delay={900} />
+          <SlideIn tag="h1" text={`Welcome back, ${user?.name?.split(" ")[0] || "there"}`} />
+          <SlideIn tag="p" className="subtitle" delay={120} text={`You are on the ${tracks[selectedTrack]?.name || "—"} track · explore all paths or jump straight in`} />
         </div>
 
         {/* ── YOUR CURRENT TRACK — hero card ── */}

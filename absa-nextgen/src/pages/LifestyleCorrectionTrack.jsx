@@ -1,7 +1,7 @@
 import { useState } from "react";
 import AppNav from "../components/AppNav";
 import "../styles/track.css";
-import TypewriterHeading from "../components/TypewriterHeading";
+import SlideIn from "../components/SlideIn";
 import { getTrackProgression } from "../utils/trackProgression";
 import { useUser } from "../context/UserContext";
 import useProgress from "../hooks/useProgress";
@@ -96,8 +96,8 @@ export default function LifestyleCorrectionTrack() {
       <div className="track-container">
         {/* ================= HEADER ================= */}
         <p className="tracks-eyebrow">Lifestyle Correction</p>
-        <TypewriterHeading tag="h1" text={`Welcome back, ${user?.name?.split(" ")[0] || "there"}`} speed={50} />
-        <TypewriterHeading tag="p" className="subtitle" text="You are on the Lifestyle Correction track · reduce debt and rebalance your spending" speed={18} delay={900} />
+        <SlideIn tag="h1" text={`Welcome back, ${user?.name?.split(" ")[0] || "there"}`} />
+        <SlideIn tag="p" className="subtitle" delay={120} text="You are on the Lifestyle Correction track · reduce debt and rebalance your spending" />
 
         {/* ================= FINANCIAL PATH ================= */}
         <div className="track-card">

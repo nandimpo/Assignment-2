@@ -3,7 +3,7 @@ import { useUser } from "../context/UserContext";
 import AppNav from "../components/AppNav";
 import "../styles/track.css";
 import useProgress from "../hooks/useProgress";
-import TypewriterHeading from "../components/TypewriterHeading";
+import SlideIn from "../components/SlideIn";
 
 export default function CatchUpTrack() {
   const { user } = useUser();
@@ -105,8 +105,8 @@ export default function CatchUpTrack() {
       <div className="track-container">
         {/* ================= HEADER ================= */}
         <p className="tracks-eyebrow">Catch-Up Wealth</p>
-        <TypewriterHeading tag="h1" text={`Welcome back, ${user?.name?.split(" ")[0] || "there"}`} speed={50} />
-        <TypewriterHeading tag="p" className="subtitle" text="You are on the Catch-Up track · accelerate your progress and close the gap" speed={18} delay={900} />
+        <SlideIn tag="h1" text={`Welcome back, ${user?.name?.split(" ")[0] || "there"}`} />
+        <SlideIn tag="p" className="subtitle" delay={120} text="You are on the Catch-Up track · accelerate your progress and close the gap" />
 
         {/* ================= STATUS ================= */}
         <div className="track-card">

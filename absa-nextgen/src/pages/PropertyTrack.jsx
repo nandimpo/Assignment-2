@@ -3,7 +3,7 @@ import { useState } from "react";
 import AppNav from "../components/AppNav";
 import "../styles/track.css";
 import ExplainerPanel from "../components/ExplainerPanel";
-import TypewriterHeading from "../components/TypewriterHeading";
+import SlideIn from "../components/SlideIn";
 import { useUser } from "../context/UserContext";
 import useProgress from "../hooks/useProgress";
 import { Target, TrendingUp, AlertTriangle, BookOpen, Lightbulb, FileText, GraduationCap, Check } from "lucide-react";
@@ -69,8 +69,8 @@ export default function PropertyTrack() {
 
         {/* HEADER */}
         <p className="tracks-eyebrow">Property Track</p>
-        <TypewriterHeading tag="h1" text={`Welcome back, ${user?.name?.split(" ")[0] || "there"}`} speed={50} />
-        <TypewriterHeading tag="p" className="subtitle" text={`You are on the Property track · ${savingsRate}% savings rate · R${savings.toLocaleString("en-ZA")} surplus`} speed={18} delay={900} />
+        <SlideIn tag="h1" text={`Welcome back, ${user?.name?.split(" ")[0] || "there"}`} />
+        <SlideIn tag="p" className="subtitle" delay={120} text={`You are on the Property track · ${savingsRate}% savings rate · R${savings.toLocaleString("en-ZA")} surplus`} />
 
         {/* ROW 1: DEPOSIT PROGRESS + TIMELINE */}
         <div className="pt-row">

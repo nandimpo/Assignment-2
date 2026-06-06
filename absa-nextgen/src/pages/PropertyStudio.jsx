@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { BarChart2, Cpu, HelpCircle } from "lucide-react";
-import TypewriterHeading from "../components/TypewriterHeading";
+import SlideIn from "../components/SlideIn";
 import "../styles/simulation.css";
 import AppNav from "../components/AppNav";
 import ExplainerPanel from "../components/ExplainerPanel";
@@ -129,8 +129,8 @@ The outcome is highly sensitive to interest rates, time horizon, and your income
       <AppNav />
 
       <div className="sim-container">
-        <TypewriterHeading tag="h1" text="Property vs Renting Studio" speed={50} />
-        <TypewriterHeading tag="p" className="subtitle" text="Simulate the financial impact of renting versus buying property" speed={18} delay={950} />
+        <SlideIn tag="h1" text="Property vs Renting Studio" />
+        <SlideIn tag="p" className="subtitle" delay={120} text="Simulate the financial impact of renting versus buying property" />
 
         <div className="sim-grid">
           {/* INPUTS */}

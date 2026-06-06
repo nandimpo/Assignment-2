@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Home, TrendingUp, Scale } from "lucide-react";
 import AppNav from "../components/AppNav";
-import TypewriterHeading from "../components/TypewriterHeading";
+import SlideIn from "../components/SlideIn";
 import "../styles/simulation.css";
 
 function SimulationCard({ sim, navigate, isRecommended, index }) {
@@ -117,8 +117,8 @@ export default function SimulationLab() {
       <div className="sim-container">
         <div id="header">
           <p className="sim-eyebrow">Simulation Lab</p>
-          <TypewriterHeading tag="h1" text="Test your decisions before making them" speed={50} />
-          <TypewriterHeading tag="p" className="sim-subtitle" text="Run scenarios and compare outcomes before committing to a financial choice." speed={18} delay={1100} />
+          <SlideIn tag="h1" text="Test your decisions before making them" />
+          <SlideIn tag="p" className="sim-subtitle" delay={120} text="Run scenarios and compare outcomes before committing to a financial choice." />
         </div>
 
         <section className="simulation-list" id="list">

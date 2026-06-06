@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import AppNav from "../components/AppNav";
-import TypewriterHeading from "../components/TypewriterHeading";
+import SlideIn from "../components/SlideIn";
 import "../styles/simulation.css";
 import {
   LineChart,
@@ -111,8 +111,8 @@ export default function CarStudio() {
       </div>
 
       <div className="sim-container">
-        <TypewriterHeading tag="h1" text="Car vs Invest Studio" speed={50} />
-        <TypewriterHeading tag="p" className="subtitle" text="What is the real cost of buying a car?" speed={18} delay={700} />
+        <SlideIn tag="h1" text="Car vs Invest Studio" />
+        <SlideIn tag="p" className="subtitle" delay={120} text="What is the real cost of buying a car?" />
 
         <div className="sim-grid">
           {/* INPUT PANEL */}

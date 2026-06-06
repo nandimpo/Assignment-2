@@ -1,6 +1,6 @@
 import { useState } from "react";
 import AppNav from "../components/AppNav";
-import TypewriterHeading from "../components/TypewriterHeading";
+import SlideIn from "../components/SlideIn";
 import "../styles/simulation.css";
 
 import {
@@ -71,8 +71,8 @@ export default function InvestingStudio() {
       <AppNav />
 
       <div className="sim-container">
-        <TypewriterHeading tag="h1" text="Local vs Offshore Investing Studio" speed={50} />
-        <TypewriterHeading tag="p" className="subtitle" text="Should you invest locally or globally?" speed={18} delay={1100} />
+        <SlideIn tag="h1" text="Local vs Offshore Investing Studio" />
+        <SlideIn tag="p" className="subtitle" delay={120} text="Should you invest locally or globally?" />
 
         <div className="sim-grid">
           {/* INPUTS */}

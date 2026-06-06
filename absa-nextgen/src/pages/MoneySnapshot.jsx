@@ -8,7 +8,7 @@ import Tour from "../components/Tour";
 import { useUser } from "../context/UserContext";
 import { calcMonthlyTax } from "../utils/tax";
 import { Target, GraduationCap } from "lucide-react";
-import TypewriterHeading from "../components/TypewriterHeading";
+import SlideIn from "../components/SlideIn";
 
 export default function MoneySnapshot() {
   const navigate = useNavigate();
@@ -394,25 +394,9 @@ export default function MoneySnapshot() {
       <div className="money-container">
         {/* 1. HEADER */}
         <section className="header" id="header">
-          <TypewriterHeading
-            tag="p"
-            text="Where am I now?"
-            className="snapshot-eyebrow"
-            speed={55}
-            delay={0}
-          />
-          <TypewriterHeading
-            tag="h2"
-            text={`Money Snapshot — ${user?.name || "User"}`}
-            speed={45}
-            delay={800}
-          />
-          <TypewriterHeading
-            tag="p"
-            text={`A live view of your Income vs. Fixed Costs vs. Goals — following the ${user?.strategy || "—"} strategy`}
-            speed={18}
-            delay={1800}
-          />
+          <SlideIn tag="p" className="snapshot-eyebrow" text="Where am I now?" />
+          <SlideIn tag="h2" text={`Money Snapshot — ${user?.name?.split(" ")[0] || "there"}`} delay={80} />
+          <SlideIn tag="p" className="subtitle" text={`A live view of your income, costs and goals — ${user?.strategy || "—"} strategy`} delay={180} />
         </section>
 
         {/* ROW 2: STATS — primary data entry */}

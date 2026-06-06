@@ -5,7 +5,7 @@ import AppNav from "../components/AppNav";
 import "../styles/track.css";
 import { Wallet, TrendingUp, PiggyBank, BookOpen, AlertTriangle } from "lucide-react";
 import MonthlySavingsTracker from "../components/MonthlySavingsTracker";
-import TypewriterHeading from "../components/TypewriterHeading";
+import SlideIn from "../components/SlideIn";
 
 export default function BalancedLifestyleTrack() {
   const { user } = useUser();
@@ -56,8 +56,8 @@ export default function BalancedLifestyleTrack() {
 
         {/* HEADER */}
         <p className="tracks-eyebrow">Balanced Lifestyle</p>
-        <TypewriterHeading tag="h1" text={`Welcome back, ${user?.name?.split(" ")[0] || "there"}`} speed={50} />
-        <TypewriterHeading tag="p" className="subtitle" text="You are on the Balanced Lifestyle track · enjoy life while building wealth" speed={18} delay={900} />
+        <SlideIn tag="h1" text={`Welcome back, ${user?.name?.split(" ")[0] || "there"}`} />
+        <SlideIn tag="p" className="subtitle" delay={120} text="You are on the Balanced Lifestyle track · enjoy life while building wealth" />
 
         {/* ROW 1: SNAPSHOT + MILESTONES */}
         <div className="bl-row">

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import AppNav from "../components/AppNav";
 import "../styles/profile.css";
 import { useUser } from "../context/UserContext";
-import TypewriterHeading from "../components/TypewriterHeading";
+import SlideIn from "../components/SlideIn";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -207,7 +207,7 @@ export default function Profile() {
                 </div>
 
                 <div className="profile-info">
-                  <TypewriterHeading tag="h2" text={user?.name || "User"} speed={60} />
+                  <SlideIn tag="h2" text={user?.name || "User"} />
                   <p>Financial growth journey</p>
                   <span className="tag">
                     {{

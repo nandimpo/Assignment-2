@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import Tour from "../components/Tour";
 import AppNav from "../components/AppNav";
 import "../styles/home.css";
-import TypewriterHeading from "../components/TypewriterHeading";
+import SlideIn from "../components/SlideIn";
 import { Home as HomeIcon, Scale, Shield, RefreshCw, Building2, TrendingUp, CreditCard, Target, GraduationCap, Info, Sparkles, ChevronRight, ChevronLeft } from "lucide-react";
 import { useUser } from "../context/UserContext";
 
@@ -101,8 +101,8 @@ export default function Home() {
 
         {/* ── HEADER ── */}
         <section className="home-header fade-in" id="home-header">
-          <TypewriterHeading tag="h2" text={`Welcome back, ${user?.name?.split(" ")[0] || "there"}`} speed={50} />
-          <TypewriterHeading tag="p" className="subtitle" text={`You are on the ${trackNames[user?.strategy] || "—"} track`} speed={18} delay={900} />
+          <SlideIn tag="h2" text={`Welcome back, ${user?.name?.split(" ")[0] || "there"}`} />
+          <SlideIn tag="p" className="subtitle" delay={120} text={`You are on the ${trackNames[user?.strategy] || "—"} track`} />
         </section>
 
         {/* ── ROW 1: NEXT STEP + HEALTH ── */}
