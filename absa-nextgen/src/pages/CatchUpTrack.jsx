@@ -4,6 +4,8 @@ import AppNav from "../components/AppNav";
 import "../styles/track.css";
 import useProgress from "../hooks/useProgress";
 import SlideIn from "../components/SlideIn";
+import FiveYearJourney from "../components/FiveYearJourney";
+import { TrendingUp, AlertTriangle, BookOpen, ChevronDown } from "lucide-react";
 
 export default function CatchUpTrack() {
   const { user } = useUser();
@@ -11,6 +13,8 @@ export default function CatchUpTrack() {
   // ✅ ALL HOOKS FIRST
   const [extraSaving, setExtraSaving] = useState(0);
   const { progress: milestoneProgress, milestoneStatus, percent } = useProgress();
+  const [openCards, setOpenCards] = useState({ engine: false, insights: false, guide: false, milestones: false });
+  const toggleCard = (key) => setOpenCards(prev => ({ ...prev, [key]: !prev[key] }));
 
   /* ================= DATA ================= */
   const income = Number(user?.netSalary || user?.salary) || 0;
@@ -108,6 +112,14 @@ export default function CatchUpTrack() {
         <SlideIn tag="h1" text={`Welcome back, ${user?.name?.split(" ")[0] || "there"}`} />
         <SlideIn tag="p" className="subtitle" delay={120} text="You are on the Catch-Up track · accelerate your progress and close the gap" />
 
+        {/* ================= 5-YEAR JOURNEY ================= */}
+        <FiveYearJourney
+          trackKey="catchup"
+          monthlyAmount={savings}
+          currentSaved={Number(user?.savings) || 0}
+          fiveYearTarget={Number(user?.fiveYearGoal) || 0}
+        />
+
         {/* ================= STATUS ================= */}
         <div className="track-card">
           <h2>Catch Up Status</h2>
@@ -173,9 +185,8 @@ export default function CatchUpTrack() {
           </p>
         </div>
 
-        {/* ================= 5-YEAR JOURNEY TIMELINE ================= */}
-        <div className="track-card">
-          <h2>Catch-Up Journey Timeline</h2>
+        <div className="track-card" style={{ display: "none" }}>
+          <h2>Catch-Up Journey Timeline (legacy)</h2>
 
           {/* HORIZONTAL TIMELINE */}
           <div
@@ -268,98 +279,147 @@ export default function CatchUpTrack() {
           </p>
         </div>
 
-        {/* ================= STRATEGY GUIDE ================= */}
-        <div className="track-card">
-          <h2>Catch-Up Strategy Guide</h2>
+        {/* ── TOOLS & EDUCATION ── */}
+        <div className="bl-tools-section">
+          <p className="bl-tools-label">Tools &amp; Education</p>
+          <div className="bl-tools-grid">
 
-          <div className="grid-2">
-            <div>
-              <h3>📌 What You Should Do</h3>
-              <ul className="list">
-                <li>Increase your savings rate aggressively (20–40%)</li>
-                <li>Cut unnecessary lifestyle expenses</li>
-                <li>Prioritise paying off high-interest debt</li>
-                <li>Invest consistently once stable</li>
-              </ul>
+            {/* ALLOCATION ENGINE */}
+            <div className={`bl-tile${openCards.engine ? " bl-tile--open" : ""}`}>
+              <button className="bl-tile-header" onClick={() => toggleCard("engine")}>
+                <div className="bl-tile-top">
+                  <TrendingUp size={15} color="#4facfe" />
+                  <span className="bl-tile-title">Allocation Engine</span>
+                  <ChevronDown size={14} color="#667c74" className={`bl-tile-chevron${openCards.engine ? " rotated" : ""}`} />
+                </div>
+                {!openCards.engine && (<>
+                  <p className="bl-tile-summary">Adjust monthly saving · see time impact</p>
+                  <p className="bl-tile-hint">Tap to explore →</p>
+                </>)}
+              </button>
+              {openCards.engine && (
+                <div className="bl-tile-body">
+                  <div className="slider-group">
+                    <label>Extra Monthly Saving</label>
+                    <input type="range" min="0" max="10000" step="500" value={extraSaving} onChange={(e) => setExtraSaving(Number(e.target.value))} />
+                    <span className="slider-hint">+R{extraSaving.toLocaleString()} / month — reduces time to goal</span>
+                  </div>
+                  <p className="small" style={{ marginTop: 10 }}>
+                    {score < 40 ? "⚠️ Falling behind — increase savings urgently" : score < 70 ? "📈 Improving — stay consistent" : "🚀 On track — maintain your strategy"}
+                  </p>
+                </div>
+              )}
             </div>
 
-            <div>
-              <h3>⚠️ Risks to Watch</h3>
-              <ul className="list">
-                <li>Burnout from saving too aggressively</li>
-                <li>Unrealistic expectations about "catching up fast"</li>
-                <li>Neglecting emergency savings</li>
-                <li>Taking high-risk investments to compensate</li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="explanation-box">
-            <h3>🧠 Real Explanation</h3>
-            <p>
-              This track is for users who feel behind financially and want to
-              accelerate their progress. The focus is not just saving more, but
-              making smarter financial decisions.
-            </p>
-            <p>
-              Catching up requires discipline — increasing income, reducing
-              expenses, and staying consistent. The biggest mistake is trying to
-              rush with risky decisions instead of building a strong foundation
-              first.
-            </p>
-          </div>
-        </div>
-
-        {/* ================= ADJUSTMENT + INSIGHTS GRID ================= */}
-        <div className="track-grid">
-          <div className="track-card">
-            <h3>Allocation Engine</h3>
-
-            <div className="slider-group">
-              <label>Extra Monthly Saving</label>
-              <input
-                type="range"
-                min="0"
-                max="10000"
-                step="500"
-                value={extraSaving}
-                onChange={(e) => setExtraSaving(Number(e.target.value))}
-              />
-              <span className="slider-hint">
-                +R{extraSaving.toLocaleString()} / month — reduces time to goal
-              </span>
+            {/* AI INSIGHTS */}
+            <div className={`bl-tile${openCards.insights ? " bl-tile--open" : ""}`}>
+              <button className="bl-tile-header" onClick={() => toggleCard("insights")}>
+                <div className="bl-tile-top">
+                  <TrendingUp size={15} color="#84a794" />
+                  <span className="bl-tile-title">AI Insights</span>
+                  <ChevronDown size={14} color="#667c74" className={`bl-tile-chevron${openCards.insights ? " rotated" : ""}`} />
+                </div>
+                {!openCards.insights && (<>
+                  <p className="bl-tile-summary">{insight1.slice(0, 45)}…</p>
+                  <p className="bl-tile-hint">Tap to explore →</p>
+                </>)}
+              </button>
+              {openCards.insights && (
+                <div className="bl-tile-body">
+                  <div className="insight-block">
+                    <div className="insight">💡 {insight1}</div>
+                    <div className="insight">🔔 {insight2}</div>
+                    {milestoneInsights.map((item, i) => <div key={i} className="insight">{item}</div>)}
+                  </div>
+                </div>
+              )}
             </div>
 
-            <p className="small">
-              {score < 40 &&
-                "⚠️ You are falling behind — increase savings urgently"}
-              {score >= 40 &&
-                score < 70 &&
-                "📈 You are improving — stay consistent"}
-              {score >= 70 && "🚀 You are on track — maintain your strategy"}
-            </p>
-          </div>
-
-          <div className="track-card">
-            <h3>AI Insights</h3>
-
-            <div className="insight-block">
-              <div className="insight">💡 {insight1}</div>
-              <div className="insight">🔔 {insight2}</div>
+            {/* TRACK RATIONALE */}
+            <div className={`bl-tile${openCards.milestones ? " bl-tile--open" : ""}`}>
+              <button className="bl-tile-header" onClick={() => toggleCard("milestones")}>
+                <div className="bl-tile-top">
+                  <BookOpen size={15} color="#d6a85a" />
+                  <span className="bl-tile-title">Track Rationale</span>
+                  <ChevronDown size={14} color="#667c74" className={`bl-tile-chevron${openCards.milestones ? " rotated" : ""}`} />
+                </div>
+                {!openCards.milestones && (<>
+                  <p className="bl-tile-summary">Trade-offs · numbers · warnings</p>
+                  <p className="bl-tile-hint">Tap to explore →</p>
+                </>)}
+              </button>
+              {openCards.milestones && (
+                <div className="bl-tile-body">
+                  <div className="grid-2" style={{ gap: 12 }}>
+                    <div style={{ background: "rgba(214,168,90,0.06)", border: "1px solid rgba(214,168,90,0.2)", borderRadius: 10, padding: "12px 14px" }}>
+                      <p style={{ fontSize: "0.7rem", fontWeight: 700, color: "#d6a85a", margin: "0 0 8px" }}>⚖ Trade-offs</p>
+                      {[
+                        { pro: true, text: "Fastest path to closing the wealth gap" },
+                        { pro: true, text: "High discipline = high reward" },
+                        { pro: false, text: "Lifestyle heavily restricted" },
+                        { pro: false, text: "Burnout risk if too aggressive" },
+                      ].map(({ pro, text }, i) => (
+                        <div key={i} style={{ display: "flex", gap: 7, marginBottom: 5 }}>
+                          <span style={{ color: pro ? "#84a794" : "#d6a85a", fontWeight: 700, flexShrink: 0 }}>{pro ? "✓" : "✗"}</span>
+                          <p style={{ margin: 0, fontSize: "0.76rem", color: "#c0ccc8" }}>{text}</p>
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ background: "rgba(255,107,107,0.05)", border: "1px solid rgba(255,107,107,0.15)", borderRadius: 10, padding: "12px 14px" }}>
+                      <p style={{ fontSize: "0.7rem", fontWeight: 700, color: "#ff9898", margin: "0 0 8px" }}>⚠ Watch for</p>
+                      {["Neglecting emergency savings", "High-risk investments to compensate", "Unrealistic speed expectations", "Skipping emergency fund"].map((t, i) => (
+                        <p key={i} style={{ margin: "0 0 5px", fontSize: "0.76rem", color: "#c0ccc8" }}>· {t}</p>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
-        </div>
 
-        {/* ================= MILESTONE INSIGHTS ================= */}
-        <div className="track-card">
-          <h3>Milestone Insights</h3>
+            {/* STRATEGY GUIDE */}
+            <div className={`bl-tile${openCards.guide ? " bl-tile--open" : ""}`}>
+              <button className="bl-tile-header" onClick={() => toggleCard("guide")}>
+                <div className="bl-tile-top">
+                  <BookOpen size={15} color="#8a9a96" />
+                  <span className="bl-tile-title">Strategy Guide</span>
+                  <ChevronDown size={14} color="#667c74" className={`bl-tile-chevron${openCards.guide ? " rotated" : ""}`} />
+                </div>
+                {!openCards.guide && (<>
+                  <p className="bl-tile-summary">What to do · risks to watch</p>
+                  <p className="bl-tile-hint">Tap to explore →</p>
+                </>)}
+              </button>
+              {openCards.guide && (
+                <div className="bl-tile-body">
+                  <div className="grid-2">
+                    <div>
+                      <p style={{ fontWeight: 600, marginBottom: 8, fontSize: "0.82rem" }}>📌 What to do</p>
+                      <ul className="list">
+                        <li>Increase savings rate aggressively (20–40%)</li>
+                        <li>Cut unnecessary lifestyle expenses</li>
+                        <li>Pay off high-interest debt first</li>
+                        <li>Invest consistently once stable</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <p style={{ fontWeight: 600, marginBottom: 8, fontSize: "0.82rem" }}>⚠️ Risks to watch</p>
+                      <ul className="list">
+                        <li>Burnout from saving too aggressively</li>
+                        <li>Neglecting emergency savings</li>
+                        <li>High-risk investments to compensate</li>
+                        <li>Unrealistic catch-up expectations</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div className="explanation-box" style={{ marginTop: 10 }}>
+                    <p style={{ lineHeight: 1.6, fontSize: "0.8rem" }}>
+                      Catching up requires discipline — increasing income, reducing expenses, and staying consistent. The biggest mistake is rushing with risky decisions instead of building a strong foundation first.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
 
-          <div className="insight-block">
-            {milestoneInsights.map((item, i) => (
-              <div key={i} className="insight">
-                {item}
-              </div>
-            ))}
           </div>
         </div>
       </div>

@@ -68,7 +68,11 @@ function CustomCursor() {
 
     // run once + re-run on DOM changes (route changes add new elements)
     addListeners();
-    const observer = new MutationObserver(addListeners);
+    const observer = new MutationObserver(() => {
+      addListeners();
+      // if the hovered element was removed, cursor--hover gets stuck — clear it
+      if (!document.querySelector(`${interactives}:hover`)) shrink();
+    });
     observer.observe(document.body, { childList: true, subtree: true });
 
     window.addEventListener("mousemove", move);

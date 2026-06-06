@@ -36,7 +36,7 @@
 .track-container {
   max-width: 1100px;
   margin: auto;
-  padding: 100px 20px 60px;
+  padding: 76px 20px 60px;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -735,6 +735,157 @@ h1 {
   .pt-row { grid-template-columns: 1fr; }
 }
 
+/* TOOLS & EDUCATION SECTION */
+.bl-tools-section {
+  margin-top: 4px;
+}
+
+.bl-tools-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #4a5c56;
+  margin: 0 0 10px;
+}
+
+.bl-tools-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* Tile — glass card */
+.bl-tile {
+  background: rgba(255,255,255,0.045);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.11);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow:
+    0 4px 16px rgba(0,0,0,0.35),
+    inset 0 1px 0 rgba(255,255,255,0.07);
+  transition: border-color 0.22s, background 0.22s, box-shadow 0.22s, transform 0.18s;
+  cursor: pointer;
+  position: relative;
+}
+
+/* Subtle top-edge inner highlight */
+.bl-tile::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  background: linear-gradient(
+    160deg,
+    rgba(255,255,255,0.055) 0%,
+    rgba(255,255,255,0.0) 55%
+  );
+  pointer-events: none;
+}
+
+.bl-tile:hover {
+  background: rgba(255,255,255,0.07);
+  border-color: rgba(214,168,90,0.45);
+  box-shadow:
+    0 6px 24px rgba(0,0,0,0.45),
+    0 0 0 1px rgba(214,168,90,0.18),
+    inset 0 1px 0 rgba(255,255,255,0.1);
+  transform: translateY(-1px);
+}
+
+/* Open tile spans full width */
+.bl-tile--open {
+  grid-column: 1 / -1;
+  border-color: rgba(214,168,90,0.38);
+  background: rgba(255,255,255,0.055);
+  box-shadow:
+    0 8px 28px rgba(0,0,0,0.45),
+    0 0 0 1px rgba(214,168,90,0.2),
+    inset 0 1px 0 rgba(255,255,255,0.09);
+  transform: none;
+}
+
+.bl-tile-header {
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 14px 17px 12px;
+  cursor: pointer;
+  text-align: left;
+  color: inherit;
+}
+
+.bl-tile-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bl-tile-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #c8d6d1;
+  flex: 1;
+  transition: color 0.15s;
+  letter-spacing: 0.01em;
+}
+
+.bl-tile:hover .bl-tile-title {
+  color: #e8d5a8;
+}
+
+.bl-tile-chevron {
+  transition: transform 0.25s;
+  flex-shrink: 0;
+  opacity: 0.5;
+}
+
+.bl-tile:hover .bl-tile-chevron {
+  opacity: 1;
+}
+
+.bl-tile-chevron.rotated {
+  transform: rotate(180deg);
+}
+
+.bl-tile-summary {
+  margin: 5px 0 0;
+  font-size: 0.71rem;
+  color: #5e7870;
+  padding-left: 23px;
+}
+
+/* "tap to open" hint — visible on hover only */
+.bl-tile-hint {
+  display: none;
+  font-size: 0.65rem;
+  color: #d6a85a;
+  padding-left: 23px;
+  margin-top: 4px;
+  letter-spacing: 0.03em;
+}
+
+.bl-tile:hover .bl-tile-hint {
+  display: block;
+}
+
+.bl-tile-body {
+  padding: 14px 17px 17px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  background: rgba(0,0,0,0.08);
+}
+
+.bl-tile-section-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #667c74;
+  margin: 0;
+}
+
 /* BALANCED LIFESTYLE LAYOUT */
 .bl-row {
   display: grid;
@@ -857,11 +1008,11 @@ h1 {
 .current-track-hero {
   display: grid;
   grid-template-columns: 1fr 1.4fr;
-  gap: 24px;
+  gap: 20px;
   background: linear-gradient(135deg, #0e1a17, #0c1512);
   border: 1px solid rgba(132, 167, 148, 0.3);
   border-radius: 16px;
-  padding: 28px;
+  padding: 22px 24px;
   align-items: start;
 }
 

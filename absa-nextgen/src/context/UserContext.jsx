@@ -14,7 +14,10 @@ export const UserProvider = ({ children }) => {
 
   // FIX 1: Moved inside the component so it can access `user` and `setUser`
   const updateUser = (updates) => {
-    const newUser = { ...user, ...updates };
+    // Always read the freshest copy from localStorage so data written
+    // directly (e.g. Register) is never clobbered by a stale context state.
+    const current = JSON.parse(localStorage.getItem("user") || "{}");
+    const newUser = { ...current, ...updates };
     localStorage.setItem("user", JSON.stringify(newUser));
     setUser(newUser);
   };

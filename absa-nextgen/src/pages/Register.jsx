@@ -2,12 +2,14 @@
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import useTransitionNavigate from "../hooks/useTransitionNavigate";
+import { useUser } from "../context/UserContext";
 import "../styles/register.css";
 import planet from "../assets/planet.png";
 
 export default function Register() {
   const navigate = useNavigate();
   const transitionTo = useTransitionNavigate();
+  const { setUser } = useUser();
 
   const [form, setForm] = useState({
     name: "",
@@ -56,8 +58,10 @@ export default function Register() {
       simulations: [],
     };
 
-    // Save user to localStorage so UserContext and Login can read it
+    // Save user to localStorage AND sync context so Setup's updateUser
+    // never merges against a stale empty state.
     localStorage.setItem("user", JSON.stringify(user));
+    setUser(user);
 
     // Create session
     localStorage.setItem("session", JSON.stringify({ loggedIn: true }));

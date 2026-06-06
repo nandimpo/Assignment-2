@@ -3,8 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { BarChart2, Cpu, HelpCircle } from "lucide-react";
 import SlideIn from "../components/SlideIn";
 import "../styles/simulation.css";
+import "../styles/fiveyear.css";
 import AppNav from "../components/AppNav";
 import ExplainerPanel from "../components/ExplainerPanel";
+import YearFiveCallout from "../components/YearFiveCallout";
 import { useUser } from "../context/UserContext";
 
 /* DEFAULT VALUES            */
@@ -129,8 +131,9 @@ The outcome is highly sensitive to interest rates, time horizon, and your income
       <AppNav />
 
       <div className="sim-container">
+        <p className="sim-eyebrow">Simulation Lab · 5-Year Journey</p>
         <SlideIn tag="h1" text="Property vs Renting Studio" />
-        <SlideIn tag="p" className="subtitle" delay={120} text="Simulate the financial impact of renting versus buying property" />
+        <SlideIn tag="p" className="subtitle" delay={120} text="See the full 5-year cost of renting vs buying before you decide" />
 
         <div className="sim-grid">
           {/* INPUTS */}
@@ -215,6 +218,17 @@ The outcome is highly sensitive to interest rates, time horizon, and your income
             <p className="graph-impact">{verdict}</p>
           </div>
         </div>
+
+        {/* YEAR 5 CALLOUT */}
+        <YearFiveCallout
+          label="At the end of your first 5 years"
+          items={[
+            { name: "Total rent paid", value: `R${(rent * 12 * 5).toLocaleString("en-ZA")}` },
+            { name: "Total bond paid", value: `R${(bondMonthly * 12 * 5).toLocaleString("en-ZA")}` },
+            { name: "5-Year difference", value: `R${Math.abs(difference).toLocaleString("en-ZA")} ${difference > 0 ? "saved renting" : "extra buying"}`, highlight: true },
+          ]}
+          note={difference < 0 ? "Buying costs more short-term, but builds equity. Your bond balance is reducing every month." : "Renting is cheaper over 5 years — but you build no asset."}
+        />
 
         {/* BOTTOM */}
         <div className="sim-bottom">

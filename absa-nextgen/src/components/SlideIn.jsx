@@ -10,7 +10,7 @@ export default function SlideIn({
   className = "",
   delay = 0,
   style = {},
-  stagger = 130,  // ms between each word
+  stagger = 160,  // ms between each word
 }) {
   const words = text.split(" ");
 

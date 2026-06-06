@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import AppNav from "../components/AppNav";
 import SlideIn from "../components/SlideIn";
+import YearFiveCallout from "../components/YearFiveCallout";
 import "../styles/simulation.css";
+import "../styles/fiveyear.css";
 import {
   LineChart,
   Line,
@@ -111,8 +113,9 @@ export default function CarStudio() {
       </div>
 
       <div className="sim-container">
+        <p className="sim-eyebrow">Simulation Lab · 5-Year Journey</p>
         <SlideIn tag="h1" text="Car vs Invest Studio" />
-        <SlideIn tag="p" className="subtitle" delay={120} text="What is the real cost of buying a car?" />
+        <SlideIn tag="p" className="subtitle" delay={120} text="What does your car choice cost your 5-year wealth?" />
 
         <div className="sim-grid">
           {/* INPUT PANEL */}
@@ -211,6 +214,17 @@ export default function CarStudio() {
             </div>
           </div>
         </div>
+
+        {/* YEAR 5 CALLOUT */}
+        <YearFiveCallout
+          label="If you invested instead of buying this car"
+          items={[
+            { name: "Total car cost (5 yrs)", value: `R${(monthlyPayment * 12 * 5).toLocaleString("en-ZA")}` },
+            { name: "Investment value (5 yrs)", value: `R${Math.round(data[Math.min(4, data.length - 1)]?.investment || 0).toLocaleString("en-ZA")}` },
+            { name: "Opportunity cost", value: `R${missedValue.toLocaleString("en-ZA")}`, highlight: true },
+          ]}
+          note="Opportunity cost is what your car payment would have grown to as an investment by Year 5."
+        />
 
         {/* VERDICT */}
         <div id="verdict" className="sim-card">

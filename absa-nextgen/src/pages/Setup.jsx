@@ -11,11 +11,12 @@ export default function Setup() {
   const { user, setUser } = useUser();
 
   const [form, setForm] = useState({
-    name:       user?.name || "",
-    grossSalary: user?.grossSalary || user?.salary || "",
-    expenses:   user?.expenses || "",
-    housePrice: user?.housePrice || "",
-    goalAmount: user?.goalAmount || "",
+    name:         user?.name || "",
+    grossSalary:  user?.grossSalary || user?.salary || "",
+    expenses:     user?.expenses || "",
+    housePrice:   user?.housePrice || "",
+    goalAmount:   user?.goalAmount || "",
+    fiveYearGoal: user?.fiveYearGoal || "",
   });
 
   const [selectedTrack, setSelectedTrack] = useState(
@@ -30,10 +31,20 @@ export default function Setup() {
     correction: { label: "Monthly overspend to reduce (R)", field: "goalAmount",  hint: "How much are you currently overspending per month?" },
   };
 
+  const fiveYearGoalConfig = {
+    property:   { label: "5-year portfolio goal after purchase (R)", hint: "How much do you want to have invested 5 years after buying?" },
+    balanced:   { label: "5-year portfolio target (R)",              hint: "What total portfolio value do you want after 5 years?" },
+    catchup:    { label: "5-year wealth target after clearing debt (R)", hint: "Once debt-free, how much do you want to have built?" },
+    correction: { label: "5-year savings target (R)",                hint: "How much do you want saved after 5 years of correcting habits?" },
+    foundation: { label: "5-year savings goal (R)",                  hint: "What total savings do you want to reach in 5 years?" },
+  };
+
   const goalConfig = trackGoalConfig[selectedTrack] || trackGoalConfig.property;
 
   const [suggestedPercent, setSuggestedPercent] = useState(10);
   const [userPercent, setUserPercent] = useState(10);
+  const [goalFlash, setGoalFlash] = useState(false);
+  const [breakdownFlash, setBreakdownFlash] = useState(false);
 
   const [breakdown, setBreakdown] = useState({
     housing:   user?.breakdown?.housing   || "",
@@ -43,14 +54,32 @@ export default function Setup() {
   });
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    // Validate monthly investment goal against disposable income (balanced track only)
+    if (name === "goalAmount" && selectedTrack === "balanced") {
+      const val = Number(value);
+      const disp = disposableIncome;
+      if (disp > 0 && val > disp) {
+        setGoalFlash(true);
+        setTimeout(() => setGoalFlash(false), 1800);
+        return; // block the update
+      }
+    }
+    setForm({ ...form, [name]: value });
   };
 
   const handleBreakdownChange = (e) => {
-    setBreakdown({
-      ...breakdown,
-      [e.target.name]: e.target.value === "" ? "" : Number(e.target.value),
-    });
+    const newVal = e.target.value === "" ? "" : Number(e.target.value);
+    const updated = { ...breakdown, [e.target.name]: newVal };
+    const totalExpenses = Number(form.expenses) || 0;
+    const newTotal = (Number(updated.housing) || 0) + (Number(updated.mobility) || 0) +
+                     (Number(updated.lifestyle) || 0) + (Number(updated.debt) || 0);
+    if (totalExpenses > 0 && newTotal > totalExpenses) {
+      setBreakdownFlash(true);
+      setTimeout(() => setBreakdownFlash(false), 1800);
+      return;
+    }
+    setBreakdown(updated);
   };
 
   const grossSalary = Number(form.grossSalary) || 0;
@@ -68,10 +97,12 @@ export default function Setup() {
     if (!user) return;
 
     setForm({
-      name:        user.name || "",
-      grossSalary: user.grossSalary || user.salary || "",
-      expenses:    user.expenses || "",
-      housePrice:  user.housePrice || "",
+      name:         user.name || "",
+      grossSalary:  user.grossSalary || user.salary || "",
+      expenses:     user.expenses || "",
+      housePrice:   user.housePrice || "",
+      goalAmount:   user.goalAmount || "",
+      fiveYearGoal: user.fiveYearGoal || "",
     });
 
     setSelectedTrack(user.strategy || "property");
@@ -172,6 +203,7 @@ export default function Setup() {
       monthsToGoal,
       savings: submittedNet - exp,
       breakdown,
+      fiveYearGoal: Number(form.fiveYearGoal) || 0,
     };
 
     setUser(updatedUser); // ✅ THIS replaces localStorage.setItem
@@ -262,7 +294,7 @@ export default function Setup() {
               </div>
               <div className="input-row">
                 <input type="number" name="expenses" placeholder="Monthly expenses (R)" value={form.expenses} onChange={handleChange} />
-                <div className="goal-input-wrap">
+                <div className={`goal-input-wrap${goalFlash ? " goal-input-flash" : ""}`}>
                   <input
                     type="number"
                     name={goalConfig.field}
@@ -271,32 +303,83 @@ export default function Setup() {
                     onChange={handleChange}
                   />
                   <span className="goal-hint">{goalConfig.hint}</span>
+                  {goalFlash && (
+                    <p className="goal-flash-warning">
+                      ⚠ Your investment goal exceeds your disposable income of R{disposableIncome.toLocaleString("en-ZA")}. Please enter a lower amount.
+                    </p>
+                  )}
                 </div>
+              </div>
+
+              {/* 5-YEAR GOAL */}
+              <div className="five-year-goal-row">
+                <div className="five-year-goal-label">
+                  <span className="five-year-icon">5</span>
+                  <div>
+                    <p className="five-year-title">Your 5-year goal</p>
+                    <p className="five-year-hint">{(fiveYearGoalConfig[selectedTrack] || fiveYearGoalConfig.foundation).hint}</p>
+                  </div>
+                </div>
+                <input
+                  type="number"
+                  name="fiveYearGoal"
+                  placeholder={(fiveYearGoalConfig[selectedTrack] || fiveYearGoalConfig.foundation).label}
+                  value={form.fiveYearGoal}
+                  onChange={handleChange}
+                  className="five-year-input"
+                />
               </div>
             </div>
 
             {/* SPENDING BREAKDOWN */}
             <div className="setup-section">
-              <p className="section-label">Spending breakdown</p>
-              <div className="input-row">
-                <div className="labelled-input">
-                  <label><Building2 size={12} /> Housing / Rent</label>
-                  <input type="number" name="housing" placeholder="e.g. 8 000" value={breakdown.housing} onChange={handleBreakdownChange} />
+              {(() => {
+                const totalExpenses = Number(form.expenses) || 0;
+                const breakdownTotal = (Number(breakdown.housing) || 0) + (Number(breakdown.mobility) || 0) +
+                                       (Number(breakdown.lifestyle) || 0) + (Number(breakdown.debt) || 0);
+                const remaining = totalExpenses - breakdownTotal;
+                const isOver = breakdownTotal > totalExpenses && totalExpenses > 0;
+                return (
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginBottom: 10 }}>
+                    <p className="section-label" style={{ margin: 0 }}>Spending breakdown</p>
+                    {totalExpenses > 0 && (
+                      <span style={{ fontSize: "0.78rem", color: isOver ? "#ff6b6b" : remaining === 0 ? "#84a794" : "#8a9a96" }}>
+                        {isOver
+                          ? `Over by R${Math.abs(remaining).toLocaleString("en-ZA")}`
+                          : remaining === 0
+                          ? "Fully allocated ✓"
+                          : `R${remaining.toLocaleString("en-ZA")} unallocated of R${totalExpenses.toLocaleString("en-ZA")}`}
+                      </span>
+                    )}
+                  </div>
+                );
+              })()}
+              <div className={breakdownFlash ? "breakdown-flash" : ""}>
+                <div className="input-row">
+                  <div className="labelled-input">
+                    <label><Building2 size={12} /> Housing / Rent</label>
+                    <input type="number" name="housing" placeholder="e.g. 8 000" value={breakdown.housing} onChange={handleBreakdownChange} />
+                  </div>
+                  <div className="labelled-input">
+                    <label><Car size={12} /> Transport</label>
+                    <input type="number" name="mobility" placeholder="e.g. 3 000" value={breakdown.mobility} onChange={handleBreakdownChange} />
+                  </div>
                 </div>
-                <div className="labelled-input">
-                  <label><Car size={12} /> Transport</label>
-                  <input type="number" name="mobility" placeholder="e.g. 3 000" value={breakdown.mobility} onChange={handleBreakdownChange} />
+                <div className="input-row">
+                  <div className="labelled-input">
+                    <label><ShoppingBag size={12} /> Lifestyle</label>
+                    <input type="number" name="lifestyle" placeholder="e.g. 5 000" value={breakdown.lifestyle} onChange={handleBreakdownChange} />
+                  </div>
+                  <div className="labelled-input">
+                    <label><CreditCard size={12} /> Debt Repayments</label>
+                    <input type="number" name="debt" placeholder="e.g. 2 000" value={breakdown.debt} onChange={handleBreakdownChange} />
+                  </div>
                 </div>
-              </div>
-              <div className="input-row">
-                <div className="labelled-input">
-                  <label><ShoppingBag size={12} /> Lifestyle</label>
-                  <input type="number" name="lifestyle" placeholder="e.g. 5 000" value={breakdown.lifestyle} onChange={handleBreakdownChange} />
-                </div>
-                <div className="labelled-input">
-                  <label><CreditCard size={12} /> Debt Repayments</label>
-                  <input type="number" name="debt" placeholder="e.g. 2 000" value={breakdown.debt} onChange={handleBreakdownChange} />
-                </div>
+                {breakdownFlash && (
+                  <p className="goal-flash-warning">
+                    ⚠ Your breakdown total would exceed your monthly expenses of R{(Number(form.expenses) || 0).toLocaleString("en-ZA")}. Reduce another category first.
+                  </p>
+                )}
               </div>
             </div>
 

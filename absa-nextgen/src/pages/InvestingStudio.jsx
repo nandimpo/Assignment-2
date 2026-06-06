@@ -1,7 +1,9 @@
 import { useState } from "react";
 import AppNav from "../components/AppNav";
 import SlideIn from "../components/SlideIn";
+import YearFiveCallout from "../components/YearFiveCallout";
 import "../styles/simulation.css";
+import "../styles/fiveyear.css";
 
 import {
   LineChart,
@@ -71,8 +73,9 @@ export default function InvestingStudio() {
       <AppNav />
 
       <div className="sim-container">
+        <p className="sim-eyebrow">Simulation Lab · 5-Year Journey</p>
         <SlideIn tag="h1" text="Local vs Offshore Investing Studio" />
-        <SlideIn tag="p" className="subtitle" delay={120} text="Should you invest locally or globally?" />
+        <SlideIn tag="p" className="subtitle" delay={120} text="Which allocation builds more wealth over your first 5 years?" />
 
         <div className="sim-grid">
           {/* INPUTS */}
@@ -187,6 +190,17 @@ export default function InvestingStudio() {
             </p>
           </div>
         </div>
+
+        {/* YEAR 5 CALLOUT */}
+        <YearFiveCallout
+          label="Your portfolio after 5 years of investing"
+          items={[
+            { name: "Local (JSE)", value: `R${data[Math.min(4, data.length - 1)]?.local.toLocaleString("en-ZA") || "—"}` },
+            { name: "Offshore", value: `R${data[Math.min(4, data.length - 1)]?.global.toLocaleString("en-ZA") || "—"}` },
+            { name: "Combined portfolio", value: `R${data[Math.min(4, data.length - 1)]?.combined.toLocaleString("en-ZA") || "—"}`, highlight: true },
+          ]}
+          note={`At R${monthly.toLocaleString("en-ZA")}/month · ${localSplit}% local, ${globalSplit}% offshore`}
+        />
 
         {/* VERDICT */}
         <div className="sim-card">

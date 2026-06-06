@@ -30,7 +30,59 @@ export default function MoneySnapshot() {
   // Use net take-home as the base for all ratios
   const income = netPay;
 
-  const goal = user?.depositAmount || user?.goalAmount || 1000000;
+  const net = income - expenses;
+  const safeIncome = income > 0 ? income : 1;
+
+  // Actual logged total from MonthlySavingsTracker — single source of truth for "how much invested"
+  const savingsLogTotal = (user?.savingsLog || [])
+    .filter(e => !e.missed)
+    .reduce((sum, e) => sum + (e.amount || 0), 0);
+
+  const goalMonthly = Number(user?.goalAmount) || Math.round(net * 0.2);
+  const goal = user?.depositAmount || user?.goalAmount || goalMonthly * 60 || 600000;
+  const fiveYearGoal = Number(user?.fiveYearGoal) || goalMonthly * 60;
+
+  // Per-track progress values — current is always the actual logged/invested total
+  const trackGoalValues = {
+    property: {
+      current: savingsLogTotal,
+      target: goal,
+      monthsLabel: (cur, tgt, n) => tgt > cur && n > 0 ? Math.ceil((tgt - cur) / n) : 0,
+      progressLabel: (cur, tgt) => `R${cur.toLocaleString("en-ZA")} saved toward deposit of R${tgt.toLocaleString("en-ZA")}`,
+    },
+    balanced: {
+      current: savingsLogTotal,
+      target: fiveYearGoal,
+      monthsLabel: () => null,
+      progressLabel: (cur) => `R${cur.toLocaleString("en-ZA")} invested so far · R${goalMonthly.toLocaleString("en-ZA")}/month target`,
+    },
+    catchup: {
+      current: savingsLogTotal,
+      target: goal,
+      monthsLabel: (cur, tgt, n) => tgt > cur && n > 0 ? Math.ceil((tgt - cur) / n) : 0,
+      progressLabel: (cur, tgt) => `R${cur.toLocaleString("en-ZA")} cleared of R${tgt.toLocaleString("en-ZA")} debt`,
+    },
+    correction: {
+      current: savingsLogTotal,
+      target: goal,
+      monthsLabel: (cur, tgt, n) => tgt > cur && n > 0 ? Math.ceil((tgt - cur) / n) : 0,
+      progressLabel: (cur, tgt) => `R${cur.toLocaleString("en-ZA")} of R${tgt.toLocaleString("en-ZA")} target reached`,
+    },
+    foundation: {
+      current: savingsLogTotal,
+      target: goal,
+      monthsLabel: (cur, tgt, n) => tgt > cur && n > 0 ? Math.ceil((tgt - cur) / n) : 0,
+      progressLabel: (cur, tgt) => `R${cur.toLocaleString("en-ZA")} saved toward R${tgt.toLocaleString("en-ZA")} target`,
+    },
+  };
+
+  const trackStrategy = user?.strategy || "property";
+  const tgv = trackGoalValues[trackStrategy] || trackGoalValues.property;
+  const tgvCurrent = tgv.current;
+  const tgvTarget = Math.max(tgv.target, 1);
+  const tgvProgress = Math.min(100, Math.round((tgvCurrent / tgvTarget) * 100));
+  const tgvMonths = tgv.monthsLabel(tgvCurrent, tgvTarget, net);
+  const tgvLabel = tgv.progressLabel(tgvCurrent, tgvTarget);
 
   const [showPanel, setShowPanel] = useState(false);
   const [content, setContent] = useState(null);
@@ -44,12 +96,12 @@ export default function MoneySnapshot() {
   };
   const hideTooltip = () => setActiveTooltip(null);
 
-  const net = income - expenses;
-  const safeIncome = income > 0 ? income : 1;
-  const savingsRate = Math.round((savings / safeIncome) * 100);
-  const progress = Math.min(100, Math.round((savings / goal) * 100));
+  // savingsRate is based on monthly surplus (income - expenses), not log total
+  const monthlySurplus = Math.max(0, net);
+  const savingsRate = Math.round((monthlySurplus / safeIncome) * 100);
+  const progress = Math.min(100, Math.round((savingsLogTotal / Math.max(goal, 1)) * 100));
   const monthsToGoal =
-    savings >= goal ? 0 : Math.ceil((goal - savings) / (savings || 1));
+    savingsLogTotal >= goal ? 0 : Math.ceil((goal - savingsLogTotal) / (goalMonthly || 1));
 
   const [breakdownEdit, setBreakdownEdit] = useState({
     housing:   user?.breakdown?.housing   ?? Math.round(expenses * 0.4),
@@ -58,7 +110,7 @@ export default function MoneySnapshot() {
     debt:      user?.breakdown?.debt      ?? Math.round(expenses * 0.15),
   });
 
-  const breakdown = { ...breakdownEdit, savings };
+  const breakdown = { ...breakdownEdit, savings: monthlySurplus };
 
   const handleBreakdownChange = (e) => {
     setBreakdownEdit({ ...breakdownEdit, [e.target.name]: Number(e.target.value) });
@@ -192,17 +244,18 @@ export default function MoneySnapshot() {
   const allTourSteps = [...snapshotSteps, ...getCoachSteps()];
 
   // ── PERSIST VIA CONTEXT ──
+  // Note: we do NOT write `savings` here — the MonthlySavingsTracker owns user.savings
+  // via savingsLog. Writing it here would overwrite the tracker's accumulated total.
   useEffect(() => {
-    const currentBreakdown = { ...breakdownEdit, savings };
+    const currentBreakdown = { ...breakdownEdit };
     updateUser({
       grossSalary: grossIncome,
       salary: income,
       expenses,
-      savings,
       monthsToGoal,
       breakdown: currentBreakdown,
     });
-  }, [grossIncome, income, expenses, savings, breakdownEdit]);
+  }, [grossIncome, income, expenses, breakdownEdit]);
 
   const { progress: milestoneProgress, milestoneStatus, trackRoute, trackName, percent } = useProgress();
   const strategy = user?.strategy || "property";
@@ -219,9 +272,9 @@ export default function MoneySnapshot() {
       goalProgressLabel: "saved toward deposit",
       depositButtonLabel: "Optimise to 25% savings rate",
       getNextAction: () => {
-        const shortfall = Math.max(0, goal - savings);
+        const shortfall = Math.max(0, goal - savingsLogTotal);
         const months = net > 0 ? Math.ceil(shortfall / net) : "—";
-        const emergencyShortfall = Math.max(0, expenses * 4 - savings);
+        const emergencyShortfall = Math.max(0, expenses * 4 - savingsLogTotal);
         const emMonths = net > 0 ? Math.ceil(emergencyShortfall / net) : "—";
         if (!milestoneProgress.emergencyFund) return {
           action: "Build your emergency fund",
@@ -261,7 +314,7 @@ export default function MoneySnapshot() {
       goalProgressLabel: "toward investment target",
       depositButtonLabel: "Set savings to 20%",
       getNextAction: () => {
-        const shortfall = Math.max(0, goal - savings);
+        const shortfall = Math.max(0, goal - savingsLogTotal);
         const months = net > 0 ? Math.ceil(shortfall / net) : "—";
         if (!milestoneProgress.emergencyFund) return {
           action: "Build a 3–6 month safety net",
@@ -551,10 +604,13 @@ export default function MoneySnapshot() {
                 <span className="info-icon" onMouseEnter={(e) => showTooltip("property", e)} onMouseLeave={hideTooltip} onClick={() => { setContent(explainers.property); setShowPanel(true); }}>ⓘ</span>
               </h3>
               <div className="progress">
-                <div className="fill" style={{ width: `${progress}%` }} />
+                <div className="fill" style={{ width: `${tgvProgress}%` }} />
               </div>
-              <p className="small">R{savings.toLocaleString("en-ZA")} {trackCfg.goalProgressLabel} of R{goal.toLocaleString("en-ZA")} · {monthsToGoal} months to go</p>
-              <button className="pill" onClick={() => setSavings(Math.round(income * 0.25))}>{trackCfg.depositButtonLabel}</button>
+              <p className="small">
+                {tgvLabel}
+                {tgvMonths !== null && ` · ${tgvMonths} months to go`}
+              </p>
+              <button className="pill" onClick={() => navigate("/setup")}>{trackCfg.depositButtonLabel}</button>
             </div>
 
             {/* AI INSIGHTS */}
@@ -596,16 +652,16 @@ export default function MoneySnapshot() {
                 className="chart"
                 style={{
                   background: `conic-gradient(
-                    #84a794 0% ${(savings / safeIncome) * 100}%,
-                    #6faad3 ${(savings / safeIncome) * 100}% ${((savings + expenses) / safeIncome) * 100}%,
-                    #d6a85a ${((savings + expenses) / safeIncome) * 100}% 100%
+                    #84a794 0% ${(monthlySurplus / safeIncome) * 100}%,
+                    #6faad3 ${(monthlySurplus / safeIncome) * 100}% ${((monthlySurplus + expenses) / safeIncome) * 100}%,
+                    #d6a85a ${((monthlySurplus + expenses) / safeIncome) * 100}% 100%
                   )`,
                 }}
               />
               <div className="legend">
-                <p>Savings — R{savings.toLocaleString("en-ZA")}</p>
+                <p>Surplus — R{monthlySurplus.toLocaleString("en-ZA")}</p>
                 <p>Expenses — R{expenses.toLocaleString("en-ZA")}</p>
-                <p>Remaining — R{net.toLocaleString("en-ZA")}</p>
+                <p>Invested (total) — R{savingsLogTotal.toLocaleString("en-ZA")}</p>
               </div>
               <button
                 className="pill full"

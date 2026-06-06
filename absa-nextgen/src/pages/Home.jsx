@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Tour from "../components/Tour";
 import AppNav from "../components/AppNav";
 import "../styles/home.css";
+import "../styles/fiveyear.css";
 import SlideIn from "../components/SlideIn";
 import { Home as HomeIcon, Scale, Shield, RefreshCw, Building2, TrendingUp, CreditCard, Target, GraduationCap, Info, Sparkles, ChevronRight, ChevronLeft } from "lucide-react";
 import { useUser } from "../context/UserContext";
@@ -15,7 +16,9 @@ export default function Home() {
   const expenses = Number(user?.expenses) || 0;
   const net      = income - expenses;
   const safeIncome  = income > 0 ? income : 1;
-  const savingsRate = Math.round((net / safeIncome) * 100);
+  // Use actual goalAmount (monthly investing) for savings rate if set, else net surplus
+  const investingAmount = Number(user?.goalAmount) > 0 ? Number(user.goalAmount) : Math.max(net, 0);
+  const savingsRate = Math.round((investingAmount / safeIncome) * 100);
 
   let nextStep = "Move closer to your 5-year goal";
   if (!user?.strategy)  nextStep = "Choose your financial strategy";
@@ -82,6 +85,21 @@ export default function Home() {
     { tag: "Investing",  text: "Compound interest is most powerful in the first few years. Every month you delay costs more than you think." },
   ];
 
+  // 5-year projection — use user's actual setup goal, fall back to 20% of net
+  const monthlyInvest = Number(user?.goalAmount) > 0
+    ? Number(user.goalAmount)
+    : Math.max(Math.round(net * 0.2), 0);
+  const r = 0.10 / 12;
+  const savingsLogTotal = (user?.savingsLog || [])
+    .filter(e => e.status !== "missed")
+    .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+  const currentSaved = savingsLogTotal; // only use actual logged savings, not formula surplus
+  const trackIs = user?.strategy;
+  const y5Values = [1, 2, 3, 4, 5].map((y) => {
+    if (trackIs === "balanced") return Math.round(currentSaved + monthlyInvest * ((Math.pow(1 + r, y * 12) - 1) / r));
+    return Math.round(currentSaved + net * 12 * y);
+  });
+
   const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
   const [tipIndex, setTipIndex] = useState(dayOfYear % tips.length);
   const currentTip = tips[tipIndex];
@@ -147,23 +165,61 @@ export default function Home() {
           </div>
         </section>
 
+        {/* ── 5-YEAR PROJECTION STRIP ── */}
+        {net > 0 && (
+          <div className="home-y5-strip fade-in">
+            <div className="home-y5-left">
+              <p className="home-y5-eyebrow">5-Year Journey · {trackNames[user?.strategy] || "Your Track"}</p>
+              <p className="home-y5-amount">R{y5Values[4].toLocaleString("en-ZA")}</p>
+              <p className="home-y5-sub">projected by Year 5 at R{monthlyInvest.toLocaleString("en-ZA")}/month</p>
+            </div>
+            <div className="home-y5-years">
+              {[1, 2, 3, 4, 5].map((y, i) => (
+                <div key={y} className={`home-y5-year ${y === 5 ? "home-y5-year--end" : ""}`}>
+                  <span className="home-y5-year-label">Yr {y}</span>
+                  <span className="home-y5-year-value">R{(y5Values[i] / 1000).toFixed(0)}k</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* ── ROW 3: GOAL + NUDGE ── */}
         <div className="home-row fade-in">
           <section className="goal-card" id="goal">
             {(() => {
-              const goalLabels = { property: "Deposit Plan", balanced: "Investment Goal", catchup: "Debt Target", correction: "Correction Goal" };
-              const goalLabel = goalLabels[user?.strategy] || "Financial Goal";
-              const goalAmount = user?.strategy === "property" ? user?.depositAmount : user?.goalAmount;
-              const months = user?.monthsToGoal;
+              const strategy = user?.strategy;
+              const goalLabels  = { property: "Deposit Target", balanced: "5-Year Portfolio Goal", catchup: "Debt to Clear", correction: "Correction Goal" };
+              const goalLabel   = goalLabels[strategy] || "Financial Goal";
+
+              let displayAmount, subLine;
+
+              if (strategy === "property") {
+                displayAmount = user?.depositAmount;
+                const months = user?.monthsToGoal;
+                subLine = months ? `${months} months to reach deposit` : "Set your house price in Setup";
+              } else if (strategy === "balanced") {
+                displayAmount = user?.fiveYearGoal || null;
+                const monthly = user?.goalAmount;
+                subLine = monthly
+                  ? `Investing R${Number(monthly).toLocaleString("en-ZA")}/month`
+                  : "Set your monthly target in Setup";
+              } else if (strategy === "catchup") {
+                displayAmount = user?.goalAmount;
+                const months = user?.monthsToGoal;
+                subLine = months ? `${months} months to clear` : "Set your debt amount in Setup";
+              } else {
+                displayAmount = user?.goalAmount;
+                subLine = displayAmount ? `R${Number(displayAmount).toLocaleString("en-ZA")}/month to reduce` : "Set your target in Setup";
+              }
+
               return (
                 <>
                   <span className="label">{goalLabel}</span>
                   <h3 style={{ fontSize: 26, fontWeight: 700, margin: "6px 0 4px" }}>
-                    {goalAmount ? `R${Number(goalAmount).toLocaleString("en-ZA")}` : "Not set"}
+                    {displayAmount ? `R${Number(displayAmount).toLocaleString("en-ZA")}` : "Not set"}
                   </h3>
-                  <p className="muted" style={{ fontSize: 13 }}>
-                    {months ? `${months} months to reach` : "Set your goal in Snapshot"}
-                  </p>
+                  <p className="muted" style={{ fontSize: 13 }}>{subLine}</p>
                   <button className="primary-btn" style={{ marginTop: 12 }} onClick={() => navigate("/money")}>
                     View Snapshot →
                   </button>

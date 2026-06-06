@@ -2,9 +2,11 @@ import { useState } from "react";
 import AppNav from "../components/AppNav";
 import "../styles/track.css";
 import SlideIn from "../components/SlideIn";
+import FiveYearJourney from "../components/FiveYearJourney";
 import { getTrackProgression } from "../utils/trackProgression";
 import { useUser } from "../context/UserContext";
 import useProgress from "../hooks/useProgress";
+import { RefreshCw, AlertTriangle, BookOpen, ChevronDown } from "lucide-react";
 
 export default function LifestyleCorrectionTrack() {
   // ================= USER CONTEXT =================
@@ -14,6 +16,8 @@ export default function LifestyleCorrectionTrack() {
   const [expenseCut, setExpenseCut] = useState(0);
   const [extraDebt, setExtraDebt] = useState(0);
   const { progress, milestoneStatus, percent } = useProgress();
+  const [openCards, setOpenCards] = useState({ adjuster: false, breakdown: false, rationale: false, guide: false });
+  const toggleCard = (key) => setOpenCards(prev => ({ ...prev, [key]: !prev[key] }));
 
   // ================= EARLY RETURN (after all hooks) =================
   if (!user) {
@@ -98,6 +102,14 @@ export default function LifestyleCorrectionTrack() {
         <p className="tracks-eyebrow">Lifestyle Correction</p>
         <SlideIn tag="h1" text={`Welcome back, ${user?.name?.split(" ")[0] || "there"}`} />
         <SlideIn tag="p" className="subtitle" delay={120} text="You are on the Lifestyle Correction track · reduce debt and rebalance your spending" />
+
+        {/* ================= 5-YEAR JOURNEY ================= */}
+        <FiveYearJourney
+          trackKey="correction"
+          monthlyAmount={savings}
+          currentSaved={Number(user?.savings) || 0}
+          fiveYearTarget={Number(user?.fiveYearGoal) || 0}
+        />
 
         {/* ================= FINANCIAL PATH ================= */}
         <div className="track-card">
@@ -203,55 +215,8 @@ export default function LifestyleCorrectionTrack() {
           <span>Property</span>
         </div>
 
-        {/* ================= ADJUSTMENT ENGINE ================= */}
-        <div className="track-card">
-          <h3>Spending Adjustment Tool</h3>
-
-          <div className="slider-group">
-            <label>Reduce Lifestyle Spending</label>
-            <input
-              type="range"
-              min="0"
-              max="8000"
-              value={expenseCut}
-              onChange={(e) => setExpenseCut(Number(e.target.value))}
-            />
-            <span className="slider-hint">-R{expenseCut}</span>
-          </div>
-
-          <div className="slider-group">
-            <label>Increase Debt Repayment</label>
-            <input
-              type="range"
-              min="0"
-              max="8000"
-              value={extraDebt}
-              onChange={(e) => setExtraDebt(Number(e.target.value))}
-            />
-            <span className="slider-hint">+R{extraDebt}</span>
-          </div>
-
-          <div
-            style={{
-              marginTop: "16px",
-              padding: "12px",
-              background: "#14161b",
-              borderRadius: "10px",
-              border: "1px solid #222",
-            }}
-          >
-            <p>
-              New Expenses: <strong>R{newExpenses.toLocaleString()}</strong>
-            </p>
-            <p>
-              Debt-Free In: <strong>{monthsToDebtFree} months</strong>
-            </p>
-          </div>
-        </div>
-
-        {/* ================= 5-YEAR RECOVERY TIMELINE ================= */}
-        <div className="track-card">
-          <h3>5-Year Recovery Journey</h3>
+        <div className="track-card" style={{ display: "none" }}>
+          <h3>5-Year Recovery Journey (legacy)</h3>
 
           {/* HORIZONTAL TIMELINE */}
           <div
@@ -341,83 +306,160 @@ export default function LifestyleCorrectionTrack() {
           </p>
         </div>
 
-        {/* ================= STRATEGY GUIDE ================= */}
-        <div className="track-card">
-          <h3>Lifestyle Correction Strategy Guide</h3>
+        {/* ── TOOLS & EDUCATION ── */}
+        <div className="bl-tools-section">
+          <p className="bl-tools-label">Tools &amp; Education</p>
+          <div className="bl-tools-grid">
 
-          <div className="grid-2">
-            <div>
-              <h4>📌 What You Should Do</h4>
-              <ul className="list">
-                <li>Cut non-essential lifestyle spending aggressively</li>
-                <li>Prioritise paying off high-interest debt first</li>
-                <li>Create a strict monthly budget and stick to it</li>
-                <li>Avoid taking on new debt while recovering</li>
-              </ul>
+            <div className={`bl-tile${openCards.adjuster ? " bl-tile--open" : ""}`}>
+              <button className="bl-tile-header" onClick={() => toggleCard("adjuster")}>
+                <div className="bl-tile-top">
+                  <RefreshCw size={15} color="#4facfe" />
+                  <span className="bl-tile-title">Spending Adjuster</span>
+                  <ChevronDown size={14} color="#667c74" className={`bl-tile-chevron${openCards.adjuster ? " rotated" : ""}`} />
+                </div>
+                {!openCards.adjuster && (<>
+                  <p className="bl-tile-summary">Cut expenses · speed up debt payoff</p>
+                  <p className="bl-tile-hint">Tap to explore →</p>
+                </>)}
+              </button>
+              {openCards.adjuster && (
+                <div className="bl-tile-body">
+                  <div className="slider-group">
+                    <label>Reduce Lifestyle Spending</label>
+                    <input type="range" min="0" max="8000" value={expenseCut} onChange={(e) => setExpenseCut(Number(e.target.value))} />
+                    <span className="slider-hint">-R{expenseCut}</span>
+                  </div>
+                  <div className="slider-group">
+                    <label>Increase Debt Repayment</label>
+                    <input type="range" min="0" max="8000" value={extraDebt} onChange={(e) => setExtraDebt(Number(e.target.value))} />
+                    <span className="slider-hint">+R{extraDebt}</span>
+                  </div>
+                  <div style={{ marginTop: 14, padding: "12px 14px", background: "rgba(255,255,255,0.03)", borderRadius: 10, border: "1px solid rgba(255,255,255,0.07)" }}>
+                    <p className="small">New Expenses: <strong>R{newExpenses.toLocaleString()}</strong></p>
+                    <p className="small" style={{ marginTop: 4, color: "#84a794" }}>Debt-Free In: <strong>{monthsToDebtFree} months</strong></p>
+                  </div>
+                  <div className="insight-block" style={{ marginTop: 12 }}>
+                    {disposableIncome < 0 && <div className="insight warning">Overspending detected — immediate adjustments required.</div>}
+                    {savingsRate < 10 && <div className="insight">Savings rate critically low. Reduce expenses first.</div>}
+                    <div className="insight positive">With discipline, debt-free in <strong>{monthsToDebtFree}</strong> months.</div>
+                    {milestoneInsights.map((item, i) => <div key={i} className="insight">{item}</div>)}
+                  </div>
+                </div>
+              )}
             </div>
 
-            <div>
-              <h4>⚠️ Risks to Watch</h4>
-              <ul className="list">
-                <li>Falling back into old spending habits</li>
-                <li>Using credit to maintain lifestyle</li>
-                <li>Emotional or impulsive spending</li>
-                <li>Burnout from overly strict budgeting</li>
-              </ul>
+            <div className={`bl-tile${openCards.breakdown ? " bl-tile--open" : ""}`}>
+              <button className="bl-tile-header" onClick={() => toggleCard("breakdown")}>
+                <div className="bl-tile-top">
+                  <RefreshCw size={15} color="#d6a85a" />
+                  <span className="bl-tile-title">Spending Breakdown</span>
+                  <ChevronDown size={14} color="#667c74" className={`bl-tile-chevron${openCards.breakdown ? " rotated" : ""}`} />
+                </div>
+                {!openCards.breakdown && (<>
+                  <p className="bl-tile-summary">Housing 45% · Lifestyle 30% · Debt 20%</p>
+                  <p className="bl-tile-hint">Tap to explore →</p>
+                </>)}
+              </button>
+              {openCards.breakdown && (
+                <div className="bl-tile-body">
+                  {[
+                    { label: "Housing & Bills", pct: 45, color: "#4facfe" },
+                    { label: "Lifestyle", pct: 30, color: "#d6a85a" },
+                    { label: "Debt Repayment", pct: 20, color: "#ff9898" },
+                    { label: "Savings", pct: 5, color: "#84a794" },
+                  ].map(({ label, pct, color }) => (
+                    <div key={label} style={{ marginBottom: 10 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
+                        <span style={{ fontSize: "0.76rem", color: "#c0ccc8" }}>{label}</span>
+                        <span style={{ fontSize: "0.76rem", fontWeight: 600, color }}>{pct}%</span>
+                      </div>
+                      <div style={{ height: 4, borderRadius: 2, background: "rgba(255,255,255,0.06)" }}>
+                        <div style={{ width: `${pct}%`, height: "100%", borderRadius: 2, background: color }} />
+                      </div>
+                    </div>
+                  ))}
+                  <p className="small" style={{ marginTop: 8 }}>Lifestyle spending is too high relative to income — the goal is to shift more toward savings.</p>
+                </div>
+              )}
             </div>
-          </div>
 
-          <div className="explanation-box">
-            <h4>🧠 Real Explanation</h4>
-            <p>
-              This phase is about correcting behaviour, not just numbers. Many
-              financial problems come from spending habits rather than income
-              levels.
-            </p>
-            <p>
-              The goal is to reduce pressure by eliminating debt and regaining
-              control. Once your expenses are stable and debt is cleared, you
-              can move into saving, investing, or property ownership.
-            </p>
-          </div>
-        </div>
-
-        {/* ================= AI INSIGHTS ================= */}
-        <div className="track-card">
-          <h3>AI Financial Insights</h3>
-
-          <div className="insight-block">
-            {disposableIncome < 0 && (
-              <div className="insight warning">
-                You are currently overspending. Immediate adjustments are
-                required.
-              </div>
-            )}
-
-            {savingsRate < 10 && (
-              <div className="insight">
-                Your savings rate is critically low. Focus on reducing expenses
-                first.
-              </div>
-            )}
-
-            <div className="insight positive">
-              With discipline, you can become debt-free within{" "}
-              <strong>{monthsToDebtFree}</strong> months.
+            <div className={`bl-tile${openCards.rationale ? " bl-tile--open" : ""}`}>
+              <button className="bl-tile-header" onClick={() => toggleCard("rationale")}>
+                <div className="bl-tile-top">
+                  <BookOpen size={15} color="#d6a85a" />
+                  <span className="bl-tile-title">Track Rationale</span>
+                  <ChevronDown size={14} color="#667c74" className={`bl-tile-chevron${openCards.rationale ? " rotated" : ""}`} />
+                </div>
+                {!openCards.rationale && (<>
+                  <p className="bl-tile-summary">Trade-offs · numbers · warnings</p>
+                  <p className="bl-tile-hint">Tap to explore →</p>
+                </>)}
+              </button>
+              {openCards.rationale && (
+                <div className="bl-tile-body">
+                  <div className="grid-2" style={{ gap: 12 }}>
+                    <div style={{ background: "rgba(214,168,90,0.06)", border: "1px solid rgba(214,168,90,0.2)", borderRadius: 10, padding: "12px 14px" }}>
+                      <p style={{ fontSize: "0.7rem", fontWeight: 700, color: "#d6a85a", margin: "0 0 8px" }}>⚖ Trade-offs</p>
+                      {[{ pro: true, text: "Breaks the debt cycle permanently" }, { pro: true, text: "Builds lasting behavioural change" }, { pro: false, text: "Short-term lifestyle sacrifice" }, { pro: false, text: "Slow progress on wealth goals" }].map(({ pro, text }, i) => (
+                        <div key={i} style={{ display: "flex", gap: 7, marginBottom: 5 }}>
+                          <span style={{ color: pro ? "#84a794" : "#d6a85a", fontWeight: 700, flexShrink: 0 }}>{pro ? "✓" : "✗"}</span>
+                          <p style={{ margin: 0, fontSize: "0.76rem", color: "#c0ccc8" }}>{text}</p>
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ background: "rgba(255,107,107,0.05)", border: "1px solid rgba(255,107,107,0.15)", borderRadius: 10, padding: "12px 14px" }}>
+                      <p style={{ fontSize: "0.7rem", fontWeight: 700, color: "#ff9898", margin: "0 0 8px" }}>⚠ Watch for</p>
+                      {["Falling back into old habits", "Using credit to maintain lifestyle", "Emotional or impulsive spending", "Burnout from strict budgeting"].map((t, i) => (
+                        <p key={i} style={{ margin: "0 0 5px", fontSize: "0.76rem", color: "#c0ccc8" }}>· {t}</p>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
-        </div>
 
-        {/* ================= MILESTONE INSIGHTS ================= */}
-        <div className="track-card">
-          <h3>Milestone Insights</h3>
+            <div className={`bl-tile${openCards.guide ? " bl-tile--open" : ""}`}>
+              <button className="bl-tile-header" onClick={() => toggleCard("guide")}>
+                <div className="bl-tile-top">
+                  <BookOpen size={15} color="#8a9a96" />
+                  <span className="bl-tile-title">Strategy Guide</span>
+                  <ChevronDown size={14} color="#667c74" className={`bl-tile-chevron${openCards.guide ? " rotated" : ""}`} />
+                </div>
+                {!openCards.guide && (<>
+                  <p className="bl-tile-summary">What to do · risks to watch</p>
+                  <p className="bl-tile-hint">Tap to explore →</p>
+                </>)}
+              </button>
+              {openCards.guide && (
+                <div className="bl-tile-body">
+                  <div className="grid-2">
+                    <div>
+                      <p style={{ fontWeight: 600, marginBottom: 8, fontSize: "0.82rem" }}>📌 What to do</p>
+                      <ul className="list">
+                        <li>Cut non-essential spending aggressively</li>
+                        <li>Pay high-interest debt first</li>
+                        <li>Strict budget — no new debt</li>
+                        <li>Rebuild habits before investing</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <p style={{ fontWeight: 600, marginBottom: 8, fontSize: "0.82rem" }}>⚠️ Risks</p>
+                      <ul className="list">
+                        <li>Falling back into old habits</li>
+                        <li>Using credit to maintain lifestyle</li>
+                        <li>Emotional spending</li>
+                        <li>Burnout from strict budgeting</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div className="explanation-box" style={{ marginTop: 10 }}>
+                    <p style={{ lineHeight: 1.6, fontSize: "0.8rem" }}>Correct behaviour, not just numbers. Eliminate debt, regain control — then move into saving and investing.</p>
+                  </div>
+                </div>
+              )}
+            </div>
 
-          <div className="insight-block">
-            {milestoneInsights.map((item, i) => (
-              <div key={i} className="insight">
-                {item}
-              </div>
-            ))}
           </div>
         </div>
       </div>

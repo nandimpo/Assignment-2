@@ -21,8 +21,8 @@ export default function AppNav() {
   const go = (path) => navTrigger(path);
 
   const handleLogout = () => {
+    // Only clear the session token — keep user data so they can log back in
     localStorage.removeItem("session");
-    setUser({});
     navigate("/login", { replace: true });
   };
 

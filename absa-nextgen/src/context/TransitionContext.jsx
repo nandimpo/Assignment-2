@@ -18,9 +18,9 @@ export function TransitionProvider({ children }) {
     setPhase("in");
 
     // Navigate as vortex fill covers screen
-    setTimeout(() => navigate(to), 4200);
-    setTimeout(() => setPhase("out"), 5000);
-    setTimeout(() => { setActive(false); setPhase("idle"); setMessage(null); }, 5700);
+    setTimeout(() => navigate(to), 2800);
+    setTimeout(() => setPhase("out"), 3200);
+    setTimeout(() => { setActive(false); setPhase("idle"); setMessage(null); }, 3700);
   }, [navigate]);
 
   // Fast nav transition — simple fade/slide, no vortex

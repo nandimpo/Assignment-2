@@ -258,6 +258,35 @@
   transition: opacity 0.2s;
 }
 
+/* ── GOAL FLASH ── */
+@keyframes goalFlashPulse {
+  0%   { border-color: #d6a85a; box-shadow: 0 0 0 0 rgba(214, 168, 90, 0.4); }
+  40%  { border-color: #e07b2a; box-shadow: 0 0 0 6px rgba(214, 168, 90, 0); }
+  60%  { border-color: #d6a85a; box-shadow: 0 0 0 0 rgba(214, 168, 90, 0.3); }
+  100% { border-color: #d6a85a; box-shadow: 0 0 0 4px rgba(214, 168, 90, 0); }
+}
+
+.goal-input-flash input {
+  border-color: #d6a85a !important;
+  animation: goalFlashPulse 0.5s ease-out 3;
+}
+
+.breakdown-flash input {
+  border-color: #d6a85a !important;
+  animation: goalFlashPulse 0.5s ease-out 3;
+}
+
+.goal-flash-warning {
+  font-size: 0.75rem;
+  color: #d6a85a;
+  background: rgba(214, 168, 90, 0.08);
+  border: 1px solid rgba(214, 168, 90, 0.25);
+  border-radius: 8px;
+  padding: 6px 10px;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
 /* ── DEPOSIT CARD ── */
 .deposit-card {
   background: rgba(132, 167, 148, 0.05);
@@ -317,6 +346,69 @@
   font-size: 12px;
   color: #84a794;
   margin-top: 8px;
+}
+
+/* ── 5-YEAR GOAL ── */
+.five-year-goal-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: rgba(214, 168, 90, 0.06);
+  border: 1px solid rgba(214, 168, 90, 0.2);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-top: 4px;
+}
+
+.five-year-goal-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.five-year-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(214, 168, 90, 0.15);
+  border: 1px solid rgba(214, 168, 90, 0.3);
+  color: #d6a85a;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.five-year-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #d6a85a;
+  margin: 0 0 2px;
+}
+
+.five-year-hint {
+  font-size: 0.74rem;
+  color: #8a9a96;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.five-year-input {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(214, 168, 90, 0.2);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #f4f6fc;
+  font-size: 0.9rem;
+  outline: none;
+  width: 100%;
+}
+
+.five-year-input:focus {
+  border-color: #d6a85a;
+  box-shadow: 0 0 0 3px rgba(214, 168, 90, 0.1);
 }
 
 /* ── BUTTON ── */
