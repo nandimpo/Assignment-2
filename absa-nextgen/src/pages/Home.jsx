@@ -4,7 +4,7 @@ import Tour from "../components/Tour";
 import AppNav from "../components/AppNav";
 import "../styles/home.css";
 import TypewriterHeading from "../components/TypewriterHeading";
-import { Home as HomeIcon, Scale, Shield, RefreshCw, Building2, TrendingUp, CreditCard, Target, GraduationCap, Info } from "lucide-react";
+import { Home as HomeIcon, Scale, Shield, RefreshCw, Building2, TrendingUp, CreditCard, Target, GraduationCap, Info, Sparkles, ChevronRight, ChevronLeft } from "lucide-react";
 import { useUser } from "../context/UserContext";
 
 export default function Home() {
@@ -63,6 +63,28 @@ export default function Home() {
     { id: "foundation", Icon: Shield,    name: "Foundation Builder",              sub: "Build financial stability from scratch",         focus: "Emergency Funds & Basics" },
     { id: "correction", Icon: RefreshCw, name: "Lifestyle Correction",            sub: "Rebalance spending and reduce debt",             focus: "Behavioural Change" },
   ];
+
+  const tips = [
+    { tag: "Saving",     text: "Automating your savings on payday removes the temptation to spend first. Set it and forget it." },
+    { tag: "Property",   text: "A 10% deposit on a R1.8M home is R180 000. At R18k/month saved, you're 10 months away." },
+    { tag: "Debt",       text: "Paying off the highest-interest debt first (avalanche method) saves you the most money long-term." },
+    { tag: "Investing",  text: "Time in the market beats timing the market. Starting with R500/month at 25 beats R2000/month at 35." },
+    { tag: "Budgeting",  text: "The 50/30/20 rule: 50% needs, 30% wants, 20% savings. Adjust the ratios for your track." },
+    { tag: "Property",   text: "Bond pre-approval strengthens your offer when buying. Get it before you start house-hunting." },
+    { tag: "Mindset",    text: "A R500 daily coffee habit costs R10 950/year. Small habits have large compounding effects." },
+    { tag: "Investing",  text: "Offshore investing gives you rand-hedge protection. Even 20–30% offshore reduces local risk." },
+    { tag: "Emergency",  text: "3–6 months of expenses in an emergency fund prevents you from dipping into your savings goals." },
+    { tag: "Saving",     text: "Increasing your savings rate by just 2% per year compounds dramatically over a 5-year horizon." },
+    { tag: "Tax",        text: "A Tax-Free Savings Account (TFSA) lets you invest up to R36 000/year with zero tax on returns." },
+    { tag: "Debt",       text: "Never take on new debt while paying off existing debt — the interest works against you twice." },
+    { tag: "Property",   text: "Transfer duty on a R1.8M property is roughly R22 000. Budget for it alongside your deposit." },
+    { tag: "Mindset",    text: "Your net salary — not your gross — is your real income. Build your budget around take-home pay." },
+    { tag: "Investing",  text: "Compound interest is most powerful in the first few years. Every month you delay costs more than you think." },
+  ];
+
+  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+  const [tipIndex, setTipIndex] = useState(dayOfYear % tips.length);
+  const currentTip = tips[tipIndex];
 
   const simCards = [
     { Icon: Building2,  label: "Buy vs Rent",          desc: "Compare long-term cost of buying vs renting" },
@@ -164,6 +186,20 @@ export default function Home() {
             </p>
           </section>
         </div>
+
+        {/* ── DAILY TIP ── */}
+        <section className="daily-tip fade-in">
+          <div className="daily-tip-left">
+            <Sparkles size={16} className="daily-tip-icon" />
+            <span className="daily-tip-tag">{currentTip.tag}</span>
+          </div>
+          <p className="daily-tip-text">{currentTip.text}</p>
+          <div className="daily-tip-nav">
+            <button onClick={() => setTipIndex((tipIndex - 1 + tips.length) % tips.length)}><ChevronLeft size={14} /></button>
+            <span>{tipIndex + 1} / {tips.length}</span>
+            <button onClick={() => setTipIndex((tipIndex + 1) % tips.length)}><ChevronRight size={14} /></button>
+          </div>
+        </section>
 
         {/* ── STRATEGY TRACKS ── */}
         <section className="preview-section fade-in" id="tracks">

@@ -304,6 +304,75 @@
 .tour-actions button { background: none; border: none; color: #84a794; cursor: pointer; font-size: 14px; }
 .tour-step-counter { font-size: 11px; color: #9aa5a6; margin-bottom: 6px; }
 
+/* ── DAILY TIP ── */
+.daily-tip {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: linear-gradient(135deg, rgba(132,167,148,0.08), rgba(214,168,90,0.06));
+  border: 1px solid rgba(132,167,148,0.25);
+  border-radius: 14px;
+  padding: 16px 20px;
+}
+
+.daily-tip-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.daily-tip-icon {
+  color: #d6a85a;
+}
+
+.daily-tip-tag {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #84a794;
+  background: rgba(132,167,148,0.12);
+  padding: 3px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.daily-tip-text {
+  flex: 1;
+  font-size: 13px;
+  color: #c8d8d4;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.daily-tip-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  font-size: 11px;
+  color: #8fa3a0;
+}
+
+.daily-tip-nav button {
+  background: rgba(178,200,188,0.08);
+  border: 1px solid rgba(178,200,188,0.15);
+  border-radius: 6px;
+  color: #84a794;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.daily-tip-nav button:hover {
+  background: rgba(132,167,148,0.15);
+}
+
 /* ── RESPONSIVE ── */
 @media (max-width: 900px) {
   .home-row { grid-template-columns: 1fr; }
