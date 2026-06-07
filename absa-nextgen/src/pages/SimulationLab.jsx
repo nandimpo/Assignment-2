@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Home, TrendingUp, Scale, CreditCard } from "lucide-react";
+import propertySim from "../assets/property-sim.gif";
+import carSim from "../assets/car-sim.gif";
+import investingSim from "../assets/investing-sim.gif";
+import debtSim from "../assets/debt-sim.gif";
 import AppNav from "../components/AppNav";
 import SlideIn from "../components/SlideIn";
 import { useUser } from "../context/UserContext";
@@ -63,7 +67,7 @@ export default function SimulationLab() {
       detail:      "Model a R1.8M bond vs R12,000/month rent. See total cost, interest paid, and the equity you'd build — side by side over 5 years.",
       route:       "/simulation/property",
       icon:        Home,
-      gif:         null, // replace with: "property-sim.gif"
+      gif:         propertySim,
     },
     {
       id:          "car",
@@ -73,7 +77,7 @@ export default function SimulationLab() {
       detail:      "Set your vehicle price, deposit, and finance rate. See the true opportunity cost of your car choice by Year 5.",
       route:       "/simulation/car",
       icon:        TrendingUp,
-      gif:         null, // replace with: "car-sim.gif"
+      gif:         carSim,
     },
     {
       id:          "investing",
@@ -83,7 +87,7 @@ export default function SimulationLab() {
       detail:      "Adjust your local/offshore allocation and return assumptions. See how SA CGT, TFSA limits, and rand-hedge exposure shape your outcome.",
       route:       "/simulation/investing",
       icon:        Scale,
-      gif:         null, // replace with: "investing-sim.gif"
+      gif:         investingSim,
     },
     {
       id:          "catchup",
@@ -93,7 +97,7 @@ export default function SimulationLab() {
       detail:      "Compare two strategies: pay debt first then invest, or invest while servicing debt. See the 5-year net worth gap.",
       route:       "/simulation/debt",
       icon:        CreditCard,
-      gif:         null, // replace with: "debt-sim.gif"
+      gif:         debtSim,
     },
   ];
 
@@ -167,7 +171,7 @@ export default function SimulationLab() {
                 <div className="sim-step-media">
                   {sim.gif ? (
                     <img
-                      src={`/src/assets/${sim.gif}`}
+                      src={sim.gif}
                       alt={sim.title}
                       className="sim-step-gif"
                     />
