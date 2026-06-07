@@ -109,7 +109,7 @@ export default function Home() {
       return Math.max(0, totalDebt - catchupMonthly * 12 * y);
     }
     if (trackIs === "balanced") return Math.round(currentSaved + monthlyInvest * ((Math.pow(1 + r, y * 12) - 1) / r));
-    return Math.round(currentSaved + net * 12 * y);
+    return Math.round(currentSaved + monthlyInvest * 12 * y);
   });
 
   const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);

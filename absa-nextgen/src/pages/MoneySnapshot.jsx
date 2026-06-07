@@ -43,6 +43,11 @@ export default function MoneySnapshot() {
     .filter(e => !e.missed)
     .reduce((sum, e) => sum + (e.amount || 0), 0);
 
+  // Correction track uses its own reduction log
+  const correctionLogTotal = (user?.correctionLog || [])
+    .filter(e => !e.missed)
+    .reduce((sum, e) => sum + (e.amount || 0), 0);
+
   const goalMonthly = Number(user?.goalAmount) || Math.round(net * 0.2);
   const goal = user?.depositAmount || user?.goalAmount || goalMonthly * 60 || 600000;
   const fiveYearGoal = Number(user?.fiveYearGoal) || goalMonthly * 60;
@@ -71,7 +76,7 @@ export default function MoneySnapshot() {
       progressLabel: (cur, tgt) => `R${cur.toLocaleString("en-ZA")} cleared of R${tgt.toLocaleString("en-ZA")} debt`,
     },
     correction: {
-      current: savingsLogTotal,
+      current: correctionLogTotal,
       target: goal,
       monthsLabel: (cur, tgt, n) => tgt > cur && n > 0 ? Math.ceil((tgt - cur) / n) : 0,
       progressLabel: (cur, tgt) => `R${cur.toLocaleString("en-ZA")} of R${tgt.toLocaleString("en-ZA")} target reached`,
