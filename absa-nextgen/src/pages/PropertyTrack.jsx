@@ -12,6 +12,7 @@ import {
   Info, Key, ClipboardCheck, CheckCircle, XCircle, Circle,
 } from "lucide-react";
 import FiveYearJourney from "../components/FiveYearJourney";
+import SimNudge from "../components/SimNudge";
 
 // ─── Track static data ────────────────────────────────────────────────────────
 
@@ -794,6 +795,8 @@ export default function PropertyTrack() {
         </div>
 
       </div>
+
+      <SimNudge track="property" />
 
       <ExplainerPanel show={showPanel} onClose={() => setShowPanel(false)} content={content} />
 

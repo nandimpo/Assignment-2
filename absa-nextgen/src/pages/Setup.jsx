@@ -49,6 +49,7 @@ export default function Setup() {
   const [userPercent, setUserPercent] = useState(10);
   const [goalFlash, setGoalFlash] = useState(false);
   const [breakdownFlash, setBreakdownFlash] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const [breakdown, setBreakdown] = useState({
     housing:   user?.breakdown?.housing   || "",
@@ -250,25 +251,24 @@ export default function Setup() {
     const exp = Number(form.expenses);
     const housePrice = selectedTrack === "property" ? Number(form.housePrice) : 0;
 
-    if (!form.name.trim()) {
-      alert("Please enter your name");
-      return;
-    }
+    const newErrors = {};
+    if (!form.name.trim())  newErrors.name       = "Please enter your name.";
+    if (!gross || gross <= 0) newErrors.grossSalary = "Please enter a valid gross salary.";
+    if (exp === "" || exp < 0 || isNaN(exp)) newErrors.expenses = "Please enter your monthly expenses.";
 
-    if (!gross || !exp) {
-      alert("Please fill in all fields");
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      // scroll to first error
+      const firstKey = Object.keys(newErrors)[0];
+      document.querySelector(`[name="${firstKey}"]`)?.focus();
       return;
     }
-
-    if (gross <= 0 || exp < 0) {
-      alert("Please enter valid positive numbers");
-      return;
-    }
+    setErrors({});
 
     const { paye: submittedPAYE, uif: submittedUIF, netPay: submittedNet } = calcMonthlyTax(gross);
 
     if (exp >= submittedNet) {
-      alert("Your expenses cannot exceed your net take-home pay");
+      setErrors({ expenses: `Expenses (R${exp.toLocaleString("en-ZA")}) cannot exceed your take-home pay (R${submittedNet.toLocaleString("en-ZA")}).` });
       return;
     }
 
@@ -373,10 +373,15 @@ export default function Setup() {
             <div className="setup-section">
               <p className="section-label">Your details</p>
               <div className="input-row">
-                <input type="text" name="name" placeholder="Your name" value={form.name} onChange={handleChange} />
                 <div className="labelled-input">
-                  <label>Gross monthly salary (R)</label>
-                  <input type="number" name="grossSalary" placeholder="e.g. 35 000" value={form.grossSalary} onChange={handleChange} />
+                  <label htmlFor="setup-name">Your name</label>
+                  <input id="setup-name" type="text" name="name" placeholder="e.g. Thabo Nkosi" value={form.name} onChange={(e) => { handleChange(e); setErrors(prev => ({ ...prev, name: "" })); }} className={errors.name ? "input-error" : ""} />
+                  {errors.name && <p className="field-error">{errors.name}</p>}
+                </div>
+                <div className="labelled-input">
+                  <label htmlFor="setup-salary">Gross monthly salary (R)</label>
+                  <input id="setup-salary" type="number" name="grossSalary" placeholder="e.g. 35 000" value={form.grossSalary} onChange={(e) => { handleChange(e); setErrors(prev => ({ ...prev, grossSalary: "" })); }} className={errors.grossSalary ? "input-error" : ""} />
+                  {errors.grossSalary && <p className="field-error">{errors.grossSalary}</p>}
                   {grossSalary > 0 && (
                     <div className="tax-inline">
                       <span>PAYE <strong>R{paye.toLocaleString("en-ZA")}</strong></span>
@@ -387,7 +392,11 @@ export default function Setup() {
                 </div>
               </div>
               <div className="input-row">
-                <input type="number" name="expenses" placeholder="Monthly expenses (R)" value={form.expenses} onChange={handleChange} />
+                <div className="labelled-input">
+                  <label htmlFor="setup-expenses">Monthly expenses (R)</label>
+                  <input id="setup-expenses" type="number" name="expenses" placeholder="e.g. 15 000" value={form.expenses} onChange={(e) => { handleChange(e); setErrors(prev => ({ ...prev, expenses: "" })); }} className={errors.expenses ? "input-error" : ""} />
+                  {errors.expenses && <p className="field-error">{errors.expenses}</p>}
+                </div>
                 <div className={`goal-input-wrap${goalFlash ? " goal-input-flash" : ""}`}>
                   <input
                     type="number"

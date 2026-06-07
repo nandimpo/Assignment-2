@@ -28,6 +28,7 @@ import LifestyleCorrectionTrack from "./pages/LifestyleCorrectionTrack";
 import PropertyStudio from "./pages/PropertyStudio";
 import CarStudio from "./pages/CarStudio";
 import InvestingStudio from "./pages/InvestingStudio";
+import DebtStudio from "./pages/DebtStudio";
 import WaveCanvas from "./components/WaveCanvas";
 import "./styles/tour.css";
 
@@ -226,6 +227,15 @@ export default function App() {
           element={
             <ProtectedRoute>
               <InvestingStudio />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/simulation/debt"
+          element={
+            <ProtectedRoute>
+              <DebtStudio />
             </ProtectedRoute>
           }
         />

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useUser } from "../context/UserContext";
 import useProgress from "../hooks/useProgress";
 import AppNav from "../components/AppNav";
+import SimNudge from "../components/SimNudge";
 import ExplainerPanel from "../components/ExplainerPanel";
 import "../styles/track.css";
 import "../styles/money.css";
@@ -545,6 +546,8 @@ export default function BalancedLifestyleTrack() {
       </div>
 
       {/* EXPLAINER PANEL */}
+      <SimNudge track="balanced" />
+
       <ExplainerPanel
         show={showPanel}
         onClose={() => setShowPanel(false)}

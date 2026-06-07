@@ -1,275 +1,331 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { BarChart2, Cpu, HelpCircle } from "lucide-react";
 import AppNav from "../components/AppNav";
 import SlideIn from "../components/SlideIn";
 import YearFiveCallout from "../components/YearFiveCallout";
-import "../styles/simulation.css";
-import "../styles/fiveyear.css";
+import ExplainerPanel from "../components/ExplainerPanel";
+import { useUser } from "../context/UserContext";
 import {
   LineChart,
   Line,
   XAxis,
   YAxis,
   Tooltip,
+  Legend,
   ResponsiveContainer,
 } from "recharts";
-import {
-  getTourStep,
-  setTourStep,
-  completeTour,
-  isTourDone,
-} from "../utils/tour";
+import "../styles/simulation.css";
+import "../styles/fiveyear.css";
+
+const DEFAULTS = {
+  carPrice:   350000,
+  deposit:    50000,
+  loanRate:   13,
+  investRate: 10,
+  years:      5,
+};
 
 export default function CarStudio() {
-  /* ================= STATE ================= */
-  const [monthlyOverride, setMonthlyOverride] = useState(null);
-  const [returnRate, setReturnRate] = useState(8);
-  const [years, setYears] = useState(5);
-  const [mode, setMode] = useState("expensive");
+  const navigate = useNavigate();
+  const { user } = useUser();
 
-  const [tourStepState, setTourStepState] = useState(getTourStep());
-  const [showTour, setShowTour] = useState(!isTourDone());
+  const [carPrice,   setCarPrice]   = useState(DEFAULTS.carPrice);
+  const [deposit,    setDeposit]    = useState(DEFAULTS.deposit);
+  const [loanRate,   setLoanRate]   = useState(DEFAULTS.loanRate);
+  const [investRate, setInvestRate] = useState(DEFAULTS.investRate);
+  const [years,      setYears]      = useState(DEFAULTS.years);
 
-  const tourSteps = [
-    { text: "Adjust your scenario using these sliders.", target: "inputs" },
-    {
-      text: "This graph shows how your decision impacts your future.",
-      target: "graph",
-    },
-    {
-      text: "Here's your financial verdict based on your choices.",
-      target: "verdict",
-    },
-  ];
+  const [showPanel, setShowPanel] = useState(false);
+  const [content,   setContent]   = useState(null);
+  const [resetting, setResetting] = useState(false);
 
-  useEffect(() => {
-    setTourStepState(getTourStep());
-  }, []);
+  /* ── CALCULATIONS ─────────────────────────────── */
 
-  useEffect(() => {
-    const step = tourSteps[tourStepState];
-    if (!step) return;
-    const el = document.getElementById(step.target);
-    if (el) {
-      el.classList.add("highlight");
-      return () => el.classList.remove("highlight");
-    }
-  }, [tourStepState]);
+  const loanAmount   = Math.max(0, carPrice - deposit);
+  const months       = years * 12;
+  const monthlyRate  = loanRate / 100 / 12;
 
-  /* ================= SCENARIO MODE ================= */
-  const scenarios = {
-    expensive: 10000,
-    balanced: 7000,
-    cheap: 4000,
-  };
+  // Amortising monthly bond/loan repayment (standard SA vehicle finance formula)
+  const monthlyPayment = loanAmount > 0 && monthlyRate > 0
+    ? Math.round(loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1))
+    : Math.round(loanAmount / months);
 
-  const monthlyPayment = monthlyOverride ?? scenarios[mode];
+  const totalCarCost   = deposit + monthlyPayment * months;
+  const totalInterest  = totalCarCost - carPrice;
 
-  /* ================= CALCULATIONS ================= */
-  const totalCarCost = monthlyPayment * 12 * years;
-  const monthlyRate = returnRate / 100 / 12;
-  const months = years * 12;
-
-  let investment = 0;
-  for (let i = 0; i < months; i++) {
-    investment = (investment + monthlyPayment) * (1 + monthlyRate);
+  // Depreciation: SA cars typically lose ~15% yr1, ~10%/yr after
+  let carValue = carPrice;
+  for (let y = 0; y < years; y++) {
+    carValue = Math.round(carValue * (y === 0 ? 0.85 : 0.90));
   }
+  const equityAtEnd = Math.max(0, carValue);
 
-  const missedValue = Math.round(investment - totalCarCost);
+  // Investment scenario: same deposit + monthly payment invested instead
+  const investRate12 = investRate / 100 / 12;
+  let portfolio = deposit; // lump sum at month 0
+  for (let m = 0; m < months; m++) {
+    portfolio = (portfolio + monthlyPayment) * (1 + investRate12);
+  }
+  portfolio = Math.round(portfolio);
 
-  /* ================= CHART DATA ================= */
+  const opportunityCost = portfolio - equityAtEnd;
+
+  /* ── CHART DATA ───────────────────────────────── */
+
   const data = [];
-  let carTotal = 0;
-  let chartInvestment = 0;
+  let chartPortfolio = deposit;
+  let outstanding    = loanAmount;
 
-  for (let year = 1; year <= years; year++) {
+  for (let y = 1; y <= years; y++) {
+    // car equity at this year
+    let cv = carPrice;
+    for (let i = 0; i < y; i++) cv = Math.round(cv * (i === 0 ? 0.85 : 0.90));
+    const carEquity = Math.max(0, cv - outstanding);
+
     for (let m = 0; m < 12; m++) {
-      carTotal += monthlyPayment;
-      chartInvestment = (chartInvestment + monthlyPayment) * (1 + monthlyRate);
+      chartPortfolio = (chartPortfolio + monthlyPayment) * (1 + investRate12);
+      const interest = outstanding * monthlyRate;
+      outstanding = Math.max(0, outstanding + interest - monthlyPayment);
     }
+
     data.push({
-      year: `Year ${year}`,
-      car: Math.round(carTotal),
-      investment: Math.round(chartInvestment),
+      year:      `Year ${y}`,
+      invest:    Math.round(chartPortfolio),
+      carEquity: Math.max(0, cv - outstanding),
     });
   }
 
-  /* ================= VERDICT ================= */
-  const verdict =
-    missedValue > 200000
-      ? "This decision is financially expensive."
-      : missedValue > 100000
-        ? "Consider a cheaper alternative."
-        : "This is a balanced decision.";
+  /* ── VERDICT ──────────────────────────────────── */
 
-  /* ================= UI ================= */
+  let verdict = "";
+
+  if (loanRate > investRate) {
+    verdict = `Your car loan rate (${loanRate}%) exceeds your expected investment return (${investRate}%). The finance cost is destroying potential wealth — consider a smaller loan or larger deposit.`;
+  } else if (opportunityCost > 300000) {
+    verdict = `Choosing this car over investing costs you approximately R${opportunityCost.toLocaleString("en-ZA")} in lost portfolio value by Year ${years}. A more affordable vehicle or cash purchase would significantly close this gap.`;
+  } else if (opportunityCost > 100000) {
+    verdict = `There's a meaningful R${opportunityCost.toLocaleString("en-ZA")} opportunity cost over ${years} years. If transport is a necessity, this may be acceptable — but consider a smaller model or used vehicle.`;
+  } else {
+    verdict = `The opportunity cost is moderate at R${opportunityCost.toLocaleString("en-ZA")}. With a solid deposit and competitive interest rate, this is a manageable financial decision.`;
+  }
+
+  /* ── INSIGHTS ─────────────────────────────────── */
+
+  const insights = [];
+
+  if (deposit < carPrice * 0.1) {
+    insights.push(
+      "Your deposit is below 10% of the vehicle price. SA banks typically require at least 10% — a larger deposit also reduces your monthly payment and total interest paid.",
+    );
+  }
+
+  if (loanRate > 14) {
+    insights.push(
+      `At ${loanRate}% you'll pay R${totalInterest.toLocaleString("en-ZA")} in interest alone over ${years} years. Shopping for a lower rate or reducing the loan term saves thousands.`,
+    );
+  }
+
+  if (carPrice > 500000) {
+    insights.push(
+      "Vehicles above R500,000 depreciate faster in rand terms. Luxury cars typically lose 40–50% of value in 5 years.",
+    );
+  }
+
+  if (insights.length === 0) {
+    insights.push(
+      `With a ${Math.round((deposit / carPrice) * 100)}% deposit and ${loanRate}% rate, your monthly payment is R${monthlyPayment.toLocaleString("en-ZA")}. Total interest over the term: R${totalInterest.toLocaleString("en-ZA")}.`,
+    );
+  }
+
+  /* ── EXPLAINER ────────────────────────────────── */
+
+  const explainerText = `
+This simulation models two mutually exclusive uses of your money:
+
+Option A (Buy the car): You put down a deposit, finance the remainder at your chosen interest rate, and drive away. The car depreciates at roughly 15% in Year 1, then 10% per year thereafter — standard SA used-car market rates.
+
+Option B (Invest instead): You invest the same deposit as a lump sum and redirect each monthly payment into a portfolio earning your selected annual return.
+
+The opportunity cost is the difference between your investment portfolio value and your car's residual equity at the same point in time.
+
+SA context: Vehicle finance rates in South Africa are typically prime + 1–3% (prime was 11.75% in early 2025). A larger deposit — or buying cash — removes interest costs entirely. Transfer/registration fees are not modelled here.
+`;
+
+  const explainers = {
+    verdict: { title: "AI Financial Verdict",    text: verdict },
+    concept: { title: "Understanding the Model", text: explainerText },
+  };
+
+  /* ── RESET ────────────────────────────────────── */
+
+  const handleReset = () => {
+    setResetting(true);
+    setCarPrice(DEFAULTS.carPrice);
+    setDeposit(DEFAULTS.deposit);
+    setLoanRate(DEFAULTS.loanRate);
+    setInvestRate(DEFAULTS.investRate);
+    setYears(DEFAULTS.years);
+    setShowPanel(false);
+    setContent(null);
+    setTimeout(() => setResetting(false), 600);
+  };
+
+  /* ── RENDER ───────────────────────────────────── */
+
   return (
     <div className="sim-page">
       <AppNav />
 
-      <div className="scenario-toggle">
-        <button onClick={() => { setMode("cheap"); setMonthlyOverride(null); }}>Cheap</button>
-        <button onClick={() => { setMode("balanced"); setMonthlyOverride(null); }}>Balanced</button>
-        <button onClick={() => { setMode("expensive"); setMonthlyOverride(null); }}>Expensive</button>
-      </div>
-
       <div className="sim-container">
         <p className="sim-eyebrow">Simulation Lab · 5-Year Journey</p>
         <SlideIn tag="h1" text="Car vs Invest Studio" />
-        <SlideIn tag="p" className="subtitle" delay={120} text="What does your car choice cost your 5-year wealth?" />
+        <SlideIn tag="p" className="subtitle" delay={120}
+          text="Model the true cost of vehicle finance vs investing the same money — see the Year 5 wealth gap." />
 
         <div className="sim-grid">
-          {/* INPUT PANEL */}
-          <div id="inputs" className="sim-card">
-            <div className="input-group">
-              <div className="input-header">
-                <span>Monthly Payment</span>
-                <strong>R{monthlyPayment.toLocaleString()}</strong>
-              </div>
-              <input
-                type="range"
-                min="2000"
-                max="20000"
-                step="500"
-                value={monthlyPayment}
-                onChange={(e) => setMonthlyOverride(Number(e.target.value))}
-              />
+          {/* INPUTS */}
+          <div className="sim-card">
+            <Slider label="Vehicle Price"         value={carPrice}   set={setCarPrice}   min={80000}  max={1000000} step={10000} prefix="R" />
+            <Slider label="Deposit"               value={deposit}    set={setDeposit}    min={0}      max={300000}  step={5000}  prefix="R" />
+            <Slider label="Finance Interest Rate" value={loanRate}   set={setLoanRate}   min={8}      max={22}      suffix="%" />
+            <Slider label="Investment Return"     value={investRate} set={setInvestRate} min={4}      max={18}      suffix="%" />
+            <Slider label="Time Horizon"          value={years}      set={setYears}      min={1}      max={7}       suffix=" years" />
+
+            <div className="sim-derived" style={{ marginTop: 12, padding: "12px 0", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+              <p style={{ fontSize: "0.78rem", color: "#8a9a96", margin: "0 0 6px" }}>
+                Monthly payment: <strong style={{ color: "#c0ccc8" }}>R{monthlyPayment.toLocaleString("en-ZA")}</strong>
+              </p>
+              <p style={{ fontSize: "0.78rem", color: "#8a9a96", margin: 0 }}>
+                Total interest: <strong style={{ color: "#d6a85a" }}>R{totalInterest.toLocaleString("en-ZA")}</strong>
+              </p>
             </div>
-
-            <div className="input-group">
-              <div className="input-header">
-                <span>Investment Return</span>
-                <strong>{returnRate}%</strong>
-              </div>
-              <input
-                type="range"
-                min="4"
-                max="15"
-                step="1"
-                value={returnRate}
-                onChange={(e) => setReturnRate(Number(e.target.value))}
-              />
-            </div>
-
-            <div className="input-group">
-              <div className="input-header">
-                <span>Loan Term</span>
-                <strong>{years} years</strong>
-              </div>
-              <input
-                type="range"
-                min="1"
-                max="7"
-                step="1"
-                value={years}
-                onChange={(e) => setYears(Number(e.target.value))}
-              />
-            </div>
-
-            <p className="nudge">
-              Choosing a {mode} car could save you{" "}
-              <strong>R{Math.round(missedValue * 0.6).toLocaleString()}</strong>
-            </p>
-
-            <button
-              className="primary-btn"
-              onClick={() => {
-                localStorage.setItem("carDecision", mode);
-                alert("Decision saved to your strategy track");
-              }}
-            >
-              Apply to My Plan
-            </button>
           </div>
 
-          {/* GRAPH */}
-          <div id="graph" className="sim-card graph-card">
-            <h3>Car vs Investment Growth</h3>
-            <ResponsiveContainer width="100%" height={250}>
+          {/* CHART */}
+          <div className="sim-card graph-card">
+            <h3 className="graph-title">Investment Portfolio vs Car Equity</h3>
+            <ResponsiveContainer width="100%" height={220}>
               <LineChart data={data}>
-                <XAxis dataKey="year" />
-                <YAxis />
-                <Tooltip />
-                <Line
-                  type="monotone"
-                  dataKey="car"
-                  stroke="#d6a85a"
-                  strokeWidth={2}
+                <XAxis dataKey="year" tick={{ fill: "#8a9a96", fontSize: 12 }} />
+                <YAxis tick={{ fill: "#8a9a96", fontSize: 11 }}
+                  tickFormatter={(v) => `R${(v / 1000).toFixed(0)}k`} />
+                <Tooltip
+                  formatter={(v, name) => [
+                    `R${Number(v).toLocaleString("en-ZA")}`,
+                    name === "invest" ? "Investment portfolio" : "Car equity",
+                  ]}
+                  contentStyle={{ background: "#121616", border: "1px solid #2a3a35", color: "white" }}
                 />
-                <Line
-                  type="monotone"
-                  dataKey="investment"
-                  stroke="#84a794"
-                  strokeWidth={2}
+                <Legend
+                  formatter={(v) => v === "invest" ? "Investment portfolio" : "Car equity"}
+                  wrapperStyle={{ fontSize: "0.78rem", color: "#8a9a96" }}
                 />
+                <Line type="monotone" dataKey="invest"    stroke="#84a794" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="carEquity" stroke="#d6a85a" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
-            <p className="graph-caption">
-              The longer your time horizon, the greater the opportunity cost.
-            </p>
-            <div className="graph-values">
-              Missed investment value: R{missedValue.toLocaleString()}
-            </div>
-            <div className="graph-impact">
-              This decision impacts your future wealth significantly
-            </div>
+            <p className="graph-impact">{verdict}</p>
           </div>
         </div>
 
         {/* YEAR 5 CALLOUT */}
         <YearFiveCallout
-          label="If you invested instead of buying this car"
+          label="At the end of your finance term"
           items={[
-            { name: "Total car cost (5 yrs)", value: `R${(monthlyPayment * 12 * 5).toLocaleString("en-ZA")}` },
-            { name: "Investment value (5 yrs)", value: `R${Math.round(data[Math.min(4, data.length - 1)]?.investment || 0).toLocaleString("en-ZA")}` },
-            { name: "Opportunity cost", value: `R${missedValue.toLocaleString("en-ZA")}`, highlight: true },
+            { name: "Car residual value",   value: `R${equityAtEnd.toLocaleString("en-ZA")}` },
+            { name: "Investment portfolio", value: `R${portfolio.toLocaleString("en-ZA")}` },
+            { name: "Opportunity cost",     value: `R${opportunityCost.toLocaleString("en-ZA")}`, highlight: true },
           ]}
-          note="Opportunity cost is what your car payment would have grown to as an investment by Year 5."
+          note={`R${deposit.toLocaleString("en-ZA")} deposit + R${monthlyPayment.toLocaleString("en-ZA")}/month over ${years} years · ${loanRate}% finance vs ${investRate}% invest`}
         />
 
-        {/* VERDICT */}
-        <div id="verdict" className="sim-card">
-          <h3>Studio Verdict</h3>
-          <p className="verdict">{verdict}</p>
-          <p>
-            Buying this car could cost you{" "}
-            <strong>R{missedValue.toLocaleString()}</strong> in missed
-            investment growth.
-          </p>
-        </div>
+        {/* BOTTOM */}
+        <div className="sim-bottom">
+          {/* VERDICT */}
+          <div
+            className="sim-card clickable verdict-card"
+            onClick={() => { setContent(explainers.verdict); setShowPanel(true); }}
+          >
+            <div className="hover-preview large">
+              <h4 className="sim-section-title"><BarChart2 size={14} /> AI Financial Verdict</h4>
+              <p>{verdict}</p>
+              <span>Click to explore in full →</span>
+            </div>
+            <h3 className="sim-section-title"><BarChart2 size={16} /> AI Financial Verdict</h3>
+            <p>{verdict}</p>
+          </div>
 
-        {/* EXPLAINER */}
-        <div className="sim-card">
-          <h3>Explainer (Mandatory)</h3>
-          <p>Cars depreciate quickly while investments compound over time.</p>
-        </div>
+          {/* INSIGHTS */}
+          <div className="sim-card">
+            <h3 className="sim-section-title"><Cpu size={16} /> Smart Insights</h3>
+            {insights.map((item, i) => (
+              <div key={i} className="insight"><p>{item}</p></div>
+            ))}
+          </div>
 
-        {/* NUDGE */}
-        <div className="sim-card">
-          <h3>Behavioral Nudge</h3>
-          <p>
-            Choosing a cheaper car could save you{" "}
-            <strong>R{Math.round(missedValue * 0.6).toLocaleString()}</strong>{" "}
-            over {years} years.
-          </p>
-        </div>
+          {/* EXPLAINER */}
+          <div
+            className="sim-card explainer-aside clickable"
+            onClick={() => { setContent(explainers.concept); setShowPanel(true); }}
+          >
+            <div className="hover-preview large">
+              <h4 className="sim-section-title"><HelpCircle size={14} /> Understanding the Model</h4>
+              <p>How SA vehicle finance, depreciation, and compound investing interact over 5 years.</p>
+              <span>Click to read full breakdown →</span>
+            </div>
+            <h3 className="sim-section-title"><HelpCircle size={16} /> How this works</h3>
+            <p className="explainer-text">
+              SA vehicle depreciation, amortising finance, and compound investing compared side by side.
+            </p>
+            <span className="learn-link">Learn more</span>
+          </div>
 
-        {/* ACTIONS */}
-        <div className="sim-actions">
-          <button className="pill">Adjust Scenario</button>
-          <button className="pill">Save Decision</button>
-          {showTour && (
+          {/* ACTIONS */}
+          <div className="sim-actions">
+            <button className="pill">Apply insights to my strategy</button>
             <button
-              className="primary-btn"
-              onClick={() => {
-                completeTour();
-                setShowTour(false);
-              }}
+              className={`pill outline reset-btn${resetting ? " resetting" : ""}`}
+              onClick={handleReset}
             >
-              Finish Tour
+              {resetting ? "↺ Resetting…" : "↺ Rebalance scenario"}
             </button>
-          )}
+          </div>
         </div>
       </div>
+
+      <ExplainerPanel
+        show={showPanel}
+        onClose={() => setShowPanel(false)}
+        content={content}
+      />
+
+      <div
+        className="finance-orb"
+        onClick={() => navigate("/learn")}
+        title="Go to Finance School"
+      >
+        🎓
+      </div>
+    </div>
+  );
+}
+
+function Slider({ label, value, set, min, max, step = 1, prefix = "", suffix = "" }) {
+  return (
+    <div className="input-group">
+      <div className="input-header">
+        <span>{label}</span>
+        <strong>{prefix}{value.toLocaleString()}{suffix}</strong>
+      </div>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(e) => set(Number(e.target.value))}
+      />
     </div>
   );
 }

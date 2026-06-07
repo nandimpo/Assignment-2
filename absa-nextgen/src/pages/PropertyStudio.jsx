@@ -52,7 +52,14 @@ export default function SimulationLab() {
   /* CALCULATIONS */
 
   const rentTotal = rent * 12 * years;
-  const bondMonthly = (price * (interest / 100)) / 12;
+
+  // Standard amortising bond repayment formula (SA home loan)
+  const r = (interest / 100) / 12;
+  const n = years * 12;
+  const bondMonthly = r > 0
+    ? Math.round(price * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1))
+    : Math.round(price / n);
+
   const buyTotal = bondMonthly * 12 * years;
   const difference = rentTotal - buyTotal;
 

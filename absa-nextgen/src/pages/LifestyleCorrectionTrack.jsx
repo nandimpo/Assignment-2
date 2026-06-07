@@ -3,6 +3,7 @@ import AppNav from "../components/AppNav";
 import "../styles/track.css";
 import SlideIn from "../components/SlideIn";
 import FiveYearJourney from "../components/FiveYearJourney";
+import SimNudge from "../components/SimNudge";
 import { useUser } from "../context/UserContext";
 import useProgress from "../hooks/useProgress";
 import {
@@ -571,6 +572,8 @@ export default function LifestyleCorrectionTrack() {
 
           </div>
         </div>
+
+        <SimNudge track="correction" />
 
       </div>
     </div>

@@ -5,6 +5,7 @@ import "../styles/track.css";
 import useProgress from "../hooks/useProgress";
 import SlideIn from "../components/SlideIn";
 import FiveYearJourney from "../components/FiveYearJourney";
+import SimNudge from "../components/SimNudge";
 import { Shield, AlertTriangle, BookOpen, ChevronDown, ClipboardCheck, Check } from "lucide-react";
 
 const MILESTONES_DETAIL = [
@@ -548,6 +549,8 @@ export default function FoundationBuilderTrack() {
             })}
           </div>
         </div>
+
+        <SimNudge track="foundation" />
 
       </div>
     </div>

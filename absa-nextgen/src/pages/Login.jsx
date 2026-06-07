@@ -85,7 +85,9 @@ export default function Login() {
             }}
           >
             <div className="input-wrap">
+              <label htmlFor="login-email" className="sr-only">Email address</label>
               <input
+                id="login-email"
                 type="email"
                 placeholder="Email"
                 value={form.email}
@@ -96,7 +98,9 @@ export default function Login() {
             </div>
 
             <div className="input-wrap">
+              <label htmlFor="login-password" className="sr-only">Password</label>
               <input
+                id="login-password"
                 type={showPassword ? "text" : "password"}
                 placeholder="Password"
                 value={form.password}

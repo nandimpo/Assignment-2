@@ -455,3 +455,23 @@
   .five-year-goal-row { grid-template-columns: 1fr; }
   .five-year-input { width: 100%; text-align: left; }
 }
+
+/* Inline field validation */
+.input-error {
+  border-color: #ff6b6b !important;
+  background: rgba(255, 107, 107, 0.05) !important;
+}
+
+.field-error {
+  margin: 4px 0 0;
+  font-size: 0.72rem;
+  color: #ff6b6b;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.field-error::before {
+  content: "⚠";
+  font-size: 0.7rem;
+}

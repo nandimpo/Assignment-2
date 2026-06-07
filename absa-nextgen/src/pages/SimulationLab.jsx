@@ -1,72 +1,33 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Home, TrendingUp, Scale } from "lucide-react";
+import { Home, TrendingUp, Scale, CreditCard } from "lucide-react";
 import AppNav from "../components/AppNav";
 import SlideIn from "../components/SlideIn";
 import { useUser } from "../context/UserContext";
 import "../styles/simulation.css";
 import "../styles/fiveyear.css";
 
-function SimulationCard({ sim, navigate, isRecommended, index }) {
-  const Icon = sim.icon;
-
-  return (
-    <div
-      id={`card-${index}`}
-      className={`simulation-card clickable ${isRecommended ? "recommended" : ""}`}
-      onClick={() => navigate(sim.route)}
-    >
-      <div className="sim-left">
-        <div className="sim-icon-wrap">
-          <Icon size={20} />
-        </div>
-        <div className="sim-info">
-          <span className="sim-y5-tag">5-Year Impact</span>
-          <h3>{sim.title}</h3>
-          <p className="sim-desc">{sim.description}</p>
-          <p className="sim-detail">{sim.detail}</p>
-        </div>
-      </div>
-
-      <button
-        id={`button-${index}`}
-        className="sim-btn"
-        onClick={(e) => { e.stopPropagation(); navigate(sim.route); }}
-      >
-        Open Studio →
-      </button>
-    </div>
-  );
-}
-
 export default function SimulationLab() {
-  const navigate = useNavigate();
-  const { user } = useUser();
-  const userTrack = user?.strategy || "property";
+  const navigate   = useNavigate();
+  const { user }   = useUser();
+  const userTrack  = user?.strategy || "property";
 
-  // 5-year projection from user's current financials
-  const monthlyNet = Math.max((Number(user?.netSalary || user?.salary) || 0) - (Number(user?.expenses) || 0), 0);
-  const monthlyInvest = Math.round(monthlyNet * 0.2);
-  const r = 0.10 / 12;
+  const monthlyNet     = Math.max((Number(user?.netSalary || user?.salary) || 0) - (Number(user?.expenses) || 0), 0);
+  const monthlyInvest  = Math.round(monthlyNet * 0.2);
+  const r              = 0.10 / 12;
   const year5Portfolio = monthlyInvest > 0
     ? Math.round((Number(user?.savings) || 0) + monthlyInvest * ((Math.pow(1 + r, 60) - 1) / r))
     : 0;
 
   const [tourStep, setTourStep] = useState(0);
-  const [showTour, setShowTour] = useState(true);
+  const [showTour, setShowTour] = useState(false);
   const [spotlight, setSpotlight] = useState(null);
 
   const tourSteps = [
-    {
-      text: "Welcome 👋 Explore simulations to test financial decisions.",
-      target: "header",
-    },
-    {
-      text: "Start here — this is your recommended simulation.",
-      target: "card-0",
-    },
-    { text: "Click 'Open Studio' to run the simulation.", target: "button-0" },
-    { text: "Compare scenarios and learn from outcomes.", target: "list" },
+    { text: "Welcome 👋 Explore simulations to test financial decisions.", target: "header" },
+    { text: "Start here — this is your recommended simulation.",           target: "sim-step-0" },
+    { text: "Click 'Open Studio' to run the simulation.",                  target: "sim-btn-0" },
+    { text: "Compare scenarios and learn from outcomes.",                  target: "sim-step-2" },
   ];
 
   useEffect(() => {
@@ -75,50 +36,64 @@ export default function SimulationLab() {
   }, []);
 
   useEffect(() => {
+    if (!showTour) {
+      const el = document.getElementById(tourSteps[tourStep]?.target);
+      if (el) el.classList.remove("highlight");
+      return;
+    }
     const step = tourSteps[tourStep];
-    const el = document.getElementById(step.target);
+    const el   = document.getElementById(step.target);
     if (el) {
       el.classList.add("highlight");
       const rect = el.getBoundingClientRect();
-      setSpotlight({
-        top: rect.top - 8,
-        left: rect.left - 8,
-        width: rect.width + 16,
-        height: rect.height + 16,
-      });
+      setSpotlight({ top: rect.top - 8, left: rect.left - 8, width: rect.width + 16, height: rect.height + 16 });
       return () => el.classList.remove("highlight");
     }
-  }, [tourStep]);
+  }, [tourStep, showTour]);
 
-  const endTour = () => {
-    localStorage.setItem("seenTour", "true");
-    setShowTour(false);
-  };
+  const endTour = () => { localStorage.setItem("seenTour", "true"); setShowTour(false); };
 
   const simulations = [
     {
-      id: "property",
-      title: "Property vs Renting",
-      description: "What does buying vs renting cost over your first 5 years?",
-      detail: "R1.8M bond vs R12,000 rent — see the 5-year cost gap",
-      route: "/simulation/property",
-      icon: Home,
+      id:          "property",
+      step:        "Studio 01",
+      title:       "Property vs Renting",
+      description: "Traditional HVAC forces your compressor and coils to cool humid air, wasting massive energy.",
+      description: "Your landlord is building equity. You're not. But is buying always the right move in your first 5 years?",
+      detail:      "Model a R1.8M bond vs R12,000/month rent. See total cost, interest paid, and the equity you'd build — side by side over 5 years.",
+      route:       "/simulation/property",
+      icon:        Home,
+      gif:         null, // replace with: "property-sim.gif"
     },
     {
-      id: "car",
-      title: "Car vs Invest",
-      description: "If you invest instead of buying a car, where are you at Year 5?",
-      detail: "R600,000 car vs compounding portfolio — opportunity cost over 5 years",
-      route: "/simulation/car",
-      icon: TrendingUp,
+      id:          "car",
+      step:        "Studio 02",
+      title:       "Car vs Invest",
+      description: "Every rand you put into a depreciating car is a rand that isn't compounding in a portfolio.",
+      detail:      "Set your vehicle price, deposit, and finance rate. See the true opportunity cost of your car choice by Year 5.",
+      route:       "/simulation/car",
+      icon:        TrendingUp,
+      gif:         null, // replace with: "car-sim.gif"
     },
     {
-      id: "investing",
-      title: "Local vs Offshore Investing",
-      description: "Which allocation builds more wealth over 5 years?",
-      detail: "JSE vs global portfolio — projected Year 5 outcome by split",
-      route: "/simulation/investing",
-      icon: Scale,
+      id:          "investing",
+      step:        "Studio 03",
+      title:       "Local vs Offshore Investing",
+      description: "JSE or global markets? The split you choose today determines where your portfolio is by Year 5.",
+      detail:      "Adjust your local/offshore allocation and return assumptions. See how SA CGT, TFSA limits, and rand-hedge exposure shape your outcome.",
+      route:       "/simulation/investing",
+      icon:        Scale,
+      gif:         null, // replace with: "investing-sim.gif"
+    },
+    {
+      id:          "catchup",
+      step:        "Studio 04",
+      title:       "Debt Payoff vs Invest",
+      description: "Should you crush your debt first, or start building wealth now? The answer depends on your rates.",
+      detail:      "Compare two strategies: pay debt first then invest, or invest while servicing debt. See the 5-year net worth gap.",
+      route:       "/simulation/debt",
+      icon:        CreditCard,
+      gif:         null, // replace with: "debt-sim.gif"
     },
   ];
 
@@ -127,13 +102,16 @@ export default function SimulationLab() {
       <AppNav />
 
       <div className="sim-container">
-        <div id="header">
+
+        {/* HEADER */}
+        <div id="header" className="sim-timeline-header">
           <p className="sim-eyebrow">Simulation Lab · 5-Year Journey</p>
           <SlideIn tag="h1" text="Every decision shapes your 5-year outcome" />
-          <SlideIn tag="p" className="sim-subtitle" delay={120} text="Run scenarios across your first 5 years before committing to a financial choice." />
+          <SlideIn tag="p" className="sim-subtitle" delay={120}
+            text="Run scenarios across your first 5 years before committing to a financial choice." />
         </div>
 
-        {/* 5-YEAR JOURNEY BANNER */}
+        {/* Y5 BANNER */}
         {year5Portfolio > 0 && (
           <div className="sim-y5-banner">
             <div className="sim-y5-banner-left">
@@ -149,49 +127,79 @@ export default function SimulationLab() {
           </div>
         )}
 
-        <section className="simulation-list" id="list">
-          {simulations.map((sim, index) => (
-            <SimulationCard
-              key={sim.id}
-              sim={sim}
-              index={index}
-              navigate={navigate}
-              isRecommended={sim.id === userTrack}
-            />
-          ))}
-        </section>
+        {/* TIMELINE */}
+        <div className="sim-timeline" id="list">
 
-        {showTour && spotlight && (
-          <div className="tour-overlay">
-            <div
-              className="spotlight"
-              style={{
-                top: spotlight.top,
-                left: spotlight.left,
-                width: spotlight.width,
-                height: spotlight.height,
-              }}
-            />
-            <div className="tour-box">
-              <p>{tourSteps[tourStep].text}</p>
-              <div className="tour-actions">
-                <button onClick={endTour}>Skip</button>
-                <button
-                  onClick={() => {
-                    if (tourStep < tourSteps.length - 1) {
-                      setTourStep(tourStep + 1);
-                    } else {
-                      endTour();
-                    }
-                  }}
-                >
-                  {tourStep === tourSteps.length - 1 ? "Done" : "Next"}
-                </button>
+          {/* vertical line */}
+          <div className="sim-timeline-line" />
+
+          {simulations.map((sim, index) => {
+            const isRecommended = sim.id === userTrack ||
+              (sim.id === "catchup" && ["catchup", "foundation", "correction"].includes(userTrack));
+            const isLeft = index % 2 === 0; // even = text left, gif right
+
+            return (
+              <div
+                key={sim.id}
+                id={`sim-step-${index}`}
+                className={`sim-timeline-step ${isLeft ? "step-left" : "step-right"}`}
+              >
+                {/* DOT on the line */}
+                <div className={`sim-timeline-dot ${isRecommended ? "dot-recommended" : ""}`} />
+
+                {/* TEXT BLOCK */}
+                <div className="sim-step-text">
+                  {isRecommended && <span className="sim-recommended-badge">Recommended for you</span>}
+                  <p className="sim-step-label">{sim.step}</p>
+                  <h2 className="sim-step-title">{sim.title}</h2>
+                  <p className="sim-step-desc">{sim.description}</p>
+                  <p className="sim-step-detail">{sim.detail}</p>
+                  <button
+                    id={`sim-btn-${index}`}
+                    className="sim-step-btn"
+                    onClick={() => navigate(sim.route)}
+                  >
+                    Open Studio →
+                  </button>
+                </div>
+
+                {/* GIF / MEDIA BLOCK */}
+                <div className="sim-step-media">
+                  {sim.gif ? (
+                    <img
+                      src={`/src/assets/${sim.gif}`}
+                      alt={sim.title}
+                      className="sim-step-gif"
+                    />
+                  ) : (
+                    <div className="sim-step-gif-placeholder">
+                      <sim.icon size={32} color="#84a794" />
+                      <p>gif coming soon</p>
+                    </div>
+                  )}
+                </div>
               </div>
+            );
+          })}
+        </div>
+
+      </div>
+
+      {/* TOUR OVERLAY */}
+      {showTour && spotlight && (
+        <div className="tour-overlay">
+          <div className="spotlight" style={{ top: spotlight.top, left: spotlight.left, width: spotlight.width, height: spotlight.height }} />
+          <div className="tour-box">
+            <p>{tourSteps[tourStep].text}</p>
+            <div className="tour-actions">
+              <button onClick={endTour}>Skip</button>
+              <button onClick={() => { tourStep < tourSteps.length - 1 ? setTourStep(tourStep + 1) : endTour(); }}>
+                {tourStep === tourSteps.length - 1 ? "Done" : "Next"}
+              </button>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

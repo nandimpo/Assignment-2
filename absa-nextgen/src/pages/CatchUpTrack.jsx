@@ -5,6 +5,7 @@ import "../styles/track.css";
 import useProgress from "../hooks/useProgress";
 import SlideIn from "../components/SlideIn";
 import FiveYearJourney from "../components/FiveYearJourney";
+import SimNudge from "../components/SimNudge";
 import { TrendingUp, AlertTriangle, BookOpen, ChevronDown, ClipboardCheck, Check,
          Shield, Target, RefreshCw, Rocket, Info, CheckCircle2, Zap, Lightbulb,
          Scale, TriangleAlert, ArrowRight, Minus } from "lucide-react";
@@ -585,6 +586,7 @@ export default function CatchUpTrack() {
           </div>
         </div>
 
+        <SimNudge track="catchup" />
 
       </div>
     </div>

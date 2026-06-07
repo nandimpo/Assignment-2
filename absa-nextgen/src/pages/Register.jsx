@@ -110,7 +110,9 @@ export default function Register() {
             {error && <div className="error">{error}</div>}
 
             <div className="input-wrap">
+              <label htmlFor="reg-name" className="sr-only">Your name</label>
               <input
+                id="reg-name"
                 placeholder="Your Name"
                 value={form.name}
                 className={nameValid ? "input-valid" : ""}
@@ -120,7 +122,9 @@ export default function Register() {
             </div>
 
             <div className="input-wrap">
+              <label htmlFor="reg-email" className="sr-only">Email address</label>
               <input
+                id="reg-email"
                 type="email"
                 placeholder="Email (e.g. name or name@email.com)"
                 value={form.email}
@@ -131,7 +135,9 @@ export default function Register() {
             </div>
 
             <div className="input-wrap">
+              <label htmlFor="reg-password" className="sr-only">Password</label>
               <input
+                id="reg-password"
                 type={showPassword ? "text" : "password"}
                 placeholder="Password"
                 value={form.password}
