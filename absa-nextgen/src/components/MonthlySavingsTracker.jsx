@@ -2,14 +2,21 @@ import { useState } from "react";
 import { useUser } from "../context/UserContext";
 import { CheckCircle, Circle, XCircle, TrendingUp, AlertTriangle, RefreshCw, Lightbulb, CalendarClock, Target, BarChart2 } from "lucide-react";
 
-export default function MonthlySavingsTracker({ monthlyTarget, goalAmount, goalLabel = "goal" }) {
+export default function MonthlySavingsTracker({
+  monthlyTarget,
+  goalAmount,
+  goalLabel    = "goal",
+  logKey       = "savingsLog",   // separate log per track
+  trackerTitle = "Monthly Savings Tracker",
+  verb         = "saved",        // "saved" or "paid"
+}) {
   const { user, updateUser } = useUser();
   const [showMissedPanel, setShowMissedPanel] = useState(false);
   const [partialAmount, setPartialAmount]     = useState("");
   const [flashing, setFlashing]               = useState(false);
   const [flashGreen, setFlashGreen]           = useState(false);
 
-  const log        = user?.savingsLog || [];
+  const log        = user?.[logKey] || [];
   const totalSaved = log.reduce((sum, e) => sum + (e.amount || 0), 0);
 
   const now       = new Date();
@@ -36,14 +43,14 @@ export default function MonthlySavingsTracker({ monthlyTarget, goalAmount, goalL
   const confirmSaved = (amount = monthlyTarget) => {
     if (alreadyLogged) return;
     const newLog = [...log, { month: thisMonth, amount: Number(amount), missed: false }];
-    updateUser({ savingsLog: newLog, savings: totalSaved + Number(amount) });
+    updateUser({ [logKey]: newLog, savings: logKey === "savingsLog" ? totalSaved + Number(amount) : undefined });
     setShowMissedPanel(false);
   };
 
   const confirmMissed = () => {
     if (alreadyLogged) return;
     const newLog = [...log, { month: thisMonth, amount: 0, missed: true }];
-    updateUser({ savingsLog: newLog });
+    updateUser({ [logKey]: newLog });
     setShowMissedPanel(true);
     setFlashing(true);
     setTimeout(() => setFlashing(false), 2400);
@@ -52,7 +59,7 @@ export default function MonthlySavingsTracker({ monthlyTarget, goalAmount, goalL
   const removeEntry = (month) => {
     const newLog     = log.filter(e => e.month !== month);
     const newSavings = newLog.filter(e => !e.missed).reduce((sum, e) => sum + e.amount, 0);
-    updateUser({ savingsLog: newLog, savings: newSavings });
+    updateUser({ [logKey]: newLog, ...(logKey === "savingsLog" ? { savings: newSavings } : {}) });
     if (month === thisMonth) setShowMissedPanel(false);
   };
 
@@ -74,13 +81,13 @@ export default function MonthlySavingsTracker({ monthlyTarget, goalAmount, goalL
       <div className="mst-header">
         <div>
           <h3 style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <TrendingUp size={16} /> Monthly Savings Tracker
+            <TrendingUp size={16} /> {trackerTitle}
           </h3>
           <p className="mst-sub">Log R{monthlyTarget.toLocaleString("en-ZA")}/month toward your {goalLabel}</p>
         </div>
         <div className="mst-totals">
           <div className="mst-stat">
-            <span className="mst-stat-label">Saved total</span>
+            <span className="mst-stat-label">{verb === "paid" ? "Paid total" : "Saved total"}</span>
             <strong className="mst-stat-value accent">R{totalSaved.toLocaleString("en-ZA")}</strong>
           </div>
           <div className="mst-stat">
@@ -99,7 +106,7 @@ export default function MonthlySavingsTracker({ monthlyTarget, goalAmount, goalL
         <div className="mst-progress-fill" style={{ width: `${progress}%` }} />
       </div>
       <div className="mst-streak">
-        <span className="mst-streak-item saved"><CheckCircle size={11} /> {savedMonths} saved</span>
+        <span className="mst-streak-item saved"><CheckCircle size={11} /> {savedMonths} {verb}</span>
         {missedMonths > 0 && <span className="mst-streak-item missed"><XCircle size={11} /> {missedMonths} missed</span>}
       </div>
 
@@ -108,7 +115,7 @@ export default function MonthlySavingsTracker({ monthlyTarget, goalAmount, goalL
         <div className="mst-checkin">
           <Circle size={20} color="#8fa3a0" />
           <div style={{ flex: 1 }}>
-            <p className="mst-checkin-title">{formatMonth(thisMonth)} — Did you save R{monthlyTarget.toLocaleString("en-ZA")}?</p>
+            <p className="mst-checkin-title">{formatMonth(thisMonth)} — Did you {verb === "paid" ? "pay" : "save"} R{monthlyTarget.toLocaleString("en-ZA")}?</p>
             <p className="mst-checkin-sub">Be honest — tracking missed months helps you recover faster</p>
           </div>
           <div className="mst-checkin-btns">
@@ -129,7 +136,7 @@ export default function MonthlySavingsTracker({ monthlyTarget, goalAmount, goalL
         <div className="mst-checkin mst-checkin--done">
           <CheckCircle size={20} color="#84a794" />
           <div style={{ flex: 1 }}>
-            <p className="mst-checkin-title">Saved in {formatMonth(thisMonth)}</p>
+            <p className="mst-checkin-title">{verb === "paid" ? "Paid" : "Saved"} in {formatMonth(thisMonth)}</p>
             <p className="mst-checkin-sub">R{thisEntry?.amount.toLocaleString("en-ZA")} logged — great work!</p>
           </div>
           <button className="mst-remove-inline" onClick={() => removeEntry(thisMonth)}>Undo</button>
@@ -180,7 +187,7 @@ export default function MonthlySavingsTracker({ monthlyTarget, goalAmount, goalL
                   { month: thisMonth, amount, missed: false },
                 ];
                 const newSavings = newLog.filter(e => !e.missed).reduce((sum, e) => sum + e.amount, 0);
-                updateUser({ savingsLog: newLog, savings: newSavings });
+                updateUser({ [logKey]: newLog, ...(logKey === "savingsLog" ? { savings: newSavings } : {}) });
                 setPartialAmount("");
                 setShowMissedPanel(false);
                 setFlashGreen(true);

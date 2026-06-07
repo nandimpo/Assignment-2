@@ -38,6 +38,11 @@ export default function MoneySnapshot() {
     .filter(e => !e.missed)
     .reduce((sum, e) => sum + (e.amount || 0), 0);
 
+  // Catchup track uses its own payment log
+  const catchupLogTotal = (user?.catchupLog || [])
+    .filter(e => !e.missed)
+    .reduce((sum, e) => sum + (e.amount || 0), 0);
+
   const goalMonthly = Number(user?.goalAmount) || Math.round(net * 0.2);
   const goal = user?.depositAmount || user?.goalAmount || goalMonthly * 60 || 600000;
   const fiveYearGoal = Number(user?.fiveYearGoal) || goalMonthly * 60;
@@ -57,9 +62,12 @@ export default function MoneySnapshot() {
       progressLabel: (cur) => `R${cur.toLocaleString("en-ZA")} invested so far · R${goalMonthly.toLocaleString("en-ZA")}/month target`,
     },
     catchup: {
-      current: savingsLogTotal,
+      current: catchupLogTotal,
       target: goal,
-      monthsLabel: (cur, tgt, n) => tgt > cur && n > 0 ? Math.ceil((tgt - cur) / n) : 0,
+      monthsLabel: (cur, tgt) => {
+        const monthly = Number(user?.catchupMonthly) || net;
+        return tgt > cur && monthly > 0 ? Math.ceil((tgt - cur) / monthly) : 0;
+      },
       progressLabel: (cur, tgt) => `R${cur.toLocaleString("en-ZA")} cleared of R${tgt.toLocaleString("en-ZA")} debt`,
     },
     correction: {
@@ -99,9 +107,10 @@ export default function MoneySnapshot() {
   // savingsRate is based on monthly surplus (income - expenses), not log total
   const monthlySurplus = Math.max(0, net);
   const savingsRate = Math.round((monthlySurplus / safeIncome) * 100);
-  const progress = Math.min(100, Math.round((savingsLogTotal / Math.max(goal, 1)) * 100));
+  const activeLogTotal = user?.strategy === "catchup" ? catchupLogTotal : savingsLogTotal;
+  const progress = Math.min(100, Math.round((activeLogTotal / Math.max(goal, 1)) * 100));
   const monthsToGoal =
-    savingsLogTotal >= goal ? 0 : Math.ceil((goal - savingsLogTotal) / (goalMonthly || 1));
+    activeLogTotal >= goal ? 0 : Math.ceil((goal - activeLogTotal) / (goalMonthly || 1));
 
   const [breakdownEdit, setBreakdownEdit] = useState({
     housing:   user?.breakdown?.housing   ?? Math.round(expenses * 0.4),

@@ -5,7 +5,16 @@ import "../styles/track.css";
 import useProgress from "../hooks/useProgress";
 import SlideIn from "../components/SlideIn";
 import FiveYearJourney from "../components/FiveYearJourney";
-import { Shield, AlertTriangle, BookOpen, ChevronDown } from "lucide-react";
+import { Shield, AlertTriangle, BookOpen, ChevronDown, ClipboardCheck, Check } from "lucide-react";
+
+const MILESTONES_DETAIL = [
+  { label: "Budget written down and tracked",           tip: "You can't fix what you don't measure — start with a simple spreadsheet." },
+  { label: "1 month of expenses saved",                 tip: "Your first mini emergency fund. Small but powerful — it breaks the paycheck-to-paycheck cycle." },
+  { label: "All high-interest debt identified",         tip: "List every debt with its rate. Highest rate = highest priority." },
+  { label: "3× emergency fund reached",                 tip: "3 months of expenses in a separate savings account you don't touch." },
+  { label: "First recurring savings contribution set",  tip: "Even R500/month automated is a foundation. Increase as expenses reduce." },
+  { label: "Net income > net expenses consistently",    tip: "When income reliably exceeds expenses, you're out of survival mode." },
+];
 
 export default function FoundationBuilderTrack() {
   // ================= USER CONTEXT =================
@@ -18,6 +27,18 @@ export default function FoundationBuilderTrack() {
   const [savingsAdjust, setSavingsAdjust] = useState(0);
   const [openCards, setOpenCards] = useState({ budget: false, allocation: false, insights: false, guide: false });
   const toggleCard = (key) => setOpenCards(prev => ({ ...prev, [key]: !prev[key] }));
+
+  const [stagesDone, setStagesDone] = useState(() => {
+    try {
+      const s = JSON.parse(localStorage.getItem("foundationStages") || "null");
+      return s && s.length === MILESTONES_DETAIL.length ? s : new Array(MILESTONES_DETAIL.length).fill(false);
+    } catch { return new Array(MILESTONES_DETAIL.length).fill(false); }
+  });
+  const toggleStage = (i) => setStagesDone(prev => {
+    const u = prev.map((v, idx) => idx === i ? !v : v);
+    localStorage.setItem("foundationStages", JSON.stringify(u));
+    return u;
+  });
 
   // ================= CALCULATIONS (after all hooks) =================
   const income = Number(user?.netSalary || user?.salary) || 0;
@@ -37,6 +58,14 @@ export default function FoundationBuilderTrack() {
   // milestone completion is now auto-calculated by useProgress
 
   const overallProgress = Math.round((fundProgress + percent) / 2);
+
+  // ── Plan logic from Setup ────────────────────────────────────────────────────
+  const foundGoal5yr    = Number(user?.fiveYearGoal) || 0;
+  const foundMonthly    = savings;
+  const foundActualMo   = foundMonthly > 0 && emergencyTarget > 0 ? Math.ceil(emergencyTarget / foundMonthly) : null;
+  const foundY5Savings  = foundMonthly * 60;
+  const foundOnTrack    = foundGoal5yr > 0 ? foundY5Savings >= foundGoal5yr : null;
+  const foundShortfall  = foundGoal5yr > 0 ? Math.max(0, foundGoal5yr - foundY5Savings) : 0;
 
   // ================= MILESTONE INSIGHTS =================
   const milestoneInsights = [];
@@ -103,9 +132,44 @@ export default function FoundationBuilderTrack() {
 
       <div className="track-container">
         {/* ================= HEADER ================= */}
-        <p className="tracks-eyebrow">Foundation Builder</p>
-        <SlideIn tag="h1" text={`Welcome back, ${user?.name?.split(" ")[0] || "there"}`} />
+        <span style={{ color: "#84a794", fontWeight: 700, fontSize: "0.78rem", letterSpacing: "0.1em", textTransform: "uppercase", background: "rgba(132,167,148,0.12)", border: "1px solid rgba(132,167,148,0.3)", borderRadius: 6, padding: "3px 10px", display: "inline-block", width: "fit-content" }}>Foundation Builder</span>
+        <SlideIn tag="h1" text={`Welcome back, ${user?.name?.split(" ")[0] || "there"}`} style={{ margin: 0 }} />
         <SlideIn tag="p" className="subtitle" delay={120} text="You are on the Foundation track · build your financial base from the ground up" />
+
+        {/* ── YOUR PLAN ── driven by Setup inputs */}
+        {emergencyTarget > 0 && (
+          <div className="track-card" style={{ padding: 0, overflow: "hidden" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+              {[
+                { label: "Emergency Target", value: `R${emergencyTarget.toLocaleString("en-ZA")}`,                          color: "#d6a85a" },
+                { label: "Monthly Surplus",  value: `R${foundMonthly.toLocaleString("en-ZA")}`,                             color: "#84a794" },
+                { label: "Months to Fund",   value: foundActualMo ? `${foundActualMo} mo` : "—",                            color: "#4facfe" },
+                { label: "5-Yr Projection",  value: `R${foundY5Savings.toLocaleString("en-ZA")}`,                           color: foundOnTrack === true ? "#84a794" : foundOnTrack === false ? "#ff9898" : "#c0ccc8" },
+              ].map(({ label, value, color }, i) => (
+                <div key={label} style={{ padding: "14px 16px", borderRight: i < 3 ? "1px solid rgba(255,255,255,0.06)" : "none" }}>
+                  <p style={{ fontSize: "0.6rem", fontWeight: 700, color: "#445550", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 3px" }}>{label}</p>
+                  <p style={{ fontSize: "0.95rem", fontWeight: 700, color, margin: 0 }}>{value}</p>
+                </div>
+              ))}
+            </div>
+            <div style={{ padding: "12px 18px 14px", display: "flex", gap: 10, alignItems: "flex-start",
+              background: foundOnTrack === true ? "rgba(132,167,148,0.05)" : foundOnTrack === false ? "rgba(214,168,90,0.05)" : "rgba(79,172,254,0.04)" }}>
+              <span style={{ fontSize: "1rem", flexShrink: 0 }}>{foundOnTrack === true ? "🛡️" : foundOnTrack === false ? "⚡" : "💡"}</span>
+              <div>
+                <p style={{ margin: "0 0 3px", fontSize: "0.78rem", fontWeight: 700,
+                  color: foundOnTrack === true ? "#84a794" : foundOnTrack === false ? "#d6a85a" : "#4facfe" }}>
+                  {foundOnTrack === true
+                    ? `On track — saving R${foundMonthly.toLocaleString("en-ZA")}/month builds R${foundY5Savings.toLocaleString("en-ZA")} in 5 years, above your R${foundGoal5yr.toLocaleString("en-ZA")} goal`
+                    : foundOnTrack === false
+                    ? `Saving R${foundMonthly.toLocaleString("en-ZA")}/month gives R${foundY5Savings.toLocaleString("en-ZA")} in 5 years — R${foundShortfall.toLocaleString("en-ZA")} short of your R${foundGoal5yr.toLocaleString("en-ZA")} goal`
+                    : foundActualMo
+                    ? `At R${foundMonthly.toLocaleString("en-ZA")}/month you'll build your emergency fund in ${foundActualMo} months. Set a 5-year goal in Setup.`
+                    : "Add your salary and expenses in Setup to see your personalised plan"}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ================= 5-YEAR JOURNEY ================= */}
         <FiveYearJourney
@@ -446,6 +510,45 @@ export default function FoundationBuilderTrack() {
 
           </div>
         </div>
+
+        {/* MILESTONE CHECKLIST */}
+        <div className="track-card">
+          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16 }}>
+            <h3 style={{ margin:0, display:"flex", alignItems:"center", gap:8 }}>
+              <ClipboardCheck size={17} color="#84a794" /> Milestone Checklist
+            </h3>
+            <span style={{ fontSize:"0.72rem", color:"#84a794", fontWeight:600, whiteSpace:"nowrap", marginLeft:12 }}>
+              {stagesDone.filter(Boolean).length}/{MILESTONES_DETAIL.length} done
+            </span>
+          </div>
+          <p style={{ fontSize:"0.73rem", color:"#667c74", margin:"0 0 14px", lineHeight:1.5 }}>
+            Tick off each milestone as you complete it — progress saves automatically.
+          </p>
+          <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+            {MILESTONES_DETAIL.map((m, i) => {
+              const done = stagesDone[i];
+              return (
+                <div key={i} onClick={() => toggleStage(i)}
+                  style={{ display:"flex", gap:12, alignItems:"center", padding:"10px 14px", borderRadius:10, cursor:"pointer",
+                    background: done ? "rgba(132,167,148,0.07)" : "rgba(255,255,255,0.02)",
+                    border:`1px solid ${done ? "rgba(132,167,148,0.22)" : "rgba(255,255,255,0.06)"}`,
+                    transition:"background 0.2s, border-color 0.2s" }}>
+                  <div style={{ width:20, height:20, borderRadius:5, flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center",
+                    background: done ? "rgba(132,167,148,0.22)" : "#0e1512",
+                    border:`2px solid ${done ? "#84a794" : "#2a3530"}`, transition:"all 0.2s" }}>
+                    {done && <Check size={11} color="#84a794" />}
+                  </div>
+                  <div style={{ flex:1 }}>
+                    <p style={{ margin:0, fontSize:"0.8rem", fontWeight:600, color: done?"#84a794":"#c0ccc8", textDecoration: done?"line-through":"none" }}>{m.label}</p>
+                    <p style={{ margin:"2px 0 0", fontSize:"0.7rem", color:"#556660", lineHeight:1.4 }}>{m.tip}</p>
+                  </div>
+                  {done && <Check size={14} color="#84a794" style={{ flexShrink:0 }} />}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
       </div>
     </div>
   );

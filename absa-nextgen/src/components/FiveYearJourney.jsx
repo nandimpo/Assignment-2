@@ -30,10 +30,11 @@ const trackConfig = {
   catchup: {
     yearLabels: ["Debt Audit", "Halfway Clear", "Debt Free", "Building Wealth", "Fully Caught Up"],
     rate: 0,
-    valueLabel: "debt cleared",
+    valueLabel: "debt remaining",
     verb: "debt eliminated",
-    compute: (monthly, currentSaved, year) =>
-      Math.round(currentSaved + monthly * 12 * year),
+    // currentSaved = total debt passed in; counts DOWN toward zero
+    compute: (monthly, totalDebt, year) =>
+      Math.max(0, Math.round(totalDebt - monthly * 12 * year)),
   },
   correction: {
     yearLabels: ["Budget Locked", "Habits Fixed", "Debt Cleared", "Saving Starts", "Financial Control"],
@@ -61,10 +62,21 @@ export default function FiveYearJourney({ trackKey, monthlyAmount, currentSaved 
 
   const yearValues = [1, 2, 3, 4, 5].map((y) => cfg.compute(monthly, currentSaved, y));
   const year5Value = yearValues[4];
-  const targetGap = fiveYearTarget > 0 ? Math.max(0, fiveYearTarget - year5Value) : 0;
-  const onTrack = fiveYearTarget > 0 && year5Value >= fiveYearTarget;
 
-  const barPct = year5Value > 0 ? Math.min(100, Math.round((currentSaved / year5Value) * 100)) : 0;
+  // For catch-up track, lower is better (debt going to 0). Invert on-track logic.
+  const isCatchup = trackKey === "catchup";
+  const totalDebt = isCatchup ? currentSaved : 0;
+  // Which year does debt clear? (first year where value hits 0)
+  const clearYear = isCatchup ? (yearValues.findIndex(v => v === 0) + 1) || null : null;
+  const debtCleared = isCatchup && year5Value === 0;
+
+  const targetGap = !isCatchup && fiveYearTarget > 0 ? Math.max(0, fiveYearTarget - year5Value) : 0;
+  const onTrack = !isCatchup && fiveYearTarget > 0 && year5Value >= fiveYearTarget;
+
+  // Progress bar: for catchup = % debt cleared so far (currentSaved = totalDebt, actual paid = 0 at start)
+  const barPct = isCatchup
+    ? totalDebt > 0 ? Math.min(100, Math.round(((totalDebt - year5Value) / totalDebt) * 100)) : 0
+    : year5Value > 0 ? Math.min(100, Math.round((currentSaved / year5Value) * 100)) : 0;
 
   // Flash + adjust state
   const [screenFlash, setScreenFlash]   = useState(false);
@@ -121,13 +133,22 @@ export default function FiveYearJourney({ trackKey, monthlyAmount, currentSaved 
           <div className="fy-line-fill" style={{ width: `${barPct}%` }} />
 
           {[1, 2, 3, 4, 5].map((y, i) => {
-            const isFuture = currentSaved < yearValues[i];
+            // For catchup: a year is "done" when debt reaches 0 at or before it
+            // For other tracks: a year is "done" when you've already saved past that milestone
+            const isFuture = isCatchup ? yearValues[i] > 0 : currentSaved < yearValues[i];
+            const nodeCleared = isCatchup && yearValues[i] === 0;
             return (
               <div key={y} className={`fy-node ${!isFuture ? "fy-node--done" : ""} ${y === 5 ? "fy-node--end" : ""}`}>
                 <div className="fy-dot">{!isFuture ? "✓" : y}</div>
                 <p className="fy-year-label">Year {y}</p>
                 <p className="fy-milestone">{cfg.yearLabels[i]}</p>
-                <p className="fy-value">R{yearValues[i].toLocaleString("en-ZA")}</p>
+                {isCatchup ? (
+                  <p className="fy-value" style={{ color: nodeCleared ? "#2a9d8f" : undefined }}>
+                    {nodeCleared ? "Gone ✓" : `R${yearValues[i].toLocaleString("en-ZA")} left`}
+                  </p>
+                ) : (
+                  <p className="fy-value">R{yearValues[i].toLocaleString("en-ZA")}</p>
+                )}
               </div>
             );
           })}
@@ -136,13 +157,49 @@ export default function FiveYearJourney({ trackKey, monthlyAmount, currentSaved 
         {/* YEAR 5 OUTCOME CARD */}
         <div className="fy-outcome">
           <div className="fy-outcome-left">
-            <p className="fy-outcome-eyebrow">By Year 5</p>
-            <p className="fy-outcome-number">R{year5Value.toLocaleString("en-ZA")}</p>
-            <p className="fy-outcome-sub">{cfg.verb} at R{monthly.toLocaleString("en-ZA")}/month</p>
+            <p className="fy-outcome-eyebrow">{isCatchup ? (clearYear ? `Debt Free by Year ${clearYear}` : "By Year 5") : "By Year 5"}</p>
+            {isCatchup ? (
+              debtCleared ? (
+                <p className="fy-outcome-number" style={{ color: "#2a9d8f" }}>Debt Free ✓</p>
+              ) : (
+                <p className="fy-outcome-number" style={{ color: "#ff8a80" }}>
+                  R{year5Value.toLocaleString("en-ZA")} left
+                </p>
+              )
+            ) : (
+              <p className="fy-outcome-number">R{year5Value.toLocaleString("en-ZA")}</p>
+            )}
+            {isCatchup ? (
+              <p className="fy-outcome-sub">
+                {debtCleared
+                  ? `${cfg.verb} at R${monthly.toLocaleString("en-ZA")}/month`
+                  : `R${(totalDebt - year5Value).toLocaleString("en-ZA")} cleared · R${year5Value.toLocaleString("en-ZA")} remaining`}
+              </p>
+            ) : (
+              <p className="fy-outcome-sub">{cfg.verb} at R{monthly.toLocaleString("en-ZA")}/month</p>
+            )}
           </div>
 
           <div className="fy-outcome-right">
-            {fiveYearTarget > 0 ? (
+            {isCatchup ? (
+              // Catch-up track: show debt clearance status badge
+              debtCleared ? (
+                <div className="fy-badge fy-badge--good">
+                  {clearYear === 1 ? "Debt gone in Year 1 🚀" : `Debt-free by Year ${clearYear} ✓`}
+                </div>
+              ) : monthly > 0 ? (
+                <div className="fy-badge fy-badge--gap">
+                  <span>Still R{year5Value.toLocaleString("en-ZA")} remaining after 5 years</span>
+                  <p className="fy-badge-hint">
+                    Increase monthly payment to clear faster · go to Setup to adjust
+                  </p>
+                </div>
+              ) : (
+                <button className="fy-badge fy-badge--neutral fy-badge--link" onClick={() => navigate("/setup")}>
+                  Set your monthly debt payment in Setup →
+                </button>
+              )
+            ) : fiveYearTarget > 0 ? (
               onTrack ? (
                 <div className="fy-badge fy-badge--good">
                   On track for your R{fiveYearTarget.toLocaleString("en-ZA")} goal ✓

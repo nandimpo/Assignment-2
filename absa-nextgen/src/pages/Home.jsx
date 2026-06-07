@@ -85,17 +85,29 @@ export default function Home() {
     { tag: "Investing",  text: "Compound interest is most powerful in the first few years. Every month you delay costs more than you think." },
   ];
 
-  // 5-year projection — use user's actual setup goal, fall back to 20% of net
-  const monthlyInvest = Number(user?.goalAmount) > 0
-    ? Number(user.goalAmount)
-    : Math.max(Math.round(net * 0.2), 0);
   const r = 0.10 / 12;
   const savingsLogTotal = (user?.savingsLog || [])
     .filter(e => e.status !== "missed")
     .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
-  const currentSaved = savingsLogTotal; // only use actual logged savings, not formula surplus
+  const currentSaved = savingsLogTotal;
   const trackIs = user?.strategy;
+
+  // Catch-up track: show debt clearance, not wealth accumulation
+  const totalDebt      = Number(user?.debt || user?.goalAmount) || 0;
+  const catchupMonthly = Number(user?.catchupMonthly) || Math.max(Math.round(net * 0.3), 0);
+
+  // All other tracks: monthly investment amount
+  const monthlyInvest = trackIs === "catchup"
+    ? catchupMonthly
+    : Number(user?.goalAmount) > 0
+      ? Number(user.goalAmount)
+      : Math.max(Math.round(net * 0.2), 0);
+
   const y5Values = [1, 2, 3, 4, 5].map((y) => {
+    if (trackIs === "catchup") {
+      // Show remaining debt each year (floors at 0)
+      return Math.max(0, totalDebt - catchupMonthly * 12 * y);
+    }
     if (trackIs === "balanced") return Math.round(currentSaved + monthlyInvest * ((Math.pow(1 + r, y * 12) - 1) / r));
     return Math.round(currentSaved + net * 12 * y);
   });
@@ -169,15 +181,34 @@ export default function Home() {
         {net > 0 && (
           <div className="home-y5-strip fade-in">
             <div className="home-y5-left">
-              <p className="home-y5-eyebrow">5-Year Journey · {trackNames[user?.strategy] || "Your Track"}</p>
-              <p className="home-y5-amount">R{y5Values[4].toLocaleString("en-ZA")}</p>
-              <p className="home-y5-sub">projected by Year 5 at R{monthlyInvest.toLocaleString("en-ZA")}/month</p>
+              <p className="home-y5-eyebrow">
+                {trackIs === "catchup" ? "Debt Clearance · Catch-Up Wealth" : `5-Year Journey · ${trackNames[user?.strategy] || "Your Track"}`}
+              </p>
+              {trackIs === "catchup" ? (
+                <>
+                  <p className="home-y5-amount" style={{ color: y5Values[4] === 0 ? "#84a794" : "#ff9898" }}>
+                    {y5Values[4] === 0 ? "Debt-Free ✓" : `R${y5Values[4].toLocaleString("en-ZA")} left`}
+                  </p>
+                  <p className="home-y5-sub">
+                    {y5Values[4] === 0
+                      ? `Cleared in under 5 yrs at R${catchupMonthly.toLocaleString("en-ZA")}/month`
+                      : `R${totalDebt.toLocaleString("en-ZA")} total · R${catchupMonthly.toLocaleString("en-ZA")}/month attack`}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="home-y5-amount">R{y5Values[4].toLocaleString("en-ZA")}</p>
+                  <p className="home-y5-sub">projected by Year 5 at R{monthlyInvest.toLocaleString("en-ZA")}/month</p>
+                </>
+              )}
             </div>
             <div className="home-y5-years">
               {[1, 2, 3, 4, 5].map((y, i) => (
                 <div key={y} className={`home-y5-year ${y === 5 ? "home-y5-year--end" : ""}`}>
                   <span className="home-y5-year-label">Yr {y}</span>
-                  <span className="home-y5-year-value">R{(y5Values[i] / 1000).toFixed(0)}k</span>
+                  <span className="home-y5-year-value" style={ trackIs === "catchup" && y5Values[i] === 0 ? { color: "#84a794" } : {} }>
+                    {trackIs === "catchup" && y5Values[i] === 0 ? "Gone ✓" : `R${(y5Values[i] / 1000).toFixed(0)}k`}
+                  </span>
                 </div>
               ))}
             </div>
@@ -205,9 +236,13 @@ export default function Home() {
                   ? `Investing R${Number(monthly).toLocaleString("en-ZA")}/month`
                   : "Set your monthly target in Setup";
               } else if (strategy === "catchup") {
-                displayAmount = user?.goalAmount;
-                const months = user?.monthsToGoal;
-                subLine = months ? `${months} months to clear` : "Set your debt amount in Setup";
+                displayAmount = user?.debt || user?.goalAmount;
+                const cu = Number(user?.catchupMonthly);
+                const debt = Number(user?.debt || user?.goalAmount);
+                const months = cu > 0 && debt > 0 ? Math.ceil(debt / cu) : null;
+                subLine = months
+                  ? `${months} months to clear at R${cu.toLocaleString("en-ZA")}/month`
+                  : "Set your debt + contribution in Setup";
               } else {
                 displayAmount = user?.goalAmount;
                 subLine = displayAmount ? `R${Number(displayAmount).toLocaleString("en-ZA")}/month to reduce` : "Set your target in Setup";

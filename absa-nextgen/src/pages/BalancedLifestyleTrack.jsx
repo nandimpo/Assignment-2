@@ -5,7 +5,16 @@ import AppNav from "../components/AppNav";
 import ExplainerPanel from "../components/ExplainerPanel";
 import "../styles/track.css";
 import "../styles/money.css";
-import { Wallet, TrendingUp, PiggyBank, BookOpen, AlertTriangle, ChevronDown } from "lucide-react";
+import { Wallet, TrendingUp, PiggyBank, BookOpen, AlertTriangle, ChevronDown, ClipboardCheck, Check } from "lucide-react";
+
+const MILESTONES_DETAIL = [
+  { label: "Emergency fund (3× expenses) built",       tip: "Your safety net before anything else — prevents pulling from investments." },
+  { label: "Monthly investment contribution automated", tip: "Set up a debit order on payday so it happens before you can spend it." },
+  { label: "Investment account opened (TFSA/RA/ETF)",  tip: "A Tax-Free Savings Account shelters your first R36k/year from tax." },
+  { label: "Lifestyle inflation kept below income growth", tip: "Every raise you don't spend accelerates your timeline significantly." },
+  { label: "Portfolio reviewed and rebalanced",         tip: "Check your asset split every 6–12 months and rebalance if needed." },
+  { label: "R500k portfolio milestone reached",         tip: "The compounding effect kicks in meaningfully above this threshold." },
+];
 import MonthlySavingsTracker from "../components/MonthlySavingsTracker";
 import FiveYearJourney from "../components/FiveYearJourney";
 import SlideIn from "../components/SlideIn";
@@ -53,6 +62,18 @@ export default function BalancedLifestyleTrack() {
   // ── Collapsible cards (4–7 start closed) ──
   const [openCards, setOpenCards] = useState({ allocation: false, portfolio: false, rationale: false, guide: false });
   const toggleCard = (key) => setOpenCards(prev => ({ ...prev, [key]: !prev[key] }));
+
+  const [stagesDone, setStagesDone] = useState(() => {
+    try {
+      const s = JSON.parse(localStorage.getItem("balancedStages") || "null");
+      return s && s.length === MILESTONES_DETAIL.length ? s : new Array(MILESTONES_DETAIL.length).fill(false);
+    } catch { return new Array(MILESTONES_DETAIL.length).fill(false); }
+  });
+  const toggleStage = (i) => setStagesDone(prev => {
+    const u = prev.map((v, idx) => idx === i ? !v : v);
+    localStorage.setItem("balancedStages", JSON.stringify(u));
+    return u;
+  });
 
   // ── Explainer panel state ──
   const [showPanel, setShowPanel]     = useState(false);
@@ -105,6 +126,14 @@ export default function BalancedLifestyleTrack() {
   const scenarioY5 = compoundFV(scenarioInvesting, 0.10, 5);
   const setupY5    = compoundFV(goalMonthly, 0.10, 5);
 
+  // ── Plan logic from Setup ────────────────────────────────────────────────────
+  const balPlanGoal   = Number(user?.fiveYearGoal) || 0;
+  const balOnTrack    = balPlanGoal > 0 ? setupY5 >= balPlanGoal : null;
+  const balSurplusAmt = balPlanGoal > 0 ? setupY5 - balPlanGoal : 0;
+  const r5            = 0.10 / 12;
+  const balRequired   = balPlanGoal > 0 ? Math.ceil(balPlanGoal / ((Math.pow(1 + r5, 60) - 1) / r5)) : null;
+  const balShortfall  = balRequired && goalMonthly ? Math.max(0, balRequired - goalMonthly) : 0;
+
   const portfolio = { local: user?.localPct || 60, offshore: user?.offshorePct || 40 };
   const steps = ["emergencyFund", "deposit", "purchase"];
   const stepLabels = { emergencyFund: "Emergency Fund", deposit: "Consistent Investing", purchase: "Financial Independence" };
@@ -134,9 +163,52 @@ export default function BalancedLifestyleTrack() {
       <div className="track-container">
 
         {/* HEADER */}
-        <p className="tracks-eyebrow">Balanced Lifestyle</p>
-        <SlideIn tag="h1" text={`Welcome back, ${user?.name?.split(" ")[0] || "there"}`} />
+        <span style={{ color: "#84a794", fontWeight: 700, fontSize: "0.78rem", letterSpacing: "0.1em", textTransform: "uppercase", background: "rgba(132,167,148,0.12)", border: "1px solid rgba(132,167,148,0.3)", borderRadius: 6, padding: "3px 10px", display: "inline-block", width: "fit-content" }}>Balanced Lifestyle</span>
+        <SlideIn tag="h1" text={`Welcome back, ${user?.name?.split(" ")[0] || "there"}`} style={{ margin: 0 }} />
         <SlideIn tag="p" className="subtitle" delay={120} text="You are on the Balanced Lifestyle track · enjoy life while building wealth" />
+
+        {/* ── YOUR PLAN ── driven by Setup inputs */}
+        {goalMonthly > 0 && (
+          <div className="track-card" style={{ padding: 0, overflow: "hidden" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+              {[
+                { label: "Monthly Invest",  value: `R${goalMonthly.toLocaleString("en-ZA")}`,                                      color: "#4facfe" },
+                { label: "Year 5 (10% p.a.)", value: `R${setupY5.toLocaleString("en-ZA")}`,                                       color: "#84a794" },
+                { label: "5-Year Goal",     value: balPlanGoal > 0 ? `R${balPlanGoal.toLocaleString("en-ZA")}` : "Not set",       color: "#d6a85a" },
+                { label: "Status",          value: balOnTrack === true ? "On Track ✓" : balOnTrack === false ? "Behind" : "—",     color: balOnTrack === true ? "#84a794" : balOnTrack === false ? "#ff9898" : "#445550" },
+              ].map(({ label, value, color }, i) => (
+                <div key={label} style={{ padding: "14px 16px", borderRight: i < 3 ? "1px solid rgba(255,255,255,0.06)" : "none" }}>
+                  <p style={{ fontSize: "0.6rem", fontWeight: 700, color: "#445550", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 3px" }}>{label}</p>
+                  <p style={{ fontSize: "0.95rem", fontWeight: 700, color, margin: 0 }}>{value}</p>
+                </div>
+              ))}
+            </div>
+            <div style={{ padding: "12px 18px 14px", display: "flex", gap: 10, alignItems: "flex-start",
+              background: balOnTrack === true ? "rgba(132,167,148,0.05)" : balOnTrack === false ? "rgba(214,168,90,0.05)" : "rgba(79,172,254,0.04)" }}>
+              <span style={{ fontSize: "1rem", flexShrink: 0 }}>{balOnTrack === true ? "📈" : balOnTrack === false ? "⚡" : "💡"}</span>
+              <div>
+                <p style={{ margin: "0 0 3px", fontSize: "0.78rem", fontWeight: 700,
+                  color: balOnTrack === true ? "#84a794" : balOnTrack === false ? "#d6a85a" : "#4facfe" }}>
+                  {balOnTrack === true
+                    ? `On track — R${balSurplusAmt.toLocaleString("en-ZA")} above your 5-year goal!`
+                    : balOnTrack === false
+                    ? `Invest R${balShortfall.toLocaleString("en-ZA")} more/month to hit your R${balPlanGoal.toLocaleString("en-ZA")} goal`
+                    : "Set a 5-year goal in Setup to track your investment progress"}
+                </p>
+                {balOnTrack === false && balRequired && (
+                  <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
+                    {[["Investing now", `R${goalMonthly.toLocaleString("en-ZA")}/mo`, "#d6a85a"], ["Need", `R${balRequired.toLocaleString("en-ZA")}/mo`, "#4facfe"], ["Yr 5 projection", `R${setupY5.toLocaleString("en-ZA")}`, "#84a794"]].map(([l, v, c]) => (
+                      <div key={l} style={{ background: "rgba(255,255,255,0.04)", borderRadius: 7, padding: "4px 10px" }}>
+                        <p style={{ margin: 0, fontSize: "0.6rem", color: "#445550", textTransform: "uppercase" }}>{l}</p>
+                        <p style={{ margin: 0, fontSize: "0.78rem", fontWeight: 700, color: c }}>{v}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ── 1. 5-YEAR JOURNEY — big picture, where you're headed ── */}
         <FiveYearJourney
@@ -297,7 +369,7 @@ export default function BalancedLifestyleTrack() {
                   <div>
                     <p className="bl-tile-section-label">Portfolio Mix <Info id="portfolioMix" /></p>
                     <div style={{ display: "flex", gap: 14, alignItems: "center", marginTop: 8 }}>
-                      <div style={{ width: 64, height: 64, borderRadius: "50%", flexShrink: 0, background: `conic-gradient(#84a794 0% ${portfolio.local}%, #d6a85a ${portfolio.local}% 100%)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <div style={{ width: 64, height: 64, borderRadius: "50%", flexShrink: 0, background: `conic-gradient(#84a794 0% ${portfolio.local}%, #d6a85a ${portfolio.local}% 100%)`, display: "flex", alignItems: "center", justifyContent: "center", animation: "pie-spin 12s linear infinite" }}>
                         <div style={{ width: 40, height: 40, borderRadius: "50%", background: "#0c1110", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10 }}>{portfolio.local}%</div>
                       </div>
                       <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
@@ -429,6 +501,44 @@ export default function BalancedLifestyleTrack() {
               )}
             </div>
 
+          </div>
+        </div>
+
+        {/* MILESTONE CHECKLIST */}
+        <div className="track-card">
+          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16 }}>
+            <h3 style={{ margin:0, display:"flex", alignItems:"center", gap:8 }}>
+              <ClipboardCheck size={17} color="#84a794" /> Milestone Checklist
+            </h3>
+            <span style={{ fontSize:"0.72rem", color:"#84a794", fontWeight:600, whiteSpace:"nowrap", marginLeft:12 }}>
+              {stagesDone.filter(Boolean).length}/{MILESTONES_DETAIL.length} done
+            </span>
+          </div>
+          <p style={{ fontSize:"0.73rem", color:"#667c74", margin:"0 0 14px", lineHeight:1.5 }}>
+            Tick off each milestone as you complete it — progress saves automatically.
+          </p>
+          <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+            {MILESTONES_DETAIL.map((m, i) => {
+              const done = stagesDone[i];
+              return (
+                <div key={i} onClick={() => toggleStage(i)}
+                  style={{ display:"flex", gap:12, alignItems:"center", padding:"10px 14px", borderRadius:10, cursor:"pointer",
+                    background: done ? "rgba(132,167,148,0.07)" : "rgba(255,255,255,0.02)",
+                    border:`1px solid ${done ? "rgba(132,167,148,0.22)" : "rgba(255,255,255,0.06)"}`,
+                    transition:"background 0.2s, border-color 0.2s" }}>
+                  <div style={{ width:20, height:20, borderRadius:5, flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center",
+                    background: done ? "rgba(132,167,148,0.22)" : "#0e1512",
+                    border:`2px solid ${done ? "#84a794" : "#2a3530"}`, transition:"all 0.2s" }}>
+                    {done && <Check size={11} color="#84a794" />}
+                  </div>
+                  <div style={{ flex:1 }}>
+                    <p style={{ margin:0, fontSize:"0.8rem", fontWeight:600, color: done?"#84a794":"#c0ccc8", textDecoration: done?"line-through":"none" }}>{m.label}</p>
+                    <p style={{ margin:"2px 0 0", fontSize:"0.7rem", color:"#556660", lineHeight:1.4 }}>{m.tip}</p>
+                  </div>
+                  {done && <Check size={14} color="#84a794" style={{ flexShrink:0 }} />}
+                </div>
+              );
+            })}
           </div>
         </div>
 

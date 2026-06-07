@@ -1,5 +1,5 @@
 /* =============================================
-   SETUP PAGE
+   SETUP PAGE — redesigned compact fintech layout
    ============================================= */
 
 .setup-page {
@@ -10,121 +10,123 @@
 }
 
 .setup-container {
-  padding: 100px 48px 60px;
-  max-width: 1100px;
+  padding: 80px 40px 60px;
+  max-width: 1160px;
   margin: 0 auto;
 }
 
 .setup-header {
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 }
 
 .setup-header h2 {
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 600;
-  margin: 0 0 6px;
+  margin: 0 0 4px;
 }
 
 .setup-sub {
-  color: #8fa3a0;
-  font-size: 14px;
+  color: #667c74;
+  font-size: 13px;
   margin: 0;
 }
 
 /* ── TWO COLUMN GRID ── */
 .setup-grid {
   display: grid;
-  grid-template-columns: 1fr 1.4fr;
-  gap: 24px;
+  grid-template-columns: 320px 1fr;
+  gap: 20px;
   align-items: start;
 }
 
-/* ── SECTIONS ── */
+/* ── COLUMNS ── */
 .setup-left,
 .setup-right {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 14px;
 }
 
+/* ── SECTIONS ── */
 .setup-section {
   background: linear-gradient(145deg, #0c1110, #111817);
-  border: 1px solid rgba(132, 167, 148, 0.15);
-  border-radius: 16px;
-  padding: 20px;
+  border: 1px solid rgba(132, 167, 148, 0.13);
+  border-radius: 14px;
+  padding: 16px 18px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .section-label {
-  font-size: 11px;
-  letter-spacing: 0.1em;
+  font-size: 10px;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: #84a794;
   margin: 0;
+  font-weight: 700;
 }
 
 /* ── TRACK OPTIONS ── */
 .track-options {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .track-card {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(132, 167, 148, 0.12);
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(132, 167, 148, 0.1);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.18s ease;
 }
 
 .track-card:hover {
-  border-color: rgba(132, 167, 148, 0.35);
-  background: rgba(132, 167, 148, 0.06);
-  transform: translateX(3px);
+  border-color: rgba(132, 167, 148, 0.3);
+  background: rgba(132, 167, 148, 0.05);
+  transform: translateX(2px);
 }
 
 .track-card.selected {
-  background: rgba(132, 167, 148, 0.14);
+  background: rgba(132, 167, 148, 0.12);
   border-color: #84a794;
-  box-shadow: 0 0 0 1px rgba(132, 167, 148, 0.2), 0 4px 16px rgba(132, 167, 148, 0.12);
+  box-shadow: 0 0 0 1px rgba(132, 167, 148, 0.15), 0 4px 12px rgba(132, 167, 148, 0.1);
 }
 
 .track-icon {
   flex-shrink: 0;
   color: #84a794;
-  opacity: 0.85;
+  opacity: 0.8;
 }
 
 .track-card.selected .track-icon {
-  color: #84a794;
   opacity: 1;
 }
 
 .track-title {
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 500;
   color: #f4f6fc;
+  line-height: 1.2;
 }
 
 .track-preview {
-  font-size: 11px;
-  color: #8fa3a0;
-  margin-top: 2px;
+  font-size: 10.5px;
+  color: #667c74;
+  margin-top: 1px;
 }
 
 .track-check {
   position: absolute;
-  right: 14px;
+  right: 12px;
   color: #84a794;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   animation: check-pop 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -136,33 +138,32 @@
 
 /* ── METRICS ROW ── */
 .setup-metrics {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
 }
 
 .metric-pill {
-  flex: 1;
-  min-width: 80px;
-  background: linear-gradient(145deg, #0c1110, #111817);
-  border: 1px solid rgba(132, 167, 148, 0.15);
-  border-radius: 12px;
-  padding: 12px 14px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(132, 167, 148, 0.12);
+  border-radius: 10px;
+  padding: 10px 12px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .metric-label {
-  font-size: 10px;
-  color: #8fa3a0;
+  font-size: 9px;
+  color: #556660;
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
 
 .metric-pill strong {
-  font-size: 16px;
+  font-size: 15px;
   color: #84a794;
+  font-weight: 700;
 }
 
 /* ── INPUT ROWS ── */
@@ -174,9 +175,9 @@
 
 .setup-section input {
   width: 100%;
-  padding: 11px 14px;
-  border-radius: 10px;
-  border: 1px solid rgba(132, 167, 148, 0.15);
+  padding: 10px 12px;
+  border-radius: 9px;
+  border: 1px solid rgba(132, 167, 148, 0.13);
   background: rgba(255, 255, 255, 0.04);
   color: white;
   font-size: 13px;
@@ -186,14 +187,14 @@
 }
 
 .setup-section input::placeholder {
-  color: #4a5e5a;
-  font-size: 12px;
+  color: #3d5450;
+  font-size: 11.5px;
 }
 
 .setup-section input:focus {
   border-color: #84a794;
-  background: rgba(132, 167, 148, 0.06);
-  box-shadow: 0 0 0 3px rgba(132, 167, 148, 0.1);
+  background: rgba(132, 167, 148, 0.05);
+  box-shadow: 0 0 0 3px rgba(132, 167, 148, 0.08);
 }
 
 /* autofill override */
@@ -207,35 +208,31 @@
 .labelled-input {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
 }
 
 .labelled-input label {
-  font-size: 11px;
-  color: #8fa3a0;
+  font-size: 10.5px;
+  color: #667c74;
   font-weight: 500;
   letter-spacing: 0.03em;
   display: flex;
   align-items: center;
-  gap: 5px;
-}
-
-.labelled-input input {
-  margin-bottom: 0;
+  gap: 4px;
 }
 
 /* ── TAX INLINE BREAKDOWN ── */
 .tax-inline {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
-  font-size: 11px;
-  color: #8fa3a0;
-  margin-top: 4px;
+  font-size: 10.5px;
+  color: #667c74;
+  margin-top: 3px;
 }
 
 .tax-inline strong {
-  color: #d7e3e0;
+  color: #c0ccc8;
   font-weight: 600;
 }
 
@@ -247,15 +244,14 @@
 .goal-input-wrap {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .goal-hint {
-  font-size: 10px;
+  font-size: 9.5px;
   color: #84a794;
-  opacity: 0.7;
+  opacity: 0.65;
   padding-left: 2px;
-  transition: opacity 0.2s;
 }
 
 /* ── GOAL FLASH ── */
@@ -277,22 +273,95 @@
 }
 
 .goal-flash-warning {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: #d6a85a;
-  background: rgba(214, 168, 90, 0.08);
-  border: 1px solid rgba(214, 168, 90, 0.25);
-  border-radius: 8px;
-  padding: 6px 10px;
-  margin-top: 4px;
+  background: rgba(214, 168, 90, 0.07);
+  border: 1px solid rgba(214, 168, 90, 0.2);
+  border-radius: 7px;
+  padding: 5px 9px;
+  margin-top: 3px;
   line-height: 1.4;
+}
+
+/* ── 5-YEAR GOAL ── */
+.five-year-goal-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 12px;
+  background: rgba(214, 168, 90, 0.05);
+  border: 1px solid rgba(214, 168, 90, 0.18);
+  border-radius: 10px;
+  padding: 11px 14px;
+}
+
+.five-year-goal-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.five-year-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(214, 168, 90, 0.15);
+  border: 1px solid rgba(214, 168, 90, 0.3);
+  color: #d6a85a;
+  font-size: 0.68rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.five-year-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #d6a85a;
+  margin: 0 0 1px;
+}
+
+.five-year-hint {
+  font-size: 0.68rem;
+  color: #8a7a60;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.five-year-input {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(214, 168, 90, 0.18);
+  border-radius: 8px;
+  padding: 9px 12px;
+  color: #f4f6fc;
+  font-size: 0.88rem;
+  outline: none;
+  width: 140px;
+  text-align: right;
+}
+
+.five-year-input:focus {
+  border-color: #d6a85a;
+  box-shadow: 0 0 0 3px rgba(214, 168, 90, 0.1);
+}
+
+/* ── TRACK PLAN SECTION (coloured) ── */
+.setup-plan-section {
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 /* ── DEPOSIT CARD ── */
 .deposit-card {
   background: rgba(132, 167, 148, 0.05);
-  border: 1px solid rgba(132, 167, 148, 0.2);
-  border-radius: 16px;
-  padding: 18px 20px;
+  border: 1px solid rgba(132, 167, 148, 0.18);
+  border-radius: 12px;
+  padding: 14px 16px;
   animation: slideUp 0.3s ease;
 }
 
@@ -300,26 +369,29 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 6px;
-  font-size: 13px;
+  margin-bottom: 4px;
+  font-size: 12px;
   color: #8fa3a0;
 }
 
 .badge {
-  font-size: 10px;
-  padding: 3px 8px;
-  border-radius: 10px;
-  background: rgba(132, 167, 148, 0.2);
+  font-size: 9px;
+  padding: 2px 7px;
+  border-radius: 8px;
+  background: rgba(132, 167, 148, 0.18);
   color: #84a794;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
 .deposit-card h1 {
-  font-size: 28px;
-  margin: 6px 0 12px;
+  font-size: 24px;
+  margin: 4px 0 10px;
 }
 
 .deposit-card h1 span {
-  font-size: 14px;
+  font-size: 13px;
   color: #8fa3a0;
 }
 
@@ -331,119 +403,55 @@
 .range-labels {
   display: flex;
   justify-content: space-between;
-  font-size: 11px;
-  color: #8fa3a0;
-  margin-top: 4px;
+  font-size: 10px;
+  color: #556660;
+  margin-top: 3px;
 }
 
 .muted.small {
-  font-size: 11px;
-  color: #8fa3a0;
-  margin-top: 6px;
-}
-
-.timeline {
-  font-size: 12px;
-  color: #84a794;
-  margin-top: 8px;
-}
-
-/* ── 5-YEAR GOAL ── */
-.five-year-goal-row {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  background: rgba(214, 168, 90, 0.06);
-  border: 1px solid rgba(214, 168, 90, 0.2);
-  border-radius: 12px;
-  padding: 14px 16px;
+  font-size: 10px;
+  color: #667c74;
   margin-top: 4px;
 }
 
-.five-year-goal-label {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-}
-
-.five-year-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: rgba(214, 168, 90, 0.15);
-  border: 1px solid rgba(214, 168, 90, 0.3);
-  color: #d6a85a;
-  font-size: 0.75rem;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.five-year-title {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: #d6a85a;
-  margin: 0 0 2px;
-}
-
-.five-year-hint {
-  font-size: 0.74rem;
-  color: #8a9a96;
-  margin: 0;
-  line-height: 1.4;
-}
-
-.five-year-input {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(214, 168, 90, 0.2);
-  border-radius: 8px;
-  padding: 10px 14px;
-  color: #f4f6fc;
-  font-size: 0.9rem;
-  outline: none;
-  width: 100%;
-}
-
-.five-year-input:focus {
-  border-color: #d6a85a;
-  box-shadow: 0 0 0 3px rgba(214, 168, 90, 0.1);
+.timeline {
+  font-size: 11.5px;
+  color: #84a794;
+  margin-top: 6px;
 }
 
 /* ── BUTTON ── */
 .btn.primary {
   width: 100%;
-  padding: 14px;
-  border-radius: 14px;
+  padding: 13px;
+  border-radius: 12px;
   background: linear-gradient(135deg, #84a794, #2c3a36);
   border: none;
   color: white;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: all 0.22s ease;
+  letter-spacing: 0.02em;
 }
 
 .btn.primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(132, 167, 148, 0.35);
+  box-shadow: 0 8px 24px rgba(132, 167, 148, 0.3);
 }
 
 /* ── ANIMATIONS ── */
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes pulseGlow {
-  0%, 100% { opacity: 0.4; }
-  50%       { opacity: 0.8; }
-}
-
 /* ── RESPONSIVE ── */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .setup-grid { grid-template-columns: 1fr; }
-  .setup-container { padding: 90px 20px 40px; }
+  .setup-container { padding: 80px 20px 40px; }
   .input-row { grid-template-columns: 1fr; }
+  .setup-metrics { grid-template-columns: repeat(3,1fr); }
+  .five-year-goal-row { grid-template-columns: 1fr; }
+  .five-year-input { width: 100%; text-align: left; }
 }

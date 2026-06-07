@@ -164,12 +164,22 @@ export default function PropertyTrack() {
     .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
   const depositProgress = goal > 0 ? Math.min(100, Math.round((savingsLogTotal / goal) * 100)) : 0;
 
+  // ── Plan logic from Setup ─────────────────────────────────────────────────
+  const planTarget     = Number(user?.propertyTargetMonths) || 0;
+  const actualMonths   = savings > 0 && goal > 0 ? Math.ceil(goal / savings) : null;
+  const planOnTrack    = actualMonths !== null && planTarget > 0 ? actualMonths <= planTarget : null;
+  const planRequired   = planTarget > 0 && goal > 0 ? Math.ceil(goal / planTarget) : null;
+  const planShortfall  = planRequired && savings ? Math.max(0, planRequired - savings) : 0;
+  const planAhead      = planOnTrack === true && planTarget > 0 ? planTarget - actualMonths : 0;
+
   const insights = [];
+  if (planOnTrack === false)                   insights.push(`You need R${planShortfall.toLocaleString("en-ZA")} more per month to reach your deposit in ${planTarget} months. Consider reducing expenses.`);
+  if (planOnTrack === true)                    insights.push(`You're ${planAhead} months ahead of your ${planTarget}-month target. Keep your savings rate consistent.`);
   if (savingsRate < 15)                        insights.push("Your savings rate is below 15%. Increasing it by even 5% noticeably accelerates your deposit timeline.");
-  if (depositProgress < 20)                    insights.push("You are in the early stage. Consistency matters more than large once-off contributions at this point.");
-  if (income > 60000 && savingsRate > 25)      insights.push("Your income and savings rate position you strongly for early property acquisition.");
-  if (expenses > income * 0.5)                 insights.push("High fixed expenses are limiting your ability to build your deposit efficiently.");
-  if (insights.length === 0)                   insights.push("Your financial position is stable. Small optimisations can improve your timeline further.");
+  if (depositProgress < 20)                   insights.push("You are in the early stage. Consistency matters more than large once-off contributions at this point.");
+  if (income > 60000 && savingsRate > 25)     insights.push("Your income and savings rate position you strongly for early property acquisition.");
+  if (expenses > income * 0.5)                insights.push("High fixed expenses are limiting your ability to build your deposit efficiently.");
+  if (insights.length === 0)                  insights.push("Your financial position is stable. Small optimisations can improve your timeline further.");
 
   const getSuggestedTrack = () => {
     if (savingFocus > 70 && lifestyle < 40)    return { title: "Property Track", insight: "You are prioritising rapid deposit accumulation with reduced lifestyle flexibility." };
@@ -197,16 +207,66 @@ export default function PropertyTrack() {
       <div className="track-container">
 
         {/* ── HEADER ── */}
-        <p className="tracks-eyebrow">Property Track</p>
-        <SlideIn tag="h1" text={`Welcome back, ${user?.name?.split(" ")[0] || "there"}`} />
+        <span style={{ color: "#84a794", fontWeight: 700, fontSize: "0.78rem", letterSpacing: "0.1em", textTransform: "uppercase", background: "rgba(132,167,148,0.12)", border: "1px solid rgba(132,167,148,0.3)", borderRadius: 6, padding: "3px 10px", display: "inline-block", width: "fit-content" }}>Property Track</span>
+        <SlideIn tag="h1" text={`Welcome back, ${user?.name?.split(" ")[0] || "there"}`} style={{ margin: 0 }} />
         <SlideIn tag="p" className="subtitle" delay={120}
           text={`Property path · ${savingsRate}% savings rate · R${savings.toLocaleString("en-ZA")} monthly surplus`} />
 
-        {/* 1 ── STAGE TIMELINE ── most important: where you are in the journey */}
+        {/* ── YOUR PLAN ── driven by Setup inputs */}
+        {goal > 0 && (
+          <div className="track-card" style={{ padding: 0, overflow: "hidden" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+              {[
+                { label: "Deposit Target",   value: `R${goal.toLocaleString("en-ZA")}`,                              color: "#d6a85a" },
+                { label: "Monthly Surplus",  value: `R${savings.toLocaleString("en-ZA")}`,                           color: "#84a794" },
+                { label: "Months to Goal",   value: actualMonths ? `${actualMonths} mo` : "—",                       color: "#4facfe" },
+                { label: "Your Target",      value: planTarget ? `${planTarget} mo` : "Not set",                     color: planOnTrack === true ? "#84a794" : planOnTrack === false ? "#ff9898" : "#445550" },
+              ].map(({ label, value, color }, i) => (
+                <div key={label} style={{ padding: "14px 16px", borderRight: i < 3 ? "1px solid rgba(255,255,255,0.06)" : "none" }}>
+                  <p style={{ fontSize: "0.6rem", fontWeight: 700, color: "#445550", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 3px" }}>{label}</p>
+                  <p style={{ fontSize: "0.95rem", fontWeight: 700, color, margin: 0 }}>{value}</p>
+                </div>
+              ))}
+            </div>
+            <div style={{ padding: "12px 18px 14px", display: "flex", gap: 10, alignItems: "flex-start",
+              background: planOnTrack === true ? "rgba(132,167,148,0.05)" : planOnTrack === false ? "rgba(214,168,90,0.05)" : "rgba(79,172,254,0.04)" }}>
+              <span style={{ fontSize: "1rem", flexShrink: 0 }}>{planOnTrack === true ? "🎯" : planOnTrack === false ? "⚡" : "💡"}</span>
+              <div>
+                <p style={{ margin: "0 0 3px", fontSize: "0.78rem", fontWeight: 700,
+                  color: planOnTrack === true ? "#84a794" : planOnTrack === false ? "#d6a85a" : "#4facfe" }}>
+                  {planOnTrack === true ? `On track — ${planAhead} months ahead of your target!`
+                    : planOnTrack === false ? `Shortfall: need R${planShortfall.toLocaleString("en-ZA")} more/month to hit ${planTarget}-month target`
+                    : planTarget === 0 ? "Set a deposit target in Setup to track your progress"
+                    : `At R${savings.toLocaleString("en-ZA")}/month you'll reach your deposit in ${actualMonths} months`}
+                </p>
+                {planOnTrack === false && planRequired && (
+                  <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
+                    {[["Saving now", `R${savings.toLocaleString("en-ZA")}/mo`, "#d6a85a"], ["Need", `R${planRequired.toLocaleString("en-ZA")}/mo`, "#4facfe"], ["Gap", `R${planShortfall.toLocaleString("en-ZA")}/mo`, "#ff9898"]].map(([l, v, c]) => (
+                      <div key={l} style={{ background: "rgba(255,255,255,0.04)", borderRadius: 7, padding: "4px 10px" }}>
+                        <p style={{ margin: 0, fontSize: "0.6rem", color: "#445550", textTransform: "uppercase" }}>{l}</p>
+                        <p style={{ margin: 0, fontSize: "0.78rem", fontWeight: 700, color: c }}>{v}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 1 ── 5-YEAR JOURNEY ── hero visual at the top */}
+        <FiveYearJourney
+          trackKey="property"
+          monthlyAmount={savings}
+          currentSaved={savingsLogTotal}
+          fiveYearTarget={Number(user?.fiveYearGoal) || Number(user?.depositAmount) || 0}
+        />
+
+        {/* 2 ── STAGE TIMELINE ── most important: where you are in the journey */}
         <div className="track-card">
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
             <h3 style={{ margin: 0 }}>Property Journey — 4 Stages</h3>
-            <span style={{ fontSize: "0.75rem", color: "#84a794", fontWeight: 600 }}>{stagesDoneCount}/{STAGES.length} complete</span>
+            <span style={{ fontSize: "0.75rem", color: "#84a794", fontWeight: 600, whiteSpace: "nowrap", marginLeft: 12 }}>{stagesDoneCount}/{STAGES.length} complete</span>
           </div>
           <p style={{ fontSize: "0.74rem", color: "#667c74", margin: "0 0 20px" }}>Click a stage to mark it complete. Progress is saved automatically.</p>
 
@@ -436,197 +496,99 @@ export default function PropertyTrack() {
           )}
         </div>
 
-        {/* 3 ── 5-YEAR JOURNEY ── directly extends the deposit numbers above */}
-        <FiveYearJourney
-          trackKey="property"
-          monthlyAmount={savings}
-          currentSaved={savingsLogTotal}
-          fiveYearTarget={Number(user?.fiveYearGoal) || Number(user?.depositAmount) || 0}
-        />
-
-        {/* 4 ── MILESTONES ── auto-tracked */}
-        <div className="track-card" id="milestones">
-          <h3>Milestones <span className="small" style={{ fontWeight: 400 }}>— auto-tracked from your financials</span></h3>
-          <div className="ms-track" style={{ marginTop: 14 }}>
-            {milestones.map(({ key, label, hint }, index) => {
-              const isCompleted = progress[key];
-              const isPrevDone  = index === 0 || progress[milestones[index - 1].key];
-              const isLocked    = !isPrevDone;
-              const isCurrent   = !isCompleted && isPrevDone;
-              return (
-                <div key={key} className="ms-step-col">
-                  <div className="ms-circle-row">
-                    {index > 0 && <div className={`ms-line ${progress[milestones[index - 1].key] ? "filled" : ""}`} />}
-                    <div className={`step ${isCompleted ? "completed" : ""} ${isCurrent ? "current" : ""} ${isLocked ? "locked" : ""}`}
-                      title={isCompleted ? "Achieved" : isLocked ? "Complete previous milestone first" : hint}>
-                      {isCompleted ? <Check size={14} /> : index + 1}
+        {/* 4 ── MILESTONES + AI INSIGHTS ── compact 2-col row */}
+        <div className="pt-row">
+          <div className="track-card" id="milestones" style={{ flex: 1 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+              <h3 style={{ margin: 0, fontSize: "0.9rem" }}>Milestones</h3>
+              <span style={{ fontSize: "0.7rem", color: "#84a794", fontWeight: 600 }}>{percent}% complete</span>
+            </div>
+            <div className="ms-track">
+              {milestones.map(({ key, label, hint }, index) => {
+                const isCompleted = progress[key];
+                const isPrevDone  = index === 0 || progress[milestones[index - 1].key];
+                const isLocked    = !isPrevDone;
+                const isCurrent   = !isCompleted && isPrevDone;
+                return (
+                  <div key={key} className="ms-step-col">
+                    <div className="ms-circle-row">
+                      {index > 0 && <div className={`ms-line ${progress[milestones[index - 1].key] ? "filled" : ""}`} />}
+                      <div className={`step ${isCompleted ? "completed" : ""} ${isCurrent ? "current" : ""} ${isLocked ? "locked" : ""}`}
+                        title={isCompleted ? "Achieved" : isLocked ? "Complete previous milestone first" : hint}>
+                        {isCompleted ? <Check size={14} /> : index + 1}
+                      </div>
+                      {index < milestones.length - 1 && <div className={`ms-line ${isCompleted ? "filled" : ""}`} />}
                     </div>
-                    {index < milestones.length - 1 && <div className={`ms-line ${isCompleted ? "filled" : ""}`} />}
+                    <div className="ms-label">
+                      <span className="step-label">{label}</span>
+                      {isCurrent && hint && <span className="ms-hint" onClick={() => navigate("/money")}>{hint}</span>}
+                      {isLocked && <span className="step-locked-label">Locked</span>}
+                    </div>
                   </div>
-                  <div className="ms-label">
-                    <span className="step-label">{label}</span>
-                    {isCurrent && hint && <span className="ms-hint" onClick={() => navigate("/money")}>{hint}</span>}
-                    {isLocked && <span className="step-locked-label">Locked</span>}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <p className="muted" style={{ marginTop: 10 }}>{percent}% complete</p>
-        </div>
-
-        {/* 5 ── AI INSIGHTS ── personalised advice */}
-        <div className="track-card" id="insights">
-          <h3 style={{ display: "flex", alignItems: "center", gap: 8 }}><Lightbulb size={16} /> AI Insights</h3>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 10 }}>
-            {insights.map((item, i) => (
-              <div key={i} className="insight"><p>{item}</p></div>
-            ))}
-          </div>
-        </div>
-
-        {/* 7 ── WHY THIS TRACK ── rationale / education */}
-        <div className="track-card" style={{ borderLeft: "3px solid #d6a85a" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-            <Home size={16} color="#d6a85a" />
-            <h3 style={{ margin: 0 }}>Why this track?</h3>
-          </div>
-          <p style={{ fontSize: "0.84rem", color: "#c0ccc8", lineHeight: 1.7, margin: "0 0 12px" }}>
-            Property is one of the most tangible forms of wealth-building available to South Africans.
-            Owning your home removes rent risk, builds equity over time, and provides a physical asset
-            that historically appreciates at 5–8% per year. The discipline required to save a deposit
-            transfers into lifelong financial habits that serve every other financial goal.
-          </p>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-            {[
-              { label: "Time horizon",    value: "3–5 years" },
-              { label: "Difficulty",      value: "Medium",              color: "#d6a85a" },
-              { label: "Focus",           value: "Saving & Stability" },
-              { label: "Savings target",  value: "20–30% of income" },
-            ].map(({ label, value, color }) => (
-              <div key={label} style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, padding: "6px 12px" }}>
-                <p style={{ fontSize: "0.62rem", color: "#667c74", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", margin: 0 }}>{label}</p>
-                <p style={{ fontSize: "0.78rem", fontWeight: 600, color: color || "#c0ccc8", margin: 0 }}>{value}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* 8 ── TRADE-OFFS & WARNINGS ── risk awareness */}
-        <div className="track-card">
-          <h3 style={{ marginBottom: 14 }}>⚖ Trade-offs &amp; Warnings</h3>
-          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-            <div style={{ flex: "1 1 220px", display: "flex", flexDirection: "column", gap: 7 }}>
-              {TRADEOFFS.map(({ pro, text }, i) => (
-                <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
-                  <span style={{ color: pro ? "#84a794" : "#d6a85a", fontWeight: 700, fontSize: "0.85rem", flexShrink: 0, marginTop: 1 }}>
-                    {pro ? "✓" : "✗"}
-                  </span>
-                  <p style={{ margin: 0, fontSize: "0.78rem", color: "#c0ccc8", lineHeight: 1.45 }}>{text}</p>
-                </div>
-              ))}
+                );
+              })}
             </div>
-            <div style={{ flex: "1 1 220px", display: "flex", flexDirection: "column", gap: 8 }}>
-              {WARNINGS.map((w, i) => (
-                <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start", background: "rgba(255,152,152,0.05)", border: "1px solid rgba(255,152,152,0.12)", borderRadius: 8, padding: "8px 10px" }}>
-                  <AlertTriangle size={13} color="#ff9898" style={{ flexShrink: 0, marginTop: 2 }} />
-                  <p style={{ margin: 0, fontSize: "0.76rem", color: "#c0ccc8", lineHeight: 1.45 }}>{w}</p>
-                </div>
+          </div>
+
+          <div className="track-card" id="insights" style={{ flex: 1 }}>
+            <h3 style={{ fontSize: "0.9rem", display: "flex", alignItems: "center", gap: 7, marginBottom: 12 }}>
+              <Lightbulb size={15} /> AI Insights
+            </h3>
+            <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+              {insights.map((item, i) => (
+                <div key={i} className="insight" style={{ padding: "8px 12px" }}><p style={{ fontSize: "0.77rem" }}>{item}</p></div>
               ))}
             </div>
           </div>
         </div>
 
-        {/* 9 ── REAL EXAMPLE ── reference scenario */}
-        <div className="track-card" style={{ borderLeft: "3px solid #4facfe" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-            <TrendingUp size={15} color="#4facfe" />
-            <h3 style={{ margin: 0 }}>Real-world Example</h3>
-          </div>
-          <p style={{ fontSize: "0.83rem", color: "#c0ccc8", lineHeight: 1.7, margin: "0 0 14px" }}>
-            <strong style={{ color: "#f4f6fc" }}>Scenario:</strong> Thabo earns R30,000/month net, with R18,000 in expenses.
-            Surplus: R12,000/month. He targets a R1.5M property (10% deposit = R150,000).
-          </p>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-            {[
-              { label: "Monthly saving",    value: "R12,000",       color: "#84a794" },
-              { label: "Deposit target",    value: "R150,000",      color: "#d6a85a" },
-              { label: "Months to deposit", value: "~13 months",    color: "#4facfe" },
-              { label: "Transfer duty",     value: "R11,250 extra", color: "#ff9898" },
-              { label: "Legal + bond fees", value: "~R25,000",      color: "#ff9898" },
-              { label: "Total to save",     value: "R186,250",      color: "#c084fc" },
-            ].map(({ label, value, color }) => (
-              <div key={label} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 8, padding: "8px 12px", minWidth: 120 }}>
-                <p style={{ fontSize: "0.64rem", color: "#667c74", margin: 0, textTransform: "uppercase", letterSpacing: "0.06em" }}>{label}</p>
-                <p style={{ fontSize: "0.85rem", fontWeight: 700, color, margin: 0 }}>{value}</p>
-              </div>
-            ))}
-          </div>
-          <p style={{ fontSize: "0.74rem", color: "#8a9a96", marginTop: 12, lineHeight: 1.5 }}>
-            Lesson: The deposit is only part of the cost. Always budget 3–5% on top for transfer duty,
-            bond registration and legal fees. Thabo saves for 16 months total to cover everything.
-          </p>
-        </div>
-
-        {/* 10 ── BY THE NUMBERS ── reference data */}
+        {/* 5 ── MILESTONE CHECKLIST ── standalone main card */}
         <div className="track-card">
-          <h3 style={{ marginBottom: 14 }}>📐 By the Numbers</h3>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+            <h3 style={{ margin: 0, display: "flex", alignItems: "center", gap: 8 }}>
+              <ClipboardCheck size={17} color="#84a794" /> Milestone Checklist
+            </h3>
+            <span style={{ fontSize: "0.72rem", color: "#84a794", fontWeight: 600, whiteSpace: "nowrap", marginLeft: 12 }}>
+              {stagesDone.filter(Boolean).length}/{STAGES.length} done
+            </span>
+          </div>
+          <p style={{ fontSize: "0.73rem", color: "#667c74", margin: "0 0 14px", lineHeight: 1.5 }}>
+            Tick off each milestone as you complete it — progress saves automatically.
+          </p>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {[
-              { label: "10% deposit on R1.8M property", result: "R180,000 to save",         highlight: true },
-              { label: "At R15,000/month savings",       result: "12 months to deposit",     highlight: false },
-              { label: "Transfer duty (on R1.8M)",       result: "≈ R22,000 extra",          highlight: false },
-              { label: "Bond registration fee",          result: "≈ R20,000–R30,000",        highlight: false },
-              { label: "1% interest rate increase",      result: "+R1,500/month on bond",    highlight: false },
-              { label: "20% deposit vs 10%",             result: "≈ 1% lower interest rate", highlight: true },
-            ].map(({ label, result, highlight }, i) => (
-              <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-                <p style={{ margin: 0, fontSize: "0.78rem", color: "#8a9a96" }}>{label}</p>
-                <p style={{ margin: 0, fontSize: "0.78rem", fontWeight: 700, color: highlight ? "#d6a85a" : "#c0ccc8" }}>{result}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* 11 ── MILESTONE CHECKLIST ── manual log, least urgent */}
-        <div className="track-card">
-          <h3 style={{ marginBottom: 4 }}>Milestone Checklist</h3>
-          <p style={{ fontSize: "0.74rem", color: "#667c74", margin: "0 0 14px" }}>
-            Tick each milestone as you achieve it — saved to your browser automatically.
-          </p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {MILESTONES_DETAIL.map((m, i) => {
-              const done = stagesDone[Math.min(i, STAGES.length - 1)];
+              const stageIdx = Math.min(i, STAGES.length - 1);
+              const done = stagesDone[stageIdx];
               return (
-                <div key={i} onClick={() => toggleStage(Math.min(i, STAGES.length - 1))}
+                <div key={i} onClick={() => toggleStage(stageIdx)}
                   style={{
-                    display: "flex", gap: 12, alignItems: "flex-start",
-                    background: done ? "rgba(132,167,148,0.06)" : "rgba(255,255,255,0.02)",
-                    border: `1px solid ${done ? "rgba(132,167,148,0.25)" : "rgba(255,255,255,0.06)"}`,
-                    borderRadius: 10, padding: "10px 14px", cursor: "pointer", transition: "all 0.2s",
+                    display: "flex", gap: 12, alignItems: "center",
+                    padding: "10px 14px", borderRadius: 10, cursor: "pointer",
+                    background: done ? "rgba(132,167,148,0.07)" : "rgba(255,255,255,0.02)",
+                    border: `1px solid ${done ? "rgba(132,167,148,0.22)" : "rgba(255,255,255,0.06)"}`,
+                    transition: "background 0.2s, border-color 0.2s",
                   }}>
                   <div style={{
                     width: 20, height: 20, borderRadius: 5, flexShrink: 0,
-                    background: done ? "rgba(132,167,148,0.2)" : "#111816",
-                    border: `2px solid ${done ? "#84a794" : "#2a3530"}`,
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    color: "#84a794", marginTop: 1,
+                    background: done ? "rgba(132,167,148,0.22)" : "#0e1512",
+                    border: `2px solid ${done ? "#84a794" : "#2a3530"}`,
+                    transition: "all 0.2s",
                   }}>
-                    {done && <Check size={12} />}
+                    {done && <Check size={11} color="#84a794" />}
                   </div>
-                  <div>
-                    <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 600, color: done ? "#84a794" : "#c0ccc8", textDecoration: done ? "line-through" : "none" }}>
-                      {m.label}
-                    </p>
-                    <p style={{ margin: "3px 0 0", fontSize: "0.71rem", color: "#667c74", lineHeight: 1.4 }}>{m.tip}</p>
+                  <div style={{ flex: 1 }}>
+                    <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 600, color: done ? "#84a794" : "#c0ccc8", textDecoration: done ? "line-through" : "none" }}>{m.label}</p>
+                    <p style={{ margin: "2px 0 0", fontSize: "0.7rem", color: "#556660", lineHeight: 1.4 }}>{m.tip}</p>
                   </div>
+                  {done && <Check size={14} color="#84a794" style={{ flexShrink: 0 }} />}
                 </div>
               );
             })}
           </div>
         </div>
 
-        {/* ── TOOLS & EDUCATION ── */}
+        {/* ── TOOLS & EDUCATION ── (reference + deep-dive content lives here) */}
         <div className="bl-tools-section">
           <p className="bl-tools-label">Tools &amp; Education</p>
           <div className="bl-tools-grid">
@@ -703,7 +665,7 @@ export default function PropertyTrack() {
               )}
             </div>
 
-            {/* TRACK RATIONALE */}
+            {/* TRACK RATIONALE — why + tradeoffs + numbers + warnings */}
             <div className={`bl-tile${openCards.rationale ? " bl-tile--open" : ""}`}>
               <button className="bl-tile-header" onClick={() => toggleCard("rationale")}>
                 <div className="bl-tile-top">
@@ -712,42 +674,68 @@ export default function PropertyTrack() {
                   <ChevronDown size={14} color="#667c74" className={`bl-tile-chevron${openCards.rationale ? " rotated" : ""}`} />
                 </div>
                 {!openCards.rationale && (<>
-                  <p className="bl-tile-summary">Trade-offs · numbers · warnings</p>
+                  <p className="bl-tile-summary">Why property · trade-offs · numbers</p>
                   <p className="bl-tile-hint">Tap to explore →</p>
                 </>)}
               </button>
               {openCards.rationale && (
-                <div className="bl-tile-body">
+                <div className="bl-tile-body" style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                  {/* Why this track */}
+                  <div>
+                    <p style={{ fontSize: "0.68rem", fontWeight: 700, color: "#d6a85a", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 6px" }}>Why property?</p>
+                    <p style={{ fontSize: "0.78rem", color: "#c0ccc8", lineHeight: 1.6, margin: 0 }}>
+                      Property removes rent risk, builds equity over time, and appreciates 5–8%/year historically.
+                      The discipline of saving a deposit creates lifelong financial habits.
+                    </p>
+                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
+                      {[["Time horizon","3–5 yrs"],["Difficulty","Medium"],["Savings target","20–30%"]].map(([l,v]) => (
+                        <span key={l} style={{ fontSize: "0.68rem", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 6, padding: "3px 8px", color: "#8a9a96" }}>
+                          <strong style={{ color: "#c0ccc8" }}>{l}:</strong> {v}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  {/* Trade-offs */}
                   <div className="grid-2" style={{ gap: 12 }}>
-                    <div style={{ background: "rgba(214,168,90,0.06)", border: "1px solid rgba(214,168,90,0.2)", borderRadius: 10, padding: "12px 14px" }}>
-                      <p style={{ fontSize: "0.7rem", fontWeight: 700, color: "#d6a85a", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>⚖ Trade-offs</p>
+                    <div style={{ background: "rgba(214,168,90,0.05)", border: "1px solid rgba(214,168,90,0.15)", borderRadius: 10, padding: "10px 12px" }}>
+                      <p style={{ fontSize: "0.65rem", fontWeight: 700, color: "#d6a85a", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>⚖ Trade-offs</p>
                       {TRADEOFFS.map(({ pro, text }, i) => (
-                        <div key={i} style={{ display: "flex", gap: 7, alignItems: "flex-start", marginBottom: 5 }}>
-                          <span style={{ color: pro ? "#84a794" : "#d6a85a", fontWeight: 700, fontSize: "0.82rem", flexShrink: 0 }}>{pro ? "✓" : "✗"}</span>
-                          <p style={{ margin: 0, fontSize: "0.76rem", color: "#c0ccc8", lineHeight: 1.4 }}>{text}</p>
+                        <div key={i} style={{ display: "flex", gap: 6, alignItems: "flex-start", marginBottom: 5 }}>
+                          <span style={{ color: pro ? "#84a794" : "#d6a85a", fontWeight: 700, fontSize: "0.8rem", flexShrink: 0 }}>{pro ? "✓" : "✗"}</span>
+                          <p style={{ margin: 0, fontSize: "0.74rem", color: "#c0ccc8", lineHeight: 1.4 }}>{text}</p>
                         </div>
                       ))}
                     </div>
-                    <div style={{ background: "rgba(79,172,254,0.06)", border: "1px solid rgba(79,172,254,0.18)", borderRadius: 10, padding: "12px 14px" }}>
-                      <p style={{ fontSize: "0.7rem", fontWeight: 700, color: "#4facfe", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>📐 By the numbers</p>
+                    <div style={{ background: "rgba(79,172,254,0.05)", border: "1px solid rgba(79,172,254,0.15)", borderRadius: 10, padding: "10px 12px" }}>
+                      <p style={{ fontSize: "0.65rem", fontWeight: 700, color: "#4facfe", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>📐 Numbers</p>
                       {[
-                        { label: "10% deposit on R1.8M", result: "R180,000 to save",    highlight: true },
-                        { label: "At R15k/month",         result: "12 months",           highlight: false },
-                        { label: "Transfer duty (R1.8M)", result: "≈ R22,000 extra",    highlight: false },
-                        { label: "1% rate increase",      result: "+R1,500/month",       highlight: false },
-                      ].map(({ label, result, highlight }, i) => (
-                        <div key={i} style={{ borderLeft: `2px solid ${highlight ? "#4facfe" : "#1a2a24"}`, paddingLeft: 8, marginBottom: 8 }}>
-                          <p style={{ margin: 0, fontSize: "0.68rem", color: "#667c74" }}>{label}</p>
-                          <p style={{ margin: 0, fontSize: "0.78rem", fontWeight: 600, color: highlight ? "#4facfe" : "#c0ccc8" }}>{result}</p>
+                        ["10% deposit on R1.8M","R180,000",true],
+                        ["At R15k/month","12 months",false],
+                        ["Transfer duty","≈ R22,000",false],
+                        ["1% rate rise","+R1,500/mo",false],
+                      ].map(([l,r,hi],i) => (
+                        <div key={i} style={{ display:"flex", justifyContent:"space-between", padding:"4px 0", borderBottom:"1px solid rgba(255,255,255,0.04)" }}>
+                          <p style={{ margin:0, fontSize:"0.7rem", color:"#667c74" }}>{l}</p>
+                          <p style={{ margin:0, fontSize:"0.72rem", fontWeight:700, color: hi?"#4facfe":"#c0ccc8" }}>{r}</p>
                         </div>
                       ))}
                     </div>
+                  </div>
+                  {/* Warnings */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    <p style={{ fontSize: "0.65rem", fontWeight: 700, color: "#ff9898", textTransform: "uppercase", letterSpacing: "0.1em", margin: 0 }}>⚠ Warnings</p>
+                    {WARNINGS.map((w, i) => (
+                      <div key={i} style={{ display: "flex", gap: 7, alignItems: "flex-start" }}>
+                        <AlertTriangle size={12} color="#ff9898" style={{ flexShrink: 0, marginTop: 2 }} />
+                        <p style={{ margin: 0, fontSize: "0.74rem", color: "#c0ccc8", lineHeight: 1.4 }}>{w}</p>
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
             </div>
 
-            {/* STRATEGY GUIDE */}
+            {/* STRATEGY GUIDE — what to do + example + checklist */}
             <div className={`bl-tile${openCards.guide ? " bl-tile--open" : ""}`}>
               <button className="bl-tile-header" onClick={() => toggleCard("guide")}>
                 <div className="bl-tile-top">
@@ -756,43 +744,46 @@ export default function PropertyTrack() {
                   <ChevronDown size={14} color="#667c74" className={`bl-tile-chevron${openCards.guide ? " rotated" : ""}`} />
                 </div>
                 {!openCards.guide && (<>
-                  <p className="bl-tile-summary">What to do · risks to watch</p>
+                  <p className="bl-tile-summary">What to do · real example · checklist</p>
                   <p className="bl-tile-hint">Tap to explore →</p>
                 </>)}
               </button>
               {openCards.guide && (
-                <div className="bl-tile-body">
+                <div className="bl-tile-body" style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                   <div className="grid-2">
                     <div>
-                      <p style={{ display: "flex", alignItems: "center", gap: 5, fontWeight: 600, marginBottom: 8, fontSize: "0.82rem" }}>
-                        <BookOpen size={13} /> What to do
-                      </p>
+                      <p style={{ fontWeight: 600, marginBottom: 6, fontSize: "0.8rem", display:"flex", alignItems:"center", gap:5 }}><BookOpen size={12}/> What to do</p>
                       <ul className="list">
-                        <li>Save 20–30% of income consistently every month</li>
-                        <li>Automate savings on payday before you can spend it</li>
-                        <li>Avoid taking on any new debt while saving</li>
-                        <li>Use a money-market account for your deposit savings</li>
-                        <li>Get bond pre-approval 3–6 months before buying</li>
+                        <li>Save 20–30% of income every month</li>
+                        <li>Automate savings on payday</li>
+                        <li>Avoid any new debt while saving</li>
+                        <li>Use a money-market account</li>
+                        <li>Get pre-approval 3–6 months early</li>
                       </ul>
                     </div>
                     <div>
-                      <p style={{ display: "flex", alignItems: "center", gap: 5, fontWeight: 600, marginBottom: 8, fontSize: "0.82rem" }}>
-                        <AlertTriangle size={13} /> Risks to watch
-                      </p>
+                      <p style={{ fontWeight: 600, marginBottom: 6, fontSize: "0.8rem", display:"flex", alignItems:"center", gap:5 }}><AlertTriangle size={12}/> Risks to watch</p>
                       <ul className="list">
-                        <li>Burnout from extreme saving — build in small rewards</li>
-                        <li>Unexpected costs: transfer duty, legal fees, moving costs</li>
-                        <li>Interest rate increases affecting your affordability</li>
-                        <li>Delaying investing entirely — diversify where possible</li>
-                        <li>Pre-approval expiry — valid for 90 days only</li>
+                        <li>Burnout — build in small rewards</li>
+                        <li>Transfer duty + legal fees (~5%)</li>
+                        <li>Rate increases on affordability</li>
+                        <li>Pre-approval expires in 90 days</li>
                       </ul>
                     </div>
                   </div>
-                  <div className="explanation-box" style={{ marginTop: 10 }}>
-                    <p style={{ lineHeight: 1.6, fontSize: "0.8rem" }}>
-                      Property requires a large upfront deposit. The fastest path is increasing your savings rate
-                      and reducing unnecessary spending. Small monthly contributions compound into a large deposit
-                      over time — the key is consistency over intensity.
+                  {/* Real example */}
+                  <div style={{ background: "rgba(79,172,254,0.05)", border: "1px solid rgba(79,172,254,0.15)", borderRadius: 10, padding: "10px 12px" }}>
+                    <p style={{ fontSize: "0.65rem", fontWeight: 700, color: "#4facfe", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>📊 Real example — Thabo</p>
+                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                      {[["Monthly saving","R12,000","#84a794"],["Deposit target","R150,000","#d6a85a"],["Timeline","~13 months","#4facfe"],["Total incl. fees","R186,250","#c084fc"]].map(([l,v,c]) => (
+                        <div key={l} style={{ background:"rgba(255,255,255,0.03)", borderRadius:7, padding:"6px 10px", minWidth:100 }}>
+                          <p style={{ margin:0, fontSize:"0.6rem", color:"#556660", textTransform:"uppercase", letterSpacing:"0.06em" }}>{l}</p>
+                          <p style={{ margin:0, fontSize:"0.82rem", fontWeight:700, color:c }}>{v}</p>
+                        </div>
+                      ))}
+                    </div>
+                    <p style={{ fontSize: "0.71rem", color: "#8a9a96", margin: "8px 0 0", lineHeight: 1.5 }}>
+                      The deposit is only part of the cost — always budget 3–5% extra for transfer duty and legal fees.
                     </p>
                   </div>
                 </div>

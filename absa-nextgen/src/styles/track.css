@@ -1224,6 +1224,12 @@ h1 {
   font-size: 13px;
 }
 
+/* PIE / DONUT BOUNCE-IN (shared keyframe for inline uses) */
+@keyframes pie-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
 /* FINANCE ORB */
 @keyframes pulseOrb {
   0% {

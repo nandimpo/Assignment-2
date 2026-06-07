@@ -6,7 +6,16 @@ import FiveYearJourney from "../components/FiveYearJourney";
 import { getTrackProgression } from "../utils/trackProgression";
 import { useUser } from "../context/UserContext";
 import useProgress from "../hooks/useProgress";
-import { RefreshCw, AlertTriangle, BookOpen, ChevronDown } from "lucide-react";
+import { RefreshCw, AlertTriangle, BookOpen, ChevronDown, ClipboardCheck, Check } from "lucide-react";
+
+const MILESTONES_DETAIL = [
+  { label: "Full spending audit completed",             tip: "Print 3 months of bank statements and categorise every transaction." },
+  { label: "Subscriptions & lifestyle leaks cut",       tip: "Cancel anything you didn't use last month. Small leaks sink big ships." },
+  { label: "Debt repayment plan written",               tip: "List all debts smallest to largest (snowball) or highest rate first (avalanche)." },
+  { label: "First debt fully cleared",                  tip: "The psychological win of eliminating one debt fuels everything that follows." },
+  { label: "Monthly budget consistently followed",      tip: "Three months in a row counts as a new habit. Stick to it." },
+  { label: "Lifestyle expenses below 70% of income",    tip: "Below 70% means you have real room to save and invest." },
+];
 
 export default function LifestyleCorrectionTrack() {
   // ================= USER CONTEXT =================
@@ -18,6 +27,18 @@ export default function LifestyleCorrectionTrack() {
   const { progress, milestoneStatus, percent } = useProgress();
   const [openCards, setOpenCards] = useState({ adjuster: false, breakdown: false, rationale: false, guide: false });
   const toggleCard = (key) => setOpenCards(prev => ({ ...prev, [key]: !prev[key] }));
+
+  const [stagesDone, setStagesDone] = useState(() => {
+    try {
+      const s = JSON.parse(localStorage.getItem("lifestyleStages") || "null");
+      return s && s.length === MILESTONES_DETAIL.length ? s : new Array(MILESTONES_DETAIL.length).fill(false);
+    } catch { return new Array(MILESTONES_DETAIL.length).fill(false); }
+  });
+  const toggleStage = (i) => setStagesDone(prev => {
+    const u = prev.map((v, idx) => idx === i ? !v : v);
+    localStorage.setItem("lifestyleStages", JSON.stringify(u));
+    return u;
+  });
 
   // ================= EARLY RETURN (after all hooks) =================
   if (!user) {
@@ -41,6 +62,13 @@ export default function LifestyleCorrectionTrack() {
   const newExpenses = expenses - expenseCut;
   const newDebtPayment = baseDebtPayment + extraDebt;
   const monthsToDebtFree = Math.ceil(debt / (newDebtPayment || 1));
+
+  // ── Plan logic from Setup ──────────────────────────────────────────────────
+  const corrOverspend     = Number(user?.goalAmount) || 0;
+  const corrPlanTarget    = Number(user?.correctionTargetMonths) || 0;
+  const corrAnnualSaving  = corrOverspend * 12;
+  const corrTotalReclaim  = corrOverspend * corrPlanTarget;
+  const corrOnTrack       = corrPlanTarget >= 12 ? true : corrPlanTarget > 0 ? false : null;
 
   // ================= RECOVERY STATUS =================
   let status = "Critical";
@@ -99,9 +127,42 @@ export default function LifestyleCorrectionTrack() {
 
       <div className="track-container">
         {/* ================= HEADER ================= */}
-        <p className="tracks-eyebrow">Lifestyle Correction</p>
-        <SlideIn tag="h1" text={`Welcome back, ${user?.name?.split(" ")[0] || "there"}`} />
+        <span style={{ color: "#84a794", fontWeight: 700, fontSize: "0.78rem", letterSpacing: "0.1em", textTransform: "uppercase", background: "rgba(132,167,148,0.12)", border: "1px solid rgba(132,167,148,0.3)", borderRadius: 6, padding: "3px 10px", display: "inline-block", width: "fit-content" }}>Lifestyle Correction</span>
+        <SlideIn tag="h1" text={`Welcome back, ${user?.name?.split(" ")[0] || "there"}`} style={{ margin: 0 }} />
         <SlideIn tag="p" className="subtitle" delay={120} text="You are on the Lifestyle Correction track · reduce debt and rebalance your spending" />
+
+        {/* ── YOUR PLAN ── driven by Setup inputs */}
+        {corrOverspend > 0 && (
+          <div className="track-card" style={{ padding: 0, overflow: "hidden" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+              {[
+                { label: "Monthly Reduction", value: `R${corrOverspend.toLocaleString("en-ZA")}`,                           color: "#ff9898" },
+                { label: "Annual Saving",      value: `R${corrAnnualSaving.toLocaleString("en-ZA")}`,                       color: "#84a794" },
+                { label: "Your Target",        value: corrPlanTarget ? `${corrPlanTarget} months` : "Not set",              color: "#4facfe" },
+                { label: "Total Reclaimed",    value: corrTotalReclaim > 0 ? `R${corrTotalReclaim.toLocaleString("en-ZA")}` : "—", color: "#d6a85a" },
+              ].map(({ label, value, color }, i) => (
+                <div key={label} style={{ padding: "14px 16px", borderRight: i < 3 ? "1px solid rgba(255,255,255,0.06)" : "none" }}>
+                  <p style={{ fontSize: "0.6rem", fontWeight: 700, color: "#445550", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 3px" }}>{label}</p>
+                  <p style={{ fontSize: "0.95rem", fontWeight: 700, color, margin: 0 }}>{value}</p>
+                </div>
+              ))}
+            </div>
+            <div style={{ padding: "12px 18px 14px", display: "flex", gap: 10, alignItems: "flex-start",
+              background: corrOnTrack === true ? "rgba(132,167,148,0.05)" : corrOnTrack === false ? "rgba(214,168,90,0.05)" : "rgba(79,172,254,0.04)" }}>
+              <span style={{ fontSize: "1rem", flexShrink: 0 }}>{corrOnTrack === true ? "🔄" : corrOnTrack === false ? "⚠️" : "💡"}</span>
+              <div>
+                <p style={{ margin: "0 0 3px", fontSize: "0.78rem", fontWeight: 700,
+                  color: corrOnTrack === true ? "#84a794" : corrOnTrack === false ? "#d6a85a" : "#4facfe" }}>
+                  {corrOnTrack === true
+                    ? `Realistic plan — cutting R${corrOverspend.toLocaleString("en-ZA")}/month reclaims R${corrTotalReclaim.toLocaleString("en-ZA")} over ${corrPlanTarget} months`
+                    : corrOnTrack === false
+                    ? `${corrPlanTarget} months is too short — behavioural change takes 12+ months to stick`
+                    : `Cutting R${corrOverspend.toLocaleString("en-ZA")}/month in overspend saves R${corrAnnualSaving.toLocaleString("en-ZA")}/year — set a target in Setup`}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ================= 5-YEAR JOURNEY ================= */}
         <FiveYearJourney
@@ -462,6 +523,45 @@ export default function LifestyleCorrectionTrack() {
 
           </div>
         </div>
+
+        {/* MILESTONE CHECKLIST */}
+        <div className="track-card">
+          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16 }}>
+            <h3 style={{ margin:0, display:"flex", alignItems:"center", gap:8 }}>
+              <ClipboardCheck size={17} color="#84a794" /> Milestone Checklist
+            </h3>
+            <span style={{ fontSize:"0.72rem", color:"#84a794", fontWeight:600, whiteSpace:"nowrap", marginLeft:12 }}>
+              {stagesDone.filter(Boolean).length}/{MILESTONES_DETAIL.length} done
+            </span>
+          </div>
+          <p style={{ fontSize:"0.73rem", color:"#667c74", margin:"0 0 14px", lineHeight:1.5 }}>
+            Tick off each milestone as you complete it — progress saves automatically.
+          </p>
+          <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+            {MILESTONES_DETAIL.map((m, i) => {
+              const done = stagesDone[i];
+              return (
+                <div key={i} onClick={() => toggleStage(i)}
+                  style={{ display:"flex", gap:12, alignItems:"center", padding:"10px 14px", borderRadius:10, cursor:"pointer",
+                    background: done ? "rgba(132,167,148,0.07)" : "rgba(255,255,255,0.02)",
+                    border:`1px solid ${done ? "rgba(132,167,148,0.22)" : "rgba(255,255,255,0.06)"}`,
+                    transition:"background 0.2s, border-color 0.2s" }}>
+                  <div style={{ width:20, height:20, borderRadius:5, flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center",
+                    background: done ? "rgba(132,167,148,0.22)" : "#0e1512",
+                    border:`2px solid ${done ? "#84a794" : "#2a3530"}`, transition:"all 0.2s" }}>
+                    {done && <Check size={11} color="#84a794" />}
+                  </div>
+                  <div style={{ flex:1 }}>
+                    <p style={{ margin:0, fontSize:"0.8rem", fontWeight:600, color: done?"#84a794":"#c0ccc8", textDecoration: done?"line-through":"none" }}>{m.label}</p>
+                    <p style={{ margin:"2px 0 0", fontSize:"0.7rem", color:"#556660", lineHeight:1.4 }}>{m.tip}</p>
+                  </div>
+                  {done && <Check size={14} color="#84a794" style={{ flexShrink:0 }} />}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
       </div>
     </div>
   );
