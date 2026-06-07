@@ -32,13 +32,13 @@ export default function Landing() {
   );
   const [fadeOut, setFadeOut] = useState(false);
 
-  /* â”€â”€ redirect if already logged in â”€â”€ */
+  /* -- redirect if already logged in -- */
   useEffect(() => {
     const session = sessionStorage.getItem("session");
     if (session) navigate("/home");
   }, [navigate]);
 
-  /* â”€â”€ scroll fade-in observer â”€â”€ */
+  /* -- scroll fade-in observer -- */
   useEffect(() => {
     if (!entered) return;
 
@@ -68,7 +68,7 @@ export default function Landing() {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
-  /* â”€â”€ show intro until user clicks Explore â”€â”€ */
+  /* -- show intro until user clicks Explore -- */
   if (!entered) {
     return <Intro onEnter={handleEnter} fadeOut={fadeOut} />;
   }
@@ -77,9 +77,7 @@ export default function Landing() {
     <div className="landing">
       <LandingNav scrollTo={scrollToSection} />
 
-      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• WAVE BACKGROUND â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
-
-      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• HERO â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+      {/* HERO */}
       <section id="hero" className="hero">
         <video className="hero-video" autoPlay muted loop playsInline>
           <source src={heroVideo} type="video/mp4" />
@@ -89,10 +87,10 @@ export default function Landing() {
 
         {/* MAIN CONTENT */}
         <div className="xapo-layout">
-          <h1>The Home for Young South African Professionals.</h1>
+          <h1>The Place for Young South African Professionals to Grow.</h1>
           <p>
-            A private financial system built for young South African
-            professionals ready to grow, invest, and own their future.
+            A financial system built for young South African professionals ready
+            to grow, invest, and own their future.
           </p>
           <button className="cta-btn" onClick={() => transitionTo("/login")}>
             Join now
@@ -106,7 +104,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• STATS BAR â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+      {/* STATS BAR */}
       <div className="stats-bar container fade-in">
         <div className="stat">
           <h3>R 2.4B+</h3>
@@ -129,7 +127,7 @@ export default function Landing() {
         </div>
       </div>
 
-      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TRUST â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+      {/* TRUST */}
       <section id="trust" className="section container fade-in">
         <div className="text">
           <p className="eyebrow">THE PLATFORM</p>
@@ -139,7 +137,7 @@ export default function Landing() {
             decision-making, and guided education into one powerful experience.
           </p>
           <p>
-            From your salary and expenses to property goals and investments â€”
+            From your salary and expenses to property goals and investments —
             everything connects to help you make smarter decisions.
           </p>
           <p className="highlight">
@@ -152,7 +150,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• HOW IT WORKS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+      {/* HOW IT WORKS */}
       <section id="how" className="hiw-section container fade-in">
         <div className="hiw-image">
           <img src={magnifier} className="image" alt="magnifier" />
@@ -192,7 +190,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• FEATURE CARDS â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+      {/* FEATURE CARDS */}
       <section className="features-section container fade-in">
         <p className="eyebrow" style={{ textAlign: "center" }}>
           WHAT'S INSIDE
@@ -205,10 +203,10 @@ export default function Landing() {
           <div className="feature-card" onClick={() => transitionTo("/login")}>
             <h3>Money Snapshot</h3>
             <p>
-              See your full financial picture â€” income, expenses, debt, and
-              savings rate â€” in one live dashboard.
+              See your full financial picture — income, expenses, debt, and
+              savings rate — in one live dashboard.
             </p>
-            <span className="feature-link">Explore Snapshot â†’</span>
+            <span className="feature-link">Explore Snapshot &rarr;</span>
           </div>
           <div
             className="feature-card feature-card--accent"
@@ -216,23 +214,23 @@ export default function Landing() {
           >
             <h3>Strategy Tracks</h3>
             <p>
-              Follow a personalised path â€” Property, Foundation, Balanced
+              Follow a personalised path — Property, Foundation, Balanced
               Lifestyle, or Lifestyle Correction.
             </p>
-            <span className="feature-link">View Tracks â†’</span>
+            <span className="feature-link">View Tracks &rarr;</span>
           </div>
           <div className="feature-card" onClick={() => transitionTo("/login")}>
             <h3>Simulation Lab</h3>
             <p>
-              Model real decisions â€” rent vs buy, car finance, investing â€”
+              Model real decisions — rent vs buy, car finance, investing —
               before committing your money.
             </p>
-            <span className="feature-link">Try Simulation â†’</span>
+            <span className="feature-link">Try Simulation &rarr;</span>
           </div>
         </div>
       </section>
 
-      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• FINANCE SCHOOL â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+      {/* FINANCE SCHOOL */}
       <section className="section container fade-in">
         <div className="text">
           <p className="eyebrow">FINANCE SCHOOL</p>
@@ -242,13 +240,11 @@ export default function Landing() {
             insights tailored to your financial journey.
           </p>
           <p>
-            Whether you're understanding budgeting, property, or investing â€”
-            you gain knowledge that directly impacts your decisions inside the
-            app.
+            Whether you're understanding budgeting, property, or investing — you
+            gain knowledge that directly impacts your decisions inside the app.
           </p>
           <p className="highlight">
-            Not just theory â€” applied learning connected to your real
-            finances.
+            Not just theory — applied learning connected to your real finances.
           </p>
         </div>
         <div className="image-wrap fade-in">
@@ -256,7 +252,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• SUPPORT â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+      {/* SUPPORT */}
       <section id="support" className="section container fade-in">
         <div className="text">
           <p className="eyebrow">INTELLIGENT GUIDANCE</p>
@@ -265,14 +261,14 @@ export default function Landing() {
             Get intelligent recommendations, next steps, and insights based on
             your financial situation.
           </p>
-          <p>You're never guessing â€” the system guides you forward.</p>
+          <p>You're never guessing — the system guides you forward.</p>
         </div>
         <div className="image-wrap fade-in">
           <img src={settings} className="image" alt="settings" />
         </div>
       </section>
 
-      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• CTA â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+      {/* CTA */}
       <section className="cta-section container fade-in">
         <p className="eyebrow">GET STARTED</p>
         <TypewriterHeading
@@ -285,7 +281,7 @@ export default function Landing() {
         </button>
       </section>
 
-      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• FOOTER â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+      {/* FOOTER */}
       <footer className="footer-extended">
         <div className="footer-top container">
           <div className="footer-brand">
@@ -330,7 +326,7 @@ export default function Landing() {
         </div>
 
         <div className="footer-bottom container">
-          <p>Â© 2025 ABSA Wealth Studio. All rights reserved.</p>
+          <p>&copy; 2025 ABSA Wealth Studio. All rights reserved.</p>
         </div>
       </footer>
     </div>
