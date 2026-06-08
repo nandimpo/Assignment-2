@@ -1,9 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
 import AppNav from "../components/AppNav";
-import { Home, TrendingUp, Shield, Scale, Zap, ArrowRight, AlertTriangle, CheckCircle, ChevronDown, ChevronRight, Info } from "lucide-react";
+import { Home, TrendingUp, Shield, Scale, Zap, ArrowRight, AlertTriangle, CheckCircle, Info } from "lucide-react";
+import "../styles/simulation.css";
 import SlideIn from "../components/SlideIn";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getTrackProgression } from "../utils/trackProgression";
 import useProgress from "../hooks/useProgress";
 
@@ -514,7 +515,7 @@ export default function StrategyTrack() {
           </div>
         )}
 
-        {/* ── BROWSE TRACK GRID ── */}
+        {/* ── BROWSE TRACK TIMELINE ── */}
         {activeTab === "browse" && (
           <>
             {recommendation && (
@@ -527,205 +528,159 @@ export default function StrategyTrack() {
               </div>
             )}
 
-            <div className="track-grid" id="track-grid" style={{ marginTop: 16 }}>
-              {trackOrder.map((key) => {
-                const track       = tracks[key];
-                const isActive    = selectedTrack === key;
-                const isRec       = recommendedTrack === key;
-                const isExpanded  = expandedTrack === key;
-                const y5          = y5Projections[key];
+            <div className="sim-timeline root-timeline" id="track-grid" style={{ marginTop: 16 }}>
+              <div className="sim-timeline-line" />
+
+              {trackOrder.map((key, index) => {
+                const track      = tracks[key];
+                const isActive   = selectedTrack === key;
+                const isRec      = recommendedTrack === key;
+                const isExpanded = expandedTrack === key;
+                const y5         = y5Projections[key];
                 const { done: stgDone, total: stgTotal } = getStageCount(key);
-                const stgArr      = trackStageProgress[key] || new Array(track.stages.length).fill(false);
-                const stgPct      = stgTotal > 0 ? Math.round((stgDone / stgTotal) * 100) : 0;
+                const stgArr     = trackStageProgress[key] || new Array(track.stages.length).fill(false);
+                const stgPct     = stgTotal > 0 ? Math.round((stgDone / stgTotal) * 100) : 0;
+                const isLeft     = index % 2 === 0;
 
                 return (
-                  <div
+                  <ScrollReveal
                     key={key}
-                    id={isRec ? "recommended" : undefined}
-                    className={`track-card ${isActive ? "active" : ""}`}
+                    as="div"
+                    id={isRec ? "recommended" : `track-step-${index}`}
+                    className={`sim-timeline-step ${isLeft ? "step-left" : "step-right"}`}
+                    delay={index * 120}
                   >
-                    {/* Card header */}
-                    <div className="track-header">
-                      <div className="track-icon" style={{ color: track.color }}>{icons[key]}</div>
-                      <div style={{ flex: 1 }}>
-                        <h3>{track.name}</h3>
-                        <p className="track-focus">{track.focus}</p>
+                    {/* DOT */}
+                    <div
+                      className={`sim-timeline-dot ${isActive ? "dot-recommended" : ""}`}
+                      style={isActive ? { borderColor: track.color, background: `rgba(${track.colorRgb},0.15)` } : {}}
+                    />
+
+                    {/* TEXT BLOCK */}
+                    <div className="sim-step-text">
+                      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
+                        {isActive && (
+                          <span className="sim-recommended-badge" style={{ background: track.color, color: "#020202" }}>
+                            Your track
+                          </span>
+                        )}
+                        {isRec && !isActive && (
+                          <span className="sim-recommended-badge">Recommended</span>
+                        )}
                       </div>
-                      <div style={{ display: "flex", gap: 6, flexDirection: "column", alignItems: "flex-end" }}>
-                        {isActive && <span className="badge" style={{ background: "#84a794", color: "#020202" }}>Your track</span>}
-                        {isRec && !isActive && <span className="badge">Recommended</span>}
-                        <span style={{ fontSize: "0.68rem", color: difficultyColor[track.difficulty], fontWeight: 600 }}>{track.difficulty} difficulty</span>
-                      </div>
-                    </div>
+                      <p className="sim-step-label">Track {String(index + 1).padStart(2, "0")}</p>
+                      <h2 className="sim-step-title" style={isActive ? { color: track.color } : {}}>
+                        {track.name}
+                      </h2>
+                      <p className="sim-step-desc">{track.explanation}</p>
+                      <p className="sim-step-detail">
+                        <strong style={{ color: "#c0ccc8" }}>Who it's for:</strong> {track.who}
+                      </p>
 
-                    {/* Description */}
-                    <p style={{ fontSize: "0.82rem", color: "#c0ccc8", lineHeight: 1.6 }}>{track.explanation}</p>
-
-                    {/* Educational rationale */}
-                    <div className="explanation-box">
-                      <p><strong>Who it's for:</strong> {track.who}</p>
-                      <p style={{ marginTop: 6 }}><strong>What to do:</strong> {track.recommendations}</p>
-                      <p style={{ marginTop: 6, color: "#8a9a96" }}><strong>Time horizon:</strong> {track.timeHorizon}</p>
-                    </div>
-
-                    {/* ── MINI STAGE TIMELINE ── */}
-                    <div style={{ marginTop: 14 }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                        <p style={{ fontSize: "0.68rem", fontWeight: 700, color: "#667c74", textTransform: "uppercase", letterSpacing: "0.08em", margin: 0 }}>
-                          Stage Progress
-                        </p>
-                        <p style={{ fontSize: "0.68rem", color: "#667c74", margin: 0 }}>{stgDone}/{stgTotal} complete</p>
-                      </div>
-                      {/* Timeline line + nodes */}
-                      <div style={{ position: "relative", display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: 4 }}>
-                        <div style={{ position: "absolute", top: "50%", left: 10, right: 10, height: 2, background: "#1a1f1e", borderRadius: 1, transform: "translateY(-50%)" }} />
-                        <div style={{
-                          position: "absolute", top: "50%", left: 10, height: 2, borderRadius: 1,
-                          background: track.color, transform: "translateY(-50%)",
-                          width: stgTotal > 1 ? `${(stgDone / (stgTotal - 1)) * 85}%` : "0%",
-                          transition: "width 0.4s ease",
-                        }} />
-                        {track.stages.map((stage, i) => {
-                          const checked = stgArr[i] || false;
-                          return (
-                            <button
-                              key={stage}
-                              title={`${stage}: ${track.stageHints[i]}`}
-                              onClick={() => toggleStage(key, i)}
-                              style={{
-                                width: 28, height: 28, borderRadius: "50%", flexShrink: 0, zIndex: 2,
-                                background: checked ? `rgba(${track.colorRgb},0.2)` : "#111816",
-                                border: `2px solid ${checked ? track.color : "#2a3530"}`,
-                                color: checked ? track.color : "#4a5c56",
-                                fontSize: "0.7rem", fontWeight: 700, cursor: "pointer",
-                                display: "flex", alignItems: "center", justifyContent: "center",
-                                transition: "all 0.2s",
-                              }}
-                            >
-                              {checked ? "✓" : i + 1}
-                            </button>
-                          );
-                        })}
-                      </div>
-                      {/* Stage labels under nodes */}
-                      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
-                        {track.stages.map((stage, i) => (
-                          <p key={stage} style={{ fontSize: "0.6rem", color: (stgArr[i] || false) ? track.color : "#445550", margin: 0, textAlign: "center", flex: 1, lineHeight: 1.2 }}>
-                            {stage}
-                          </p>
-                        ))}
-                      </div>
-                      {/* Progress bar */}
-                      <div style={{ marginTop: 8, height: 3, background: "#1a1f1e", borderRadius: 2, overflow: "hidden" }}>
-                        <div style={{ height: "100%", background: track.color, width: `${stgPct}%`, borderRadius: 2, transition: "width 0.4s ease" }} />
-                      </div>
-                      <p style={{ fontSize: "0.64rem", color: "#445550", marginTop: 4 }}>Click a stage node to mark it complete</p>
-                    </div>
-
-                    {/* Trade-off */}
-                    <div style={{ background: "rgba(214,168,90,0.06)", border: "1px solid rgba(214,168,90,0.15)", borderRadius: 10, padding: "10px 14px", marginTop: 12 }}>
-                      <p style={{ fontSize: "0.72rem", fontWeight: 700, color: "#d6a85a", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 4px" }}>⚖ Trade-off</p>
-                      <p style={{ fontSize: "0.8rem", color: "#c0ccc8", margin: 0, lineHeight: 1.5 }}>{track.tradeoffs}</p>
-                    </div>
-
-                    {/* Risk warning */}
-                    <div style={{ display: "flex", gap: 8, alignItems: "flex-start", background: "rgba(255,107,107,0.06)", border: "1px solid rgba(255,107,107,0.15)", borderRadius: 10, padding: "10px 14px", marginTop: 8 }}>
-                      <AlertTriangle size={14} color="#ff9898" style={{ flexShrink: 0, marginTop: 2 }} />
-                      <p style={{ fontSize: "0.8rem", color: "#ff9898", margin: 0, lineHeight: 1.5 }}>{track.risks}</p>
-                    </div>
-
-                    {/* Expandable: stages + milestones + example + warnings */}
-                    {isExpanded && (
-                      <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 12 }}>
-
-                        {/* Milestone checklist */}
-                        <div>
-                          <p style={{ fontSize: "0.72rem", fontWeight: 700, color: "#84a794", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 10px" }}>
-                            Key Milestones
-                          </p>
-                          {track.milestoneChecks.map((mc, i) => (
-                            <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start", marginBottom: 7 }}>
-                              <button
-                                onClick={() => toggleStage(key, i < track.stages.length ? i : track.stages.length - 1)}
-                                style={{
-                                  width: 18, height: 18, borderRadius: 4, flexShrink: 0,
-                                  background: (stgArr[i] || false) ? `rgba(${track.colorRgb},0.2)` : "#111816",
-                                  border: `1.5px solid ${(stgArr[i] || false) ? track.color : "#2a3530"}`,
-                                  color: track.color, cursor: "pointer", marginTop: 1,
-                                  display: "flex", alignItems: "center", justifyContent: "center",
-                                  fontSize: "0.65rem",
-                                }}
-                              >
-                                {(stgArr[i] || false) ? "✓" : ""}
-                              </button>
-                              <p style={{ margin: 0, fontSize: "0.78rem", color: (stgArr[i] || false) ? "#84a794" : "#c0ccc8", lineHeight: 1.4 }}>{mc}</p>
-                            </div>
-                          ))}
-                        </div>
-
-                        {/* Warnings */}
-                        <div style={{ background: "rgba(255,152,152,0.06)", border: "1px solid rgba(255,152,152,0.15)", borderRadius: 10, padding: "12px 14px" }}>
-                          <p style={{ fontSize: "0.7rem", fontWeight: 700, color: "#ff9898", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>⚠ Warnings</p>
-                          {track.warnings.map((w, i) => (
-                            <div key={i} style={{ display: "flex", gap: 7, alignItems: "flex-start", marginBottom: 6 }}>
-                              <AlertTriangle size={12} color="#ff9898" style={{ flexShrink: 0, marginTop: 2 }} />
-                              <p style={{ margin: 0, fontSize: "0.76rem", color: "#c0ccc8", lineHeight: 1.4 }}>{w}</p>
-                            </div>
-                          ))}
-                        </div>
-
-                        {/* Real-world example */}
-                        <div style={{ background: "rgba(79,172,254,0.06)", border: "1px solid rgba(79,172,254,0.15)", borderRadius: 10, padding: "10px 14px" }}>
-                          <p style={{ fontSize: "0.72rem", fontWeight: 700, color: "#4facfe", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 4px" }}>📊 Real example</p>
-                          <p style={{ fontSize: "0.8rem", color: "#c0ccc8", margin: 0, lineHeight: 1.5 }}>{track.example}</p>
-                        </div>
-
-                        {/* Educational rationale */}
-                        <div style={{ background: "rgba(132,167,148,0.06)", border: "1px solid rgba(132,167,148,0.18)", borderRadius: 10, padding: "12px 14px" }}>
-                          <p style={{ fontSize: "0.7rem", fontWeight: 700, color: "#84a794", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>💡 Why this track?</p>
-                          <p style={{ fontSize: "0.78rem", color: "#c0ccc8", margin: 0, lineHeight: 1.6 }}>
-                            {key === "property" && "Property is the most tangible form of wealth for many South Africans. Owning your home removes rent risk and builds equity over time. The discipline required to save a deposit transfers into lifelong financial habits."}
-                            {key === "balanced" && "Compound interest is the world's most powerful financial force. A consistent monthly investment at even 10% p.a. over 20 years grows to 6× your total contributions. The balanced track makes you rich slowly — which is the only reliable way to do it."}
-                            {key === "foundation" && "Most financial advice skips the foundation phase. But without tracking, budgeting and an emergency fund, every other strategy collapses the first time an unexpected cost hits. Foundation work is boring — and essential."}
-                            {key === "correction" && "Behavioural change is harder than financial change. The correction track is about rewiring habits — identifying the emotional triggers for overspending and replacing them with systems. Once the habits change, the numbers follow automatically."}
-                            {key === "catchup" && "The catch-up track is for those who know they're behind and want to fix it fast. Intensity is the strategy. Every rand freed from debt repayment becomes fuel for wealth building. The math compounds in your favour once debt is gone."}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Year-5 + action buttons */}
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 14, flexWrap: "wrap", gap: 8 }}>
-                      {y5 > 0 && (
-                        <div>
-                          <p style={{ fontSize: "0.65rem", color: "#667c74", margin: 0, textTransform: "uppercase", letterSpacing: "0.06em" }}>Est. Year 5</p>
-                          <p style={{ fontSize: "0.9rem", fontWeight: 700, color: track.color, margin: 0 }}>R{y5.toLocaleString("en-ZA")}</p>
+                      {/* Expandable details */}
+                      {isExpanded && (
+                        <div style={{ marginBottom: 16, display: "flex", flexDirection: "column", gap: 10 }}>
+                          <div style={{ background: "rgba(214,168,90,0.06)", border: "1px solid rgba(214,168,90,0.15)", borderRadius: 10, padding: "10px 14px" }}>
+                            <p style={{ fontSize: "0.72rem", fontWeight: 700, color: "#d6a85a", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 4px" }}>⚖ Trade-off</p>
+                            <p style={{ fontSize: "0.8rem", color: "#c0ccc8", margin: 0, lineHeight: 1.5 }}>{track.tradeoffs}</p>
+                          </div>
+                          <div style={{ background: "rgba(255,152,152,0.06)", border: "1px solid rgba(255,152,152,0.15)", borderRadius: 10, padding: "12px 14px" }}>
+                            <p style={{ fontSize: "0.7rem", fontWeight: 700, color: "#ff9898", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>⚠ Warnings</p>
+                            {track.warnings.map((w, i) => (
+                              <div key={i} style={{ display: "flex", gap: 7, alignItems: "flex-start", marginBottom: 6 }}>
+                                <AlertTriangle size={12} color="#ff9898" style={{ flexShrink: 0, marginTop: 2 }} />
+                                <p style={{ margin: 0, fontSize: "0.76rem", color: "#c0ccc8", lineHeight: 1.4 }}>{w}</p>
+                              </div>
+                            ))}
+                          </div>
+                          <div style={{ background: "rgba(79,172,254,0.06)", border: "1px solid rgba(79,172,254,0.15)", borderRadius: 10, padding: "10px 14px" }}>
+                            <p style={{ fontSize: "0.72rem", fontWeight: 700, color: "#4facfe", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 4px" }}>📊 Real example</p>
+                            <p style={{ fontSize: "0.8rem", color: "#c0ccc8", margin: 0, lineHeight: 1.5 }}>{track.example}</p>
+                          </div>
                         </div>
                       )}
-                      <div className="btn-row" style={{ marginTop: 0 }}>
+
+                      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                         <button
-                          className="pill outline"
-                          style={{ fontSize: "0.75rem" }}
+                          className="sim-step-btn"
+                          style={isActive ? { background: `rgba(${track.colorRgb},0.15)`, borderColor: track.color, color: track.color } : {}}
+                          onClick={() => isActive ? navigate(track.route) : handleSelectTrack(key)}
+                        >
+                          {isActive ? "Open track →" : "Select track →"}
+                        </button>
+                        <button
                           onClick={() => setExpandedTrack(isExpanded ? null : key)}
+                          style={{ background: "none", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, padding: "10px 16px", color: "#8a9a96", cursor: "pointer", fontSize: "0.82rem", transition: "border-color 0.2s" }}
                         >
                           {isExpanded ? "Less ↑" : "Details ↓"}
                         </button>
-                        {isActive ? (
-                          <button className="pill" onClick={() => navigate(track.route)}>
-                            Open track →
-                          </button>
-                        ) : (
-                          <button
-                            className="pill outline"
-                            style={{ borderColor: track.color, color: track.color }}
-                            onClick={() => handleSelectTrack(key)}
-                          >
-                            Select track →
-                          </button>
-                        )}
                       </div>
                     </div>
-                  </div>
+
+                    {/* MEDIA / STATS BLOCK */}
+                    <div className="sim-step-media">
+                      <div style={{ background: "rgba(255,255,255,0.04)", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)", border: `1px solid ${isActive ? `rgba(${track.colorRgb},0.35)` : "rgba(255,255,255,0.09)"}`, boxShadow: isActive ? `0 8px 32px rgba(${track.colorRgb},0.12)` : "0 8px 32px rgba(0,0,0,0.3)", borderRadius: 16, padding: "20px 22px", display: "flex", flexDirection: "column", gap: 16 }}>
+
+                        {/* Icon + name */}
+                        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                          <div style={{ width: 44, height: 44, borderRadius: 12, background: `rgba(${track.colorRgb},0.12)`, border: `1px solid rgba(${track.colorRgb},0.25)`, display: "flex", alignItems: "center", justifyContent: "center", color: track.color }}>
+                            {icons[key]}
+                          </div>
+                          <div>
+                            <p style={{ margin: 0, fontSize: "0.68rem", color: "#667c74", textTransform: "uppercase", letterSpacing: "0.08em" }}>{track.focus}</p>
+                            <p style={{ margin: 0, fontWeight: 700, color: "#f4f6fc", fontSize: "0.9rem" }}>{track.name}</p>
+                          </div>
+                        </div>
+
+                        {/* Difficulty + horizon pills */}
+                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                          <span style={{ fontSize: "0.72rem", padding: "4px 10px", borderRadius: 20, background: `rgba(${track.colorRgb},0.1)`, border: `1px solid rgba(${track.colorRgb},0.2)`, color: track.color, fontWeight: 600 }}>
+                            {track.difficulty}
+                          </span>
+                          <span style={{ fontSize: "0.72rem", padding: "4px 10px", borderRadius: 20, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "#8a9a96" }}>
+                            {track.timeHorizon}
+                          </span>
+                        </div>
+
+                        {/* Y5 projection */}
+                        {y5 > 0 && (
+                          <div>
+                            <p style={{ margin: "0 0 2px", fontSize: "0.68rem", color: "#667c74", textTransform: "uppercase", letterSpacing: "0.08em" }}>Est. Year 5</p>
+                            <p style={{ margin: 0, fontSize: "1.3rem", fontWeight: 700, color: track.color }}>R{y5.toLocaleString("en-ZA")}</p>
+                          </div>
+                        )}
+
+                        {/* Stage progress */}
+                        <div>
+                          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                            <p style={{ margin: 0, fontSize: "0.68rem", color: "#667c74", textTransform: "uppercase", letterSpacing: "0.08em" }}>Stage Progress</p>
+                            <p style={{ margin: 0, fontSize: "0.68rem", color: "#667c74" }}>{stgDone}/{stgTotal}</p>
+                          </div>
+                          <div style={{ position: "relative", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <div style={{ position: "absolute", top: "50%", left: 10, right: 10, height: 2, background: "#1a1f1e", borderRadius: 1, transform: "translateY(-50%)" }} />
+                            <div style={{ position: "absolute", top: "50%", left: 10, height: 2, borderRadius: 1, background: track.color, transform: "translateY(-50%)", width: stgTotal > 1 ? `${(stgDone / (stgTotal - 1)) * 85}%` : "0%", transition: "width 0.4s ease" }} />
+                            {track.stages.map((stage, i) => {
+                              const checked = stgArr[i] || false;
+                              return (
+                                <button
+                                  key={stage}
+                                  title={`${stage}: ${track.stageHints[i]}`}
+                                  onClick={() => toggleStage(key, i)}
+                                  style={{ width: 26, height: 26, borderRadius: "50%", flexShrink: 0, zIndex: 2, background: checked ? `rgba(${track.colorRgb},0.2)` : "#111816", border: `2px solid ${checked ? track.color : "#2a3530"}`, color: checked ? track.color : "#4a5c56", fontSize: "0.65rem", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.2s" }}
+                                >
+                                  {checked ? "✓" : i + 1}
+                                </button>
+                              );
+                            })}
+                          </div>
+                          <div style={{ marginTop: 8, height: 3, background: "#1a1f1e", borderRadius: 2, overflow: "hidden" }}>
+                            <div style={{ height: "100%", background: track.color, width: `${stgPct}%`, borderRadius: 2, transition: "width 0.4s ease" }} />
+                          </div>
+                          <p style={{ fontSize: "0.64rem", color: "#445550", marginTop: 5 }}>Click a node to mark complete</p>
+                        </div>
+                      </div>
+                    </div>
+                  </ScrollReveal>
                 );
               })}
             </div>
@@ -800,5 +755,37 @@ export default function StrategyTrack() {
         </>
       )}
     </div>
+  );
+}
+
+/* ── ScrollReveal — fades + slides in when scrolled into view ── */
+function ScrollReveal({ as: Tag = "div", children, delay = 0, ...props }) {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect(); } },
+      { threshold: 0.12 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  return (
+    <Tag
+      ref={ref}
+      {...props}
+      style={{
+        ...props.style,
+        opacity:    visible ? 1 : 0,
+        transform:  visible ? "translateY(0)" : "translateY(32px)",
+        transition: `opacity 0.7s ease ${delay}ms, transform 0.7s cubic-bezier(0.22,1,0.36,1) ${delay}ms`,
+      }}
+    >
+      {children}
+    </Tag>
   );
 }

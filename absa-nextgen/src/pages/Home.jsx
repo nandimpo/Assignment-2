@@ -7,6 +7,7 @@ import "../styles/fiveyear.css";
 import SlideIn from "../components/SlideIn";
 import { Home as HomeIcon, Scale, Shield, RefreshCw, Building2, TrendingUp, CreditCard, Target, GraduationCap, Info, Sparkles, ChevronRight, ChevronLeft } from "lucide-react";
 import { useUser } from "../context/UserContext";
+import rootsImg from "../assets/roots.png";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -293,28 +294,41 @@ export default function Home() {
         </section>
 
         {/* ── STRATEGY TRACKS ── */}
-        <section className="preview-section fade-in" id="tracks">
-          <div className="preview-header">
-            <div>
-              <h3>Strategy Tracks</h3>
-              <p className="muted">Pathways built around your goals &amp; life stage</p>
-              <button className="primary-btn" style={{ marginTop: 12 }} onClick={() => navigate("/strategy")}>View Tracks →</button>
-            </div>
+        <section className="tracks-organic-section fade-in" id="tracks">
+          <div className="tracks-organic-header">
+            <h3>Strategy Tracks</h3>
+            <p className="muted">Pathways built around your goals &amp; life stage</p>
+            <button className="primary-btn" style={{ marginTop: 12 }} onClick={() => navigate("/strategy")}>View Tracks →</button>
           </div>
-          <div className="preview-grid">
+
+          <div className="tracks-shelf-grid">
             {strategyTracks.map(({ id, Icon, name, sub, focus }) => {
               const isActive = user?.strategy === id || (id === "correction" && user?.strategy === "catchup");
+              const colors = {
+                property:   { rgb: "214,168,90",  hex: "#D6A85A" },
+                balanced:   { rgb: "178,194,195", hex: "#B2C2C3" },
+                foundation: { rgb: "132,167,148", hex: "#84A794" },
+                correction: { rgb: "178,200,188", hex: "#B2C8BC" },
+              };
+              const c = colors[id] || colors.foundation;
               return (
-                <div key={id} className={`preview-card available ${isActive ? "active-track" : ""}`} onClick={() => navigate("/strategy")}>
-                  <div className="preview-card-icon"><Icon size={20} strokeWidth={1.5} /></div>
-                  <div className="preview-card-body">
-                    <div className="preview-card-title-row">
-                      <span className="preview-card-name">{name}</span>
-                      {isActive && <span className="badge active-badge">Active</span>}
-                    </div>
-                    <p className="preview-card-sub">{sub}</p>
-                    <p className="preview-card-focus"><span className="label">Focus</span> {focus}</p>
-                    {trackDetails[id] && <p className="preview-card-extra">{trackDetails[id].explanation}</p>}
+                <div
+                  key={id}
+                  className={`track-shelf-card ${isActive ? "track-shelf-active" : ""}`}
+                  style={{ "--track-color": c.hex, "--track-rgb": c.rgb }}
+                  onClick={() => navigate("/strategy")}
+                >
+                  <div className="track-shelf-img-wrap">
+                    <img src={rootsImg} alt="" className="track-shelf-img" />
+                  </div>
+
+                  <div className="track-shelf-text">
+                    <div className="track-shelf-icon"><Icon size={16} strokeWidth={1.7} /></div>
+                    <p className="track-shelf-name">{name}</p>
+                    <p className="track-shelf-sub">{sub}</p>
+                    <p className="track-shelf-focus">{focus}</p>
+                    <span className="track-shelf-cta">Explore</span>
+                    {isActive && <span className="track-shelf-badge">Active</span>}
                   </div>
                 </div>
               );
@@ -323,13 +337,12 @@ export default function Home() {
         </section>
 
         {/* ── SIMULATION LAB ── */}
-        <section className="preview-section fade-in">
-          <div className="preview-header">
-            <div>
-              <h3>Simulation Lab</h3>
-              <p className="muted">Test financial decisions before you make them</p>
-              <button className="primary-btn" style={{ marginTop: 12 }} onClick={() => navigate("/simulation")}>Open Lab →</button>
-            </div>
+        <section className="sim-lab-section fade-in">
+          <div className="sim-lab-left">
+            <p className="sim-lab-eyebrow">04</p>
+            <h3 className="sim-lab-title">Simulation Lab</h3>
+            <p className="sim-lab-sub">Test financial decisions before you make them</p>
+            <button className="primary-btn" style={{ marginTop: 16 }} onClick={() => navigate("/simulation")}>Open Lab →</button>
           </div>
           <div className="sim-preview-grid">
             {simCards.map(({ Icon, label, desc }) => (

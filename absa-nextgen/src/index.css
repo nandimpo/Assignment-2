@@ -97,6 +97,126 @@ body {
   z-index: 1;
 }
 
+/* ══════════════════════════════════════════════════════════
+   ORGANIC BUTTON SYSTEM — nature / growth design language
+   Each variant is a different leaf gesture.
+   ══════════════════════════════════════════════════════════
+
+   PRIMARY CTA  — seed sprouting forward   4px 20px 20px 20px
+   SECONDARY    — leaf curling back        20px 20px 20px 4px
+   CONFIRM/SAVE — root anchoring down      20px 20px 4px 20px
+   DESTRUCTIVE  — thorn / sharp withdrawal 20px 4px 20px 20px
+   SMALL TAG    — soft organic chip        4px 12px 12px 12px
+
+   ══════════════════════════════════════════════════════════ */
+
+/* PRIMARY — forward-moving actions */
+.pill:not(.outline),
+.btn.primary,
+.sim-step-btn,
+.current-track-btn {
+  border-radius: 4px 20px 20px 20px !important;
+}
+
+/* HOME / MONEY primary-btn — secondary forward (navigates elsewhere) */
+.primary-btn {
+  border-radius: 20px 20px 20px 4px !important;
+}
+
+/* SECONDARY — reversible, back-stepping actions */
+.pill.outline {
+  border-radius: 20px 20px 20px 4px !important;
+}
+
+/* CONFIRM / SUBMIT — committing, anchoring actions */
+.submit,
+.pill.confirm {
+  border-radius: 20px 20px 4px 20px !important;
+}
+
+/* DESTRUCTIVE / EXIT — skip, logout, cancel */
+.nav-logout,
+.pill.danger,
+.tour-actions button:first-child {
+  border-radius: 20px 4px 20px 20px !important;
+}
+
+/* SMALL ORGANIC TAG — badges, filter chips */
+.sim-recommended-badge,
+.badge,
+.pill.tag,
+.mst-streak-item {
+  border-radius: 4px 12px 12px 12px !important;
+}
+
+/* Login / register auxiliary nav buttons */
+.login-nav button,
+.socials button {
+  border-radius: 4px 16px 16px 16px !important;
+}
+
+/* ══════════════════════════════════════════════════════════
+   ORGANIC CARD SHAPE SYSTEM — app-wide
+   Same 5 leaf gestures as the button system, applied to panels.
+
+   SPROUTING   4px 28px 28px 28px  — action / forward / CTA panels
+   CANOPY      28px 4px 28px 28px  — summary / overview / health panels
+   THORN       28px 28px 28px 4px  — data / metrics / precision panels
+   ROOT        28px 28px 4px 28px  — info / track / educational panels
+   CHIP        4px 22px 22px 22px  — small insight / nudge / alert panels
+   ══════════════════════════════════════════════════════════ */
+
+/* SPROUTING — action, forward momentum, CTA */
+.next-step,
+.setup-section,
+.deposit-card,
+.five-year-goal-row,
+.current-track-hero {
+  border-radius: 4px 28px 28px 28px !important;
+}
+
+/* CANOPY — overview, summary, health at a glance */
+.health-card,
+.stat-card,
+.simulation-card,
+.fy-outcome,
+.property-box {
+  border-radius: 28px 4px 28px 28px !important;
+}
+
+/* THORN — data, metrics, precision numbers */
+.stat,
+.snapshot-pillars,
+.timeline-estimate,
+.home-y5-strip,
+.compare-column,
+.bl-tile,
+.fy-wrap {
+  border-radius: 28px 28px 28px 4px !important;
+}
+
+/* ROOT — track info, educational, explanatory panels */
+.track-card,
+.mst-card,
+.explanation-box,
+.feature-card,
+.goal-card,
+.card {
+  border-radius: 28px 28px 4px 28px !important;
+}
+
+/* CHIP — small insight / nudge / contextual alert */
+.nudge,
+.sim-nudge,
+.next-step-box,
+.y5-callout,
+.insight,
+.mst-adjust-suggestion,
+.mst-missed-panel,
+.daily-tip {
+  border-radius: 4px 22px 22px 22px !important;
+}
+
 /* ================= GLOBAL CUSTOM CURSOR ================= */
 
 .custom-cursor {

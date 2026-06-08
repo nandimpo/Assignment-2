@@ -1485,3 +1485,21 @@ h1 {
   white-space: nowrap;
 }
 
+/* ── TRACK TIMELINE dot — plain circle, no decorations ── */
+.root-timeline .sim-timeline-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: #0c1110;
+  border: 2px solid rgba(132,167,148,0.45);
+  overflow: visible;
+}
+
+/* suppress shared sim-lab leaf pseudo-elements */
+.root-timeline .sim-timeline-dot::before,
+.root-timeline .sim-timeline-dot::after {
+  display: none;
+}
+
+
