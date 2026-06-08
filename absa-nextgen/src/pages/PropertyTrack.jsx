@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import rootsImg from "../assets/roots.png";
 import { useState } from "react";
 import AppNav from "../components/AppNav";
 import "../styles/track.css";
@@ -237,7 +238,7 @@ export default function PropertyTrack() {
                   color: planOnTrack === true ? "#84a794" : planOnTrack === false ? "#d6a85a" : "#4facfe" }}>
                   {planOnTrack === true ? `On track — ${planAhead} months ahead of your target!`
                     : planOnTrack === false ? `Shortfall: need R${planShortfall.toLocaleString("en-ZA")} more/month to hit ${planTarget}-month target`
-                    : planTarget === 0 ? "Set a deposit target in Setup to track your progress"
+                    : planTarget === 0 ? <span onClick={() => navigate("/setup")} style={{ cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3 }}>Set a deposit target in Setup to track your progress</span>
                     : `At R${savings.toLocaleString("en-ZA")}/month you'll reach your deposit in ${actualMonths} months`}
                 </p>
                 {planOnTrack === false && planRequired && (
@@ -544,7 +545,8 @@ export default function PropertyTrack() {
         </div>
 
         {/* 5 ── MILESTONE CHECKLIST ── standalone main card */}
-        <div className="track-card">
+        <div className="track-card" style={{ position: "relative", overflow: "hidden" }}>
+          <img src={rootsImg} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 60%", opacity: 0.07, pointerEvents: "none", zIndex: 0 }} />
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
             <h3 style={{ margin: 0, display: "flex", alignItems: "center", gap: 8 }}>
               <ClipboardCheck size={17} color="#84a794" /> Milestone Checklist

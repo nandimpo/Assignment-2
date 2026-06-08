@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { BarChart2, Cpu, HelpCircle } from "lucide-react";
+import growthImg from "../assets/growth.png.gif";
 import AppNav from "../components/AppNav";
 import SlideIn from "../components/SlideIn";
 import YearFiveCallout from "../components/YearFiveCallout";
@@ -280,6 +281,7 @@ The after-tax estimate shown assumes a simplified top-bracket CGT rate and does 
             className="sim-card explainer-aside clickable"
             onClick={() => { setContent(explainers.concept); setShowPanel(true); }}
           >
+            <img src={growthImg} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 30%", opacity: 0.07, pointerEvents: "none", zIndex: 0, borderRadius: 22 }} />
             <div className="hover-preview large">
               <h4 className="sim-section-title"><HelpCircle size={14} /> Understanding the Model</h4>
               <p>SA tax treatment, TFSA limits, CGT rates, and offshore transfer rules explained.</p>

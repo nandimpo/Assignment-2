@@ -1203,6 +1203,140 @@ h2 {
   50%       { opacity: 0; }
 }
 
+/* ================= ROOTS PHILOSOPHY BREAK ================= */
+
+.roots-break {
+  position: relative;
+  overflow: hidden;
+  padding: 100px 0;
+  text-align: center;
+  border-top: 1px solid rgba(132, 167, 148, 0.08);
+  border-bottom: 1px solid rgba(132, 167, 148, 0.08);
+}
+
+.roots-break__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 60%;
+  opacity: 0.1;
+  pointer-events: none;
+}
+
+.roots-break__vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to bottom, #020202 0%, transparent 30%, transparent 70%, #020202 100%),
+    linear-gradient(to right, #020202 0%, transparent 20%, transparent 80%, #020202 100%);
+  pointer-events: none;
+}
+
+.roots-break__content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.roots-break__leaf {
+  font-size: 32px;
+  filter: grayscale(0.3);
+}
+
+.roots-break__quote {
+  font-family: "Montserrat", sans-serif;
+  font-size: clamp(20px, 2.8vw, 34px);
+  font-weight: 400;
+  color: #f4f6fc;
+  line-height: 1.5;
+  margin: 0;
+  max-width: 720px;
+  font-style: italic;
+}
+
+.roots-break__sub {
+  font-size: 14px;
+  color: #84a794;
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+
+/* ================= LEAF INTERLUDE BREAK ================= */
+
+.leaf-break {
+  position: relative;
+  overflow: hidden;
+  padding: 72px 0;
+  text-align: center;
+}
+
+.leaf-break__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0.08;
+  pointer-events: none;
+}
+
+.leaf-break__vignette {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, #020202 0%, transparent 25%, transparent 75%, #020202 100%);
+  pointer-events: none;
+}
+
+.leaf-break__content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.leaf-break__pills {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.leaf-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(132, 167, 148, 0.2);
+  background: rgba(132, 167, 148, 0.05);
+  font-size: 12px;
+  font-weight: 500;
+  color: #8fa3a0;
+  letter-spacing: 0.04em;
+}
+
+.leaf-pill--active {
+  border-color: rgba(132, 167, 148, 0.5);
+  background: rgba(132, 167, 148, 0.12);
+  color: #84a794;
+}
+
+.leaf-break__line {
+  font-size: clamp(15px, 2vw, 20px);
+  color: #c8d8d4;
+  max-width: 680px;
+  line-height: 1.7;
+  margin: 0;
+  font-style: italic;
+}
+
 /* ================= FEATURE CARDS ================= */
 
 .features-section {

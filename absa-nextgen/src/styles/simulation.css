@@ -501,12 +501,12 @@
   position: relative;
   background: linear-gradient(145deg, #0c1110, #111817);
   border: 1px solid rgba(178, 200, 188, 0.12);
-  border-radius: 14px;
+  border-radius: 22px;
   padding: 24px 24px 32px;
   transition: all 0.25s ease;
   overflow: visible;
   box-sizing: border-box;
-  min-height: 320px; /* match graph card so both columns are same height */
+  min-height: 320px;
 }
 
 .sim-card:hover {
@@ -674,8 +674,8 @@ input[type="range"] {
 .insight {
   color: #84a794;
   margin-top: 10px;
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: 0.78rem;
+  line-height: 1.55;
 }
 
 /* ── SECTION TITLE ── */
@@ -684,9 +684,21 @@ input[type="range"] {
   align-items: center;
   gap: 8px;
   color: #f4f6fc;
-  font-size: 15px;
-  font-weight: 600;
-  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #84a794;
+  margin: 0 0 10px;
+}
+
+/* ── SIM BOTTOM CARD TEXT ── */
+.sim-bottom .sim-card > p,
+.sim-bottom .verdict-card > p {
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: #b0c4bb;
+  margin: 0;
 }
 
 /* ── BUTTONS ── */

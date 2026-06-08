@@ -1,4 +1,5 @@
 import { useState } from "react";
+import rootsImg from "../assets/roots.png";
 import AppNav from "../components/AppNav";
 import "../styles/track.css";
 import SlideIn from "../components/SlideIn";
@@ -356,7 +357,8 @@ export default function LifestyleCorrectionTrack() {
         />
 
         {/* ── MILESTONE CHECKLIST ── */}
-        <div className="track-card">
+        <div className="track-card" style={{ position:"relative", overflow:"hidden" }}>
+          <img src={rootsImg} alt="" style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover", objectPosition:"center 60%", opacity:0.07, pointerEvents:"none", zIndex:0 }} />
           <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16 }}>
             <h3 style={{ margin:0, display:"flex", alignItems:"center", gap:8 }}>
               <ClipboardCheck size={17} color="#84a794" /> Milestone Checklist

@@ -5,6 +5,7 @@ import "../styles/setup.css";
 import { useUser } from "../context/UserContext";
 import { calcMonthlyTax } from "../utils/tax";
 import { Home, Wallet, Zap, RefreshCw, Building2, Car, ShoppingBag, CreditCard, TrendingDown, Clock, CheckCircle, Target } from "lucide-react";
+import tree2Img from "../assets/tree2.png";
 
 export default function Setup() {
   const navigate = useNavigate();
@@ -21,7 +22,10 @@ export default function Setup() {
     catchupTargetMonths: user?.catchupTargetMonths || "",
     propertyTargetMonths: user?.propertyTargetMonths || "",
     correctionTargetMonths: user?.correctionTargetMonths || "",
+    monthlyContribution: user?.monthlyContribution || "",
   });
+
+  const [contribTouched, setContribTouched] = useState(false);
 
   const [selectedTrack, setSelectedTrack] = useState(
     user?.strategy || "property",
@@ -122,7 +126,7 @@ export default function Setup() {
     if (!gross || !exp) return;
 
     const { netPay: net } = calcMonthlyTax(gross);
-    const savings = net - exp;
+    const savings = Math.max(0, net - exp);
     const rate = net > 0 ? (savings / net) * 100 : 0;
 
     let percent = 10;
@@ -132,7 +136,12 @@ export default function Setup() {
 
     setSuggestedPercent(percent);
     setUserPercent(percent);
-  }, [form.grossSalary, form.expenses]);
+
+    // Auto-fill contribution from surplus if user hasn't manually set it
+    if (!contribTouched) {
+      setForm(prev => ({ ...prev, monthlyContribution: String(savings) }));
+    }
+  }, [form.grossSalary, form.expenses, contribTouched]);
 
   // Goal amount — either housePrice (property) or goalAmount (other tracks)
   const rawGoal = selectedTrack === "property"
@@ -176,7 +185,7 @@ export default function Setup() {
 
   // ── Property specific calculations ───────────────────────────────────────────
   const propDeposit        = depositAmount;
-  const propMonthly        = monthlySavings;
+  const propMonthly        = Number(form.monthlyContribution) || monthlySavings;
   const propActualMonths   = propMonthly > 0 && propDeposit > 0 ? Math.ceil(propDeposit / propMonthly) : null;
   const propTarget         = Number(form.propertyTargetMonths) || 0;
   const propRequired       = propTarget > 0 && propDeposit > 0 ? Math.ceil(propDeposit / propTarget) : null;
@@ -291,6 +300,7 @@ export default function Setup() {
       savings: submittedNet - exp,
       breakdown,
       fiveYearGoal:         Number(form.fiveYearGoal) || 0,
+      monthlyContribution:    Number(form.monthlyContribution) || Math.max(0, submittedNet - exp),
       catchupMonthly:         Number(form.catchupMonthly) || 0,
       catchupTargetMonths:    Number(form.catchupTargetMonths) || 0,
       propertyTargetMonths:   Number(form.propertyTargetMonths) || 0,
@@ -312,7 +322,8 @@ export default function Setup() {
   ];
 
   return (
-    <div className="setup-page">
+    <div className="setup-page" style={{ position: "relative" }}>
+      <img src={tree2Img} alt="" style={{ position: "fixed", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", opacity: 0.06, pointerEvents: "none", zIndex: 0 }} />
       <AppNav />
 
       <div className="setup-container">
@@ -405,7 +416,15 @@ export default function Setup() {
                     value={form[goalConfig.field]}
                     onChange={handleChange}
                   />
-                  <span className="goal-hint">{goalConfig.hint}</span>
+                  <span className="goal-hint" style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    {goalConfig.hint}
+                    {selectedTrack === "balanced" && monthlySavings > 0 && !form.goalAmount && (
+                      <button type="button" style={{ background: "none", border: "none", color: "#84a794", fontSize: "0.7rem", cursor: "pointer", padding: 0, textDecoration: "underline" }}
+                        onClick={() => setForm(f => ({ ...f, goalAmount: String(monthlySavings) }))}>
+                        Use surplus R{monthlySavings.toLocaleString("en-ZA")}
+                      </button>
+                    )}
+                  </span>
                   {goalFlash && (
                     <p className="goal-flash-warning">
                       ⚠ Your investment goal exceeds your disposable income of R{disposableIncome.toLocaleString("en-ZA")}. Please enter a lower amount.
@@ -445,12 +464,32 @@ export default function Setup() {
                       value={form.propertyTargetMonths} onChange={handleChange} />
                     <span className="goal-hint">How many months do you want to save your deposit in?</span>
                   </div>
-                  <div className="labelled-input" style={{ background: "rgba(255,255,255,0.02)", borderRadius: 10, padding: "10px 14px", border: "1px solid rgba(255,255,255,0.06)" }}>
-                    <p style={{ margin: 0, fontSize: "0.65rem", color: "#445550", textTransform: "uppercase", letterSpacing: "0.08em" }}>Current monthly surplus</p>
-                    <p style={{ margin: "4px 0 0", fontSize: "1.1rem", fontWeight: 700, color: propMonthly > 0 ? "#84a794" : "#445550" }}>
-                      {propMonthly > 0 ? `R${propMonthly.toLocaleString("en-ZA")}` : "Add salary & expenses"}
-                    </p>
-                    <p style={{ margin: "2px 0 0", fontSize: "0.68rem", color: "#556660" }}>Goes toward deposit each month</p>
+                  <div className="labelled-input">
+                    <label><Target size={12} /> Monthly contribution (R)</label>
+                    <input
+                      type="number"
+                      name="monthlyContribution"
+                      placeholder={monthlySavings > 0 ? monthlySavings : "e.g. 5 000"}
+                      value={form.monthlyContribution}
+                      onChange={(e) => {
+                        setContribTouched(true);
+                        handleChange(e);
+                      }}
+                    />
+                    {monthlySavings > 0 && (
+                      <span className="goal-hint" style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        Suggested: R{monthlySavings.toLocaleString("en-ZA")} (your surplus)
+                        {contribTouched && Number(form.monthlyContribution) !== monthlySavings && (
+                          <button
+                            type="button"
+                            style={{ background: "none", border: "none", color: "#84a794", fontSize: "0.7rem", cursor: "pointer", padding: 0, textDecoration: "underline" }}
+                            onClick={() => { setContribTouched(false); setForm(f => ({ ...f, monthlyContribution: String(monthlySavings) })); }}
+                          >
+                            Use suggestion
+                          </button>
+                        )}
+                      </span>
+                    )}
                   </div>
                 </div>
                 {propertySuggestion && (
@@ -585,7 +624,15 @@ export default function Setup() {
                       value={form.catchupMonthly}
                       onChange={handleChange}
                     />
-                    <span className="goal-hint">How much can you put toward debt each month?</span>
+                    <span className="goal-hint" style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      How much can you put toward debt each month?
+                      {monthlySavings > 0 && !form.catchupMonthly && (
+                        <button type="button" style={{ background: "none", border: "none", color: "#84a794", fontSize: "0.7rem", cursor: "pointer", padding: 0, textDecoration: "underline" }}
+                          onClick={() => setForm(f => ({ ...f, catchupMonthly: String(monthlySavings) }))}>
+                          Use surplus R{monthlySavings.toLocaleString("en-ZA")}
+                        </button>
+                      )}
+                    </span>
                   </div>
                   <div className="labelled-input">
                     <label><Clock size={12} /> Target months to clear debt</label>

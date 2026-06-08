@@ -1,4 +1,5 @@
 import { useState } from "react";
+import rootsImg from "../assets/roots.png";
 import { useUser } from "../context/UserContext";
 import useProgress from "../hooks/useProgress";
 import AppNav from "../components/AppNav";
@@ -506,7 +507,8 @@ export default function BalancedLifestyleTrack() {
         </div>
 
         {/* MILESTONE CHECKLIST */}
-        <div className="track-card">
+        <div className="track-card" style={{ position:"relative", overflow:"hidden" }}>
+          <img src={rootsImg} alt="" style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover", objectPosition:"center 60%", opacity:0.07, pointerEvents:"none", zIndex:0 }} />
           <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16 }}>
             <h3 style={{ margin:0, display:"flex", alignItems:"center", gap:8 }}>
               <ClipboardCheck size={17} color="#84a794" /> Milestone Checklist

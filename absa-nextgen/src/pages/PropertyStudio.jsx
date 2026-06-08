@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { BarChart2, Cpu, HelpCircle } from "lucide-react";
+import growthImg from "../assets/growth.png.gif";
 import SlideIn from "../components/SlideIn";
 import "../styles/simulation.css";
 import "../styles/fiveyear.css";
@@ -283,6 +284,7 @@ The outcome is highly sensitive to interest rates, time horizon, and your income
               setShowPanel(true);
             }}
           >
+            <img src={growthImg} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 30%", opacity: 0.07, pointerEvents: "none", zIndex: 0, borderRadius: 22 }} />
             <div className="hover-preview large">
               <h4 className="sim-section-title">
                 <HelpCircle size={14} /> Understanding the Model
