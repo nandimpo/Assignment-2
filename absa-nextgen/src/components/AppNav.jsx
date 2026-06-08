@@ -9,7 +9,6 @@ const TRACK_ROUTES = {
   balanced:   "/balanced",
   catchup:    "/catchup",
   correction: "/correction",
-  foundation: "/foundation",
 };
 
 export default function AppNav() {
@@ -65,7 +64,7 @@ export default function AppNav() {
 
         <button
           className={
-            ["/strategy", "/property", "/balanced", "/foundation", "/correction", "/catchup", "/tracks"].some(
+            ["/strategy", "/property", "/balanced", "/correction", "/catchup", "/tracks"].some(
               (p) => location.pathname.startsWith(p)
             )
               ? "active"

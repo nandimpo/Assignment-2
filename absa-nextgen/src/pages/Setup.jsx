@@ -44,7 +44,6 @@ export default function Setup() {
     balanced:   { label: "5-year portfolio target (R)",              hint: "What total portfolio value do you want after 5 years?" },
     catchup:    { label: "5-year wealth target after clearing debt (R)", hint: "Once debt-free, how much do you want to have built?" },
     correction: { label: "5-year savings target (R)",                hint: "How much do you want saved after 5 years of correcting habits?" },
-    foundation: { label: "5-year savings goal (R)",                  hint: "What total savings do you want to reach in 5 years?" },
   };
 
   const goalConfig = trackGoalConfig[selectedTrack] || trackGoalConfig.property;
@@ -360,7 +359,7 @@ export default function Setup() {
 
             {/* METRICS */}
             <div className="setup-metrics">
-              <div className="metric-pill">
+              <div className="metric-pill money-glow">
                 <span className="metric-label">Debt-to-income</span>
                 <strong>{debtToIncome}%</strong>
               </div>
@@ -439,13 +438,13 @@ export default function Setup() {
                   <span className="five-year-icon">5</span>
                   <div>
                     <p className="five-year-title">Your 5-year goal</p>
-                    <p className="five-year-hint">{(fiveYearGoalConfig[selectedTrack] || fiveYearGoalConfig.foundation).hint}</p>
+                    <p className="five-year-hint">{(fiveYearGoalConfig[selectedTrack] || fiveYearGoalConfig.balanced).hint}</p>
                   </div>
                 </div>
                 <input
                   type="number"
                   name="fiveYearGoal"
-                  placeholder={(fiveYearGoalConfig[selectedTrack] || fiveYearGoalConfig.foundation).label}
+                  placeholder={(fiveYearGoalConfig[selectedTrack] || fiveYearGoalConfig.balanced).label}
                   value={form.fiveYearGoal}
                   onChange={handleChange}
                   className="five-year-input"
@@ -725,7 +724,7 @@ export default function Setup() {
 
             {/* GOAL CARD — adapts per track */}
             {rawGoal > 0 && (
-              <div className="deposit-card">
+              <div className="deposit-card money-glow">
                 <div className="deposit-header">
                   <p>{goalCardLabel}</p>
                   <span className="badge">Calculated</span>

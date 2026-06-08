@@ -219,7 +219,6 @@ export default function Profile() {
                       balanced: "Balanced Lifestyle",
                       catchup: "Catch-Up Wealth",
                       correction: "Lifestyle Correction",
-                      foundation: "Foundation Builder",
                     }[user?.strategy] || "No strategy"} Track
                   </span>
                 </div>
@@ -345,7 +344,6 @@ export default function Profile() {
                         balanced: "Balanced Lifestyle",
                         catchup: "Catch-Up Wealth",
                         correction: "Lifestyle Correction",
-                        foundation: "Foundation Builder",
                       }[user?.strategy] || "Not selected"}
                     </span>
                   </p>
@@ -460,4 +458,3 @@ export default function Profile() {
     </div>
   );
 }
-

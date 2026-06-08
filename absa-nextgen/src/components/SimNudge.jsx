@@ -8,7 +8,6 @@ export default function SimNudge({ track }) {
     property:   "Run the Property vs Renting Studio — see if buying actually beats renting over your first 5 years.",
     balanced:   "Run the Local vs Offshore Studio — see which allocation grows your portfolio fastest over 5 years.",
     catchup:    "Run the Debt vs Invest Studio — find out whether clearing debt or investing first wins by Year 5.",
-    foundation: "Run the Debt vs Invest Studio — see how tackling debt first changes your 5-year net worth.",
     correction: "Run the Debt vs Invest Studio — model whether paying off debt or investing delivers more by Year 5.",
   };
 

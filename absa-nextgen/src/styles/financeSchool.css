@@ -1,12 +1,32 @@
 .learn-page {
-  background: radial-gradient(circle at top, #0b0f0e, #020202);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(2, 2, 2, 0.74), rgba(2, 2, 2, 0.9) 42%, #020202 100%),
+    radial-gradient(circle at top, rgba(214, 168, 90, 0.2), transparent 32%),
+    url("../assets/soil.png") center top / cover no-repeat fixed,
+    #020202;
   color: white;
   min-height: 100vh;
   padding-top: 90px;
   font-family: "Inter", sans-serif;
 }
 
+.learn-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 50% 18%, rgba(132, 167, 148, 0.12), transparent 34%),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.78), transparent 28%, transparent 72%, rgba(0, 0, 0, 0.78));
+  pointer-events: none;
+}
+
 .learn-container {
+  position: relative;
+  z-index: 1;
   max-width: 1000px;
   margin: 0 auto;
   padding: 24px 20px 40px;

@@ -5,7 +5,6 @@ const TRACK_ROUTES = {
   balanced:   "/balanced",
   catchup:    "/catchup",
   correction: "/correction",
-  foundation: "/foundation",
 };
 
 /**
@@ -23,7 +22,6 @@ function calcMilestoneStatus(user) {
   switch (strategy) {
     case "property":
     case "balanced":
-    case "foundation":
       return {
         emergencyFund: {
           achieved: savings >= expenses * 3,
@@ -124,7 +122,6 @@ export default function useProgress() {
     balanced:   "Balanced Track",
     catchup:    "Catch-Up Track",
     correction: "Lifestyle Correction Track",
-    foundation: "Foundation Track",
   }[user?.strategy] || "your track";
 
   const completed = Object.values(progress).filter(Boolean).length;

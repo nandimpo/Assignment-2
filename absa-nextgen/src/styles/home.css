@@ -164,6 +164,88 @@
   margin: 0;
 }
 
+@keyframes textSprout {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scaleY(0.82);
+    filter: blur(4px);
+  }
+  58% {
+    color: #b2c8bc;
+    text-shadow: 0 0 12px rgba(132, 167, 148, 0.28);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+    filter: blur(0);
+    text-shadow: none;
+  }
+}
+
+@keyframes textRootGlow {
+  0% { background-size: 0% 1px; }
+  100% { background-size: 100% 1px; }
+}
+
+.hero__year-label,
+.hero__year-text,
+.hero__pos-card .hero__card-eyebrow,
+.hero__pos-score,
+.hero__pos-card .hero__card-sub,
+.hero__path-card .hero__card-eyebrow,
+.hero__path-name,
+.hero__path-card .hero__card-sub,
+.hero__progress-pct {
+  transform-origin: bottom left;
+  animation: textSprout 0.72s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.hero__year-text,
+.hero__pos-card .hero__card-sub,
+.hero__path-name,
+.hero__progress-pct {
+  width: fit-content;
+  background-image: linear-gradient(90deg, rgba(214, 168, 90, 0.74), rgba(132, 167, 148, 0.78));
+  background-repeat: no-repeat;
+  background-position: left bottom;
+  background-size: 0% 1px;
+  animation:
+    textSprout 0.72s cubic-bezier(0.22, 1, 0.36, 1) both,
+    textRootGlow 1.05s ease 0.22s both;
+}
+
+.hero__year-label,
+.hero__pos-card .hero__card-eyebrow,
+.hero__path-card .hero__card-eyebrow {
+  animation-delay: 0.08s;
+}
+
+.hero__year-text,
+.hero__pos-score,
+.hero__path-name {
+  animation-delay: 0.2s;
+}
+
+.hero__pos-card .hero__card-sub,
+.hero__path-card .hero__card-sub,
+.hero__progress-pct {
+  animation-delay: 0.34s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__year-label,
+  .hero__year-text,
+  .hero__pos-card .hero__card-eyebrow,
+  .hero__pos-score,
+  .hero__pos-card .hero__card-sub,
+  .hero__path-card .hero__card-eyebrow,
+  .hero__path-name,
+  .hero__path-card .hero__card-sub,
+  .hero__progress-pct {
+    animation: none;
+  }
+}
+
 /* financial position — bottom left */
 .hero__pos-card {
   position: relative;

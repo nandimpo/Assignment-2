@@ -16,8 +16,6 @@ export function getTrackMonthlyAmount(user, trackKey = user?.strategy) {
       return Number(user?.catchupMonthly) || surplus;
     case "correction":
       return Number(user?.goalAmount) || surplus;
-    case "foundation":
-      return Number(user?.monthlyContribution) || surplus;
     default:
       return surplus;
   }

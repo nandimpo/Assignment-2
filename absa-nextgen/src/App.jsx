@@ -23,7 +23,6 @@ import FinanceSchool from "./pages/FinanceSchool";
 import Support from "./pages/Support";
 import BalancedLifestyleTrack from "./pages/BalancedLifestyleTrack";
 import CatchUpTrack from "./pages/CatchUpTrack";
-import FoundationBuilderTrack from "./pages/FoundationBuilderTrack";
 import LifestyleCorrectionTrack from "./pages/LifestyleCorrectionTrack";
 import PropertyStudio from "./pages/PropertyStudio";
 import CarStudio from "./pages/CarStudio";
@@ -137,15 +136,6 @@ export default function App() {
           element={
             <ProtectedRoute>
               <BalancedLifestyleTrack />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/foundation"
-          element={
-            <ProtectedRoute>
-              <FoundationBuilderTrack />
             </ProtectedRoute>
           }
         />

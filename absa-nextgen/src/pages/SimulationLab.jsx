@@ -138,7 +138,7 @@ export default function SimulationLab() {
 
           {simulations.map((sim, index) => {
             const isRecommended = sim.id === userTrack ||
-              (sim.id === "catchup" && ["catchup", "foundation", "correction"].includes(userTrack));
+              (sim.id === "catchup" && ["catchup", "correction"].includes(userTrack));
             const isLeft = index % 2 === 0; // even = text left, gif right
 
             return (

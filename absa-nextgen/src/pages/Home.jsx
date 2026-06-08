@@ -5,7 +5,7 @@ import AppNav from "../components/AppNav";
 import "../styles/home.css";
 import "../styles/fiveyear.css";
 import SlideIn from "../components/SlideIn";
-import { Home as HomeIcon, Scale, Shield, RefreshCw, Building2, TrendingUp, CreditCard, Target, GraduationCap, Sparkles, ChevronRight, ChevronLeft, Sprout } from "lucide-react";
+import { Home as HomeIcon, Scale, RefreshCw, Building2, TrendingUp, CreditCard, Target, GraduationCap, Sparkles, ChevronRight, ChevronLeft, Sprout } from "lucide-react";
 import FlipCard from "../components/FlipCard";
 import Typewriter from "../components/Typewriter";
 import { useUser } from "../context/UserContext";
@@ -40,7 +40,6 @@ export default function Home() {
   const trackNames = {
     property:   "Property Path",
     balanced:   "Balanced Lifestyle",
-    foundation: "Foundation Builder",
     correction: "Lifestyle Correction",
     catchup:    "Catch-Up Wealth",
   };
@@ -56,7 +55,6 @@ export default function Home() {
   const strategyTracks = [
     { id: "property",   Icon: HomeIcon,  name: "First Property Path",            sub: "Save for a home deposit in 3–5 years",         focus: "Saving & Stability" },
     { id: "balanced",   Icon: Scale,     name: "Balanced Lifestyle & Investing", sub: "Maintain your lifestyle while building wealth", focus: "Flexibility & Investing" },
-    { id: "foundation", Icon: Shield,    name: "Foundation Builder",             sub: "Build financial stability from scratch",        focus: "Emergency Funds & Basics" },
     { id: "correction", Icon: RefreshCw, name: "Lifestyle Correction",           sub: "Rebalance spending and reduce debt",            focus: "Behavioural Change" },
   ];
 
@@ -180,15 +178,15 @@ export default function Home() {
 
         {/* ══ ROW A: Stats 3-col ══ */}
         <section className="stats fade-in" id="stats">
-          <div className="stat">
+          <div className="stat money-glow">
             <p>Monthly income</p>
             <h3>R{income.toLocaleString("en-ZA")}</h3>
           </div>
-          <div className="stat">
+          <div className="stat money-glow">
             <p>Fixed Costs</p>
             <h3>R{expenses.toLocaleString("en-ZA")}</h3>
           </div>
-          <div className="stat highlight clickable" onClick={() => navigate("/money")}>
+          <div className="stat highlight clickable money-glow" onClick={() => navigate("/money")}>
             <p>Net Position</p>
             <h3>R{net.toLocaleString("en-ZA")}</h3>
             <span className="view-link">View breakdown →</span>
@@ -197,7 +195,7 @@ export default function Home() {
 
         {/* ══ ROW B: 5-year strip ══ */}
         {net > 0 && (
-          <div className="home-y5-strip fade-in">
+          <div className="home-y5-strip fade-in money-glow">
             <div className="home-y5-left">
               <p className="home-y5-eyebrow">
                 {trackIs === "catchup" ? "Debt Clearance · Catch-Up Wealth" : `5-Year Journey · ${trackNames[user?.strategy] || "Your Track"}`}
@@ -235,7 +233,7 @@ export default function Home() {
 
         {/* ══ ROW B: Goal (left) + Nudge | Tip (right stacked) ══ */}
         <div className="home-goal-row fade-in">
-          <section className="goal-card" id="goal">
+          <section className="goal-card money-glow" id="goal">
             <span className="label">{goalLabel}</span>
             <h3 style={{ fontSize: 20, fontWeight: 700, margin: "3px 0 2px" }}>
               {displayAmount ? `R${Number(displayAmount).toLocaleString("en-ZA")}` : "Not set"}

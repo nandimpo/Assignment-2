@@ -44,14 +44,6 @@ const trackConfig = {
     compute: (monthly, currentSaved, year) =>
       Math.round(currentSaved + monthly * 12 * year),
   },
-  foundation: {
-    yearLabels: ["First R5 000", "Emergency Fund", "3-Month Buffer", "Investing Begins", "Foundation Built"],
-    rate: 0,
-    valueLabel: "saved",
-    verb: "saved as foundation",
-    compute: (monthly, currentSaved, year) =>
-      Math.round(currentSaved + monthly * 12 * year),
-  },
 };
 
 export default function FiveYearJourney({ trackKey, monthlyAmount, currentSaved = 0, fiveYearTarget = 0 }) {

@@ -86,7 +86,7 @@ export default function MonthlySavingsTracker({
           <p className="mst-sub">Log R{monthlyTarget.toLocaleString("en-ZA")}/month toward your {goalLabel}</p>
         </div>
         <div className="mst-totals">
-          <div className="mst-stat">
+          <div className="mst-stat money-glow">
             <span className="mst-stat-label">{verb === "paid" ? "Paid total" : "Saved total"}</span>
             <strong className="mst-stat-value accent">R{totalSaved.toLocaleString("en-ZA")}</strong>
           </div>

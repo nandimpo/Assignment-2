@@ -13,6 +13,42 @@ body {
   cursor: none; /* hide default cursor globally */
 }
 
+.money-glow {
+  position: relative;
+  overflow: hidden;
+  border-color: rgba(178, 200, 188, 0.34) !important;
+  box-shadow:
+    0 0 0 1px rgba(178, 200, 188, 0.04) inset,
+    0 0 14px rgba(132, 167, 148, 0.1),
+    0 10px 24px rgba(0, 0, 0, 0.38) !important;
+}
+
+.money-glow::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: -20px;
+  height: 34px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(214, 168, 90, 0.24), rgba(132, 167, 148, 0.34), rgba(178, 200, 188, 0.18));
+  filter: blur(16px);
+  opacity: 0.62;
+  pointer-events: none;
+}
+
+.money-glow > * {
+  position: relative;
+  z-index: 1;
+}
+
+.money-glow:hover {
+  box-shadow:
+    0 0 0 1px rgba(178, 200, 188, 0.07) inset,
+    0 0 20px rgba(132, 167, 148, 0.15),
+    0 12px 28px rgba(0, 0, 0, 0.44) !important;
+}
+
 /* ROOT FIX */
 #root {
   width: 100%;

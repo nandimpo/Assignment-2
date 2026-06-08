@@ -239,7 +239,7 @@ export default function Landing() {
             <div className="feature-icon"><TreePine size={28} strokeWidth={1.5} color="#84a794" /></div>
             <h3>Growth Paths</h3>
             <p>
-              Choose the track that fits your season — property, foundation,
+              Choose the track that fits your season — property, balanced lifestyle,
               balanced growth, or course correction.
             </p>
             <span className="feature-link">Find your path &rarr;</span>

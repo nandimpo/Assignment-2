@@ -224,6 +224,15 @@ export default function LifestyleCorrectionTrack() {
                     ? `${corrPlanTarget} months is too short — behavioural change takes 12+ months`
                     : "Set a correction target in Setup →"}
                 </p>
+                {!corrPlanTarget && (
+                  <button
+                    className="pill"
+                    style={{ marginTop:8, display:"inline-flex", alignItems:"center", gap:6 }}
+                    onClick={() => navigate("/setup")}
+                  >
+                    Set target in Setup <ArrowRight size={14} />
+                  </button>
+                )}
               </div>
             </div>
           ) : (

@@ -187,6 +187,12 @@
   gap: 2px;
 }
 
+.money-hero__strip-item.money-glow {
+  padding: 10px 14px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+}
+
 .money-hero__strip-label {
   font-size: 10px;
   font-weight: 600;

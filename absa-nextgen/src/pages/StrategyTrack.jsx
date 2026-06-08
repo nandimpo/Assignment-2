@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
 import AppNav from "../components/AppNav";
-import { Home, TrendingUp, Shield, Scale, Zap, ArrowRight, AlertTriangle, CheckCircle, Info } from "lucide-react";
+import { Home, TrendingUp, Scale, Zap, ArrowRight, AlertTriangle, CheckCircle, Info } from "lucide-react";
 import "../styles/simulation.css";
 import SlideIn from "../components/SlideIn";
 import { useEffect, useRef, useState } from "react";
@@ -78,39 +78,6 @@ const tracks = {
     color: "#4facfe",
     colorRgb: "79,172,254",
   },
-  foundation: {
-    name: "Foundation Builder",
-    explanation: "Focus on financial basics — saving, budgeting, and building the habits that all other tracks depend on.",
-    tradeoffs: "Slower progress toward large goals. Building a foundation takes 12–24 months before you can accelerate.",
-    who: "Beginners, inconsistent income, or those with no savings yet.",
-    recommendations: "Build emergency fund first, track all spending, stabilise income before investing.",
-    risks: "Delaying investing too long and missing years of compound growth.",
-    warnings: [
-      "Do not start investing until you have at least 1 month's expenses saved — unexpected costs will force you to sell.",
-      "Tracking spending without acting on it is wasted effort. Review weekly.",
-      "Avoid high-interest debt at all costs. It erases all savings progress.",
-    ],
-    focus: "Emergency Funds & Basics",
-    route: "/foundation",
-    difficulty: "Low",
-    timeHorizon: "1–2 years",
-    stages: ["Track Spending", "First R5,000 Saved", "Emergency Fund", "Begin Investing"],
-    stageHints: [
-      "Know exactly where every rand goes each month",
-      "First meaningful savings milestone built",
-      "3–6 months expenses saved and accessible",
-      "Open a TFSA or unit trust and make first contribution",
-    ],
-    milestoneChecks: [
-      "All income and expenses tracked for 1 full month",
-      "First R5,000 saved in a dedicated account",
-      "Full 3-month emergency fund in place",
-      "First investment contribution made",
-    ],
-    example: "Saving just R1,000/month builds a R12,000 emergency fund in 1 year — protecting you from debt when unexpected costs hit.",
-    color: "#84a794",
-    colorRgb: "132,167,148",
-  },
   correction: {
     name: "Lifestyle Correction",
     explanation: "Fix spending habits and reduce debt. A reset phase — the goal is to reach zero overspend and then build from there.",
@@ -181,12 +148,11 @@ const tracks = {
   },
 };
 
-const trackOrder = ["correction", "foundation", "balanced", "property", "catchup"];
+const trackOrder = ["correction", "balanced", "property", "catchup"];
 
 const icons = {
   property:   <Home size={20} />,
   balanced:   <TrendingUp size={20} />,
-  foundation: <Shield size={20} />,
   correction: <Scale size={20} />,
   catchup:    <Zap size={20} />,
 };
@@ -229,13 +195,13 @@ export default function StrategyTrack() {
     return { done: arr.filter(Boolean).length, total: tracks[trackKey].stages.length };
   };
 
-  const selectedTrack = user?.strategy;
+  const selectedTrack = tracks[user?.strategy] ? user.strategy : null;
 
   // ── Recommendation ──────────────────────────────────────────────────────────
   const getRecommendedTrack = () => {
     if (!user) return null;
     if (user.debt > 0)        return { track: "correction", reason: "You currently have debt. Reducing it should be your first priority." };
-    if (!user.savings || user.savings < 10000) return { track: "foundation", reason: "You don't yet have a strong financial safety net." };
+    if (!user.savings || user.savings < 10000) return { track: "balanced", reason: "You don't yet have a strong financial safety net, so start with a balanced savings plan." };
     if (user.goal === "buy_home") return { track: "property", reason: "You want to buy a home — focusing on a deposit is the smartest move." };
     return { track: "balanced", reason: "You're in a stable position — balancing lifestyle and investing makes sense." };
   };
@@ -283,7 +249,6 @@ export default function StrategyTrack() {
     property:   Math.round(surplus * 0.7 * 60),
     catchup:    compoundFV(surplus * 0.8,  0.10, 5),
     correction: Math.round(surplus * 0.4 * 60),
-    foundation: Math.round(surplus * 0.2 * 60),
   };
 
   // ── Select track ────────────────────────────────────────────────────────────
@@ -362,7 +327,7 @@ export default function StrategyTrack() {
 
             {/* LEFT: current track card */}
             <div className="current-track-hero" id="current-track" style={{ flex: "1 1 280px", margin: 0, position: "relative", overflow: "hidden" }}>
-              <img src={growthImg} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", opacity: 0.08, pointerEvents: "none", zIndex: 0 }} />
+              <img src={growthImg} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", opacity: 0.16, pointerEvents: "none", zIndex: 0 }} />
               <div style={{ position: "relative", zIndex: 1, display: "contents" }}>
               <div className="current-track-left">
                 <div className="current-track-icon">{icons[selectedTrack]}</div>
@@ -387,7 +352,9 @@ export default function StrategyTrack() {
 
             {/* RIGHT: stage progress timeline */}
             {tracks[selectedTrack]?.stages && (
-              <div className="track-card" style={{ flex: "1 1 300px", margin: 0 }}>
+              <div className="track-card strategy-progress-card" style={{ flex: "1 1 300px", margin: 0, position: "relative", overflow: "hidden" }}>
+                <img src={growthImg} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", opacity: 0.13, pointerEvents: "none", zIndex: 0 }} />
+                <div style={{ position: "relative", zIndex: 1 }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
                   <h3 style={{ margin: 0, fontSize: "0.9rem" }}>Your Progress</h3>
                   <span style={{ fontSize: "0.73rem", color: "#84a794", fontWeight: 600 }}>
@@ -439,6 +406,7 @@ export default function StrategyTrack() {
                   <button className="pill outline" style={{ fontSize: "0.68rem", padding: "3px 10px" }} onClick={() => navigate(tracks[selectedTrack].route)}>
                     Continue →
                   </button>
+                </div>
                 </div>
               </div>
             )}

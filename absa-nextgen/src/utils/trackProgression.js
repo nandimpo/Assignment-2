@@ -13,7 +13,7 @@ export function getTrackProgression(user) {
     return {
       track: "correction",
       reason: "You still have outstanding debt.",
-      next: "foundation",
+      next: "balanced",
       message: "Focus on clearing debt before building savings or investing.",
     };
   }
@@ -21,7 +21,7 @@ export function getTrackProgression(user) {
   // 🟡 FOUNDATION STAGE
   if (emergencyFund < expenses * 3) {
     return {
-      track: "foundation",
+      track: "balanced",
       reason: "You don’t yet have a full emergency fund.",
       next: "balanced",
       message:
