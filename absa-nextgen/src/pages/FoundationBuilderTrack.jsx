@@ -4,6 +4,7 @@ import { useUser } from "../context/UserContext";
 import AppNav from "../components/AppNav";
 import "../styles/track.css";
 import useProgress from "../hooks/useProgress";
+import { getTrackMonthlyAmount } from "../utils/trackAmounts";
 import SlideIn from "../components/SlideIn";
 import FiveYearJourney from "../components/FiveYearJourney";
 import SimNudge from "../components/SimNudge";
@@ -63,7 +64,7 @@ export default function FoundationBuilderTrack() {
 
   // ── Plan logic from Setup ────────────────────────────────────────────────────
   const foundGoal5yr    = Number(user?.fiveYearGoal) || 0;
-  const foundMonthly    = savings;
+  const foundMonthly    = getTrackMonthlyAmount(user, "foundation");
   const foundActualMo   = foundMonthly > 0 && emergencyTarget > 0 ? Math.ceil(emergencyTarget / foundMonthly) : null;
   const foundY5Savings  = foundMonthly * 60;
   const foundOnTrack    = foundGoal5yr > 0 ? foundY5Savings >= foundGoal5yr : null;
@@ -176,7 +177,7 @@ export default function FoundationBuilderTrack() {
         {/* ================= 5-YEAR JOURNEY ================= */}
         <FiveYearJourney
           trackKey="foundation"
-          monthlyAmount={savings}
+          monthlyAmount={foundMonthly}
           currentSaved={currentSaved}
           fiveYearTarget={Number(user?.fiveYearGoal) || 0}
         />

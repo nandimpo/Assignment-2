@@ -9,6 +9,13 @@ export default function LandingNav() {
   const transitionTo = useTransitionNavigate();
   const location = useLocation();
   const [activeSection, setActiveSection] = useState("hero");
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const scrollTo = (id) => {
     const el = document.getElementById(id);
@@ -37,7 +44,7 @@ export default function LandingNav() {
   const isRegisterPage = location.pathname === "/register";
 
   return (
-    <nav className="nav">
+    <nav className={`nav${scrolled ? " scrolled" : ""}`}>
       <div className="logo" onClick={() => navigate("/")}>
         <img src={logo} alt="logo" className="logo-img" />
         <span className="logo-text">ABSA Wealth Studio</span>

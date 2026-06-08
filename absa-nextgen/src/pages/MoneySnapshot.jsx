@@ -8,9 +8,12 @@ import Tour from "../components/Tour";
 import { useUser } from "../context/UserContext";
 import { calcMonthlyTax } from "../utils/tax";
 import { Target, GraduationCap } from "lucide-react";
+import FlipCard from "../components/FlipCard";
+import Typewriter from "../components/Typewriter";
 import SlideIn from "../components/SlideIn";
 import soilBg from "../assets/soil.png";
 import sandImg from "../assets/sand.png";
+import { getTrackMonthlyAmount } from "../utils/trackAmounts";
 
 export default function MoneySnapshot() {
   const navigate = useNavigate();
@@ -45,8 +48,18 @@ export default function MoneySnapshot() {
     .filter(e => !e.missed)
     .reduce((sum, e) => sum + (e.amount || 0), 0);
 
-  const goalMonthly = Number(user?.goalAmount) || Math.round(net * 0.2);
-  const goal = user?.depositAmount || user?.goalAmount || goalMonthly * 60 || 600000;
+  const trackStrategy = user?.strategy || "property";
+  const goalMonthly = getTrackMonthlyAmount(user, trackStrategy);
+  const goal =
+    trackStrategy === "property"
+      ? Number(user?.depositAmount || user?.depositGoal) || goalMonthly * 60 || 600000
+      : trackStrategy === "balanced"
+      ? Number(user?.fiveYearGoal) || goalMonthly * 60 || 600000
+      : trackStrategy === "catchup"
+      ? Number(user?.debt || user?.goalAmount) || goalMonthly * 60 || 600000
+      : trackStrategy === "correction"
+      ? (Number(user?.goalAmount) * (Number(user?.correctionTargetMonths) || 12)) || Number(user?.fiveYearGoal) || goalMonthly * 60 || 600000
+      : Number(user?.fiveYearGoal) || goalMonthly * 60 || 600000;
   const fiveYearGoal = Number(user?.fiveYearGoal) || goalMonthly * 60;
 
   const trackGoalValues = {
@@ -66,7 +79,7 @@ export default function MoneySnapshot() {
       current: catchupLogTotal,
       target: goal,
       monthsLabel: (cur, tgt) => {
-        const monthly = Number(user?.catchupMonthly) || net;
+        const monthly = getTrackMonthlyAmount(user, "catchup");
         return tgt > cur && monthly > 0 ? Math.ceil((tgt - cur) / monthly) : 0;
       },
       progressLabel: (cur, tgt) => `R${cur.toLocaleString("en-ZA")} cleared of R${tgt.toLocaleString("en-ZA")} debt`,
@@ -85,12 +98,11 @@ export default function MoneySnapshot() {
     },
   };
 
-  const trackStrategy = user?.strategy || "property";
   const tgv = trackGoalValues[trackStrategy] || trackGoalValues.property;
   const tgvCurrent = tgv.current;
   const tgvTarget = Math.max(tgv.target, 1);
   const tgvProgress = Math.min(100, Math.round((tgvCurrent / tgvTarget) * 100));
-  const tgvMonths = tgv.monthsLabel(tgvCurrent, tgvTarget, net);
+  const tgvMonths = tgv.monthsLabel(tgvCurrent, tgvTarget, goalMonthly);
   const tgvLabel = tgv.progressLabel(tgvCurrent, tgvTarget);
 
   const [showPanel, setShowPanel] = useState(false);
@@ -467,29 +479,54 @@ export default function MoneySnapshot() {
               </div>
             </div>
 
-            <div className="card" style={{ position: "relative", overflow: "hidden" }}>
-              <img src={sandImg} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", opacity: 0.07, pointerEvents: "none", zIndex: 0 }} />
-              <div style={{ position: "relative", zIndex: 1 }}>
-                <h3>Ground Truth</h3>
-                <p className="small" style={{ marginTop: 6, lineHeight: 1.7 }}>{narrative}</p>
-                <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid rgba(178,200,188,0.08)" }}>
-                  <p className="label" style={{ display: "flex", alignItems: "center", gap: 5 }}><Target size={12} /> Next Growth Step</p>
-                  <p className="accent" style={{ marginTop: 4, fontSize: 13, fontWeight: 600 }}>{nextAction}</p>
-                  <p className="small" style={{ marginTop: 6, lineHeight: 1.6, color: "#c8d8d4" }}>{nextHow}</p>
-                  <p className="small" style={{ marginTop: 8 }}>Path: <span className="accent">{track}</span></p>
+            <FlipCard
+              className="sim-card-flip"
+              front={
+                <div className="card" style={{ position: "relative", overflow: "hidden" }}>
+                  <img src={sandImg} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", opacity: 0.07, pointerEvents: "none", zIndex: 0 }} />
+                  <div style={{ position: "relative", zIndex: 1 }}>
+                    <h3>Ground Truth</h3>
+                    <p className="small" style={{ marginTop: 6, lineHeight: 1.7 }}>{narrative}</p>
+                    <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid rgba(178,200,188,0.08)" }}>
+                      <p className="label" style={{ display: "flex", alignItems: "center", gap: 5 }}><Target size={12} /> Next Growth Step</p>
+                      <p className="accent" style={{ marginTop: 4, fontSize: 13, fontWeight: 600 }}>{nextAction}</p>
+                      <p className="small" style={{ marginTop: 6, lineHeight: 1.6, color: "#c8d8d4" }}>{nextHow}</p>
+                      <p className="small" style={{ marginTop: 8 }}>Path: <span className="accent">{track}</span></p>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
+              }
+              back={
+                <>
+                  <span className="flip-back-label">Next Growth Step</span>
+                  <span className="flip-back-count" style={{ fontSize: 20, color: "rgba(132,167,148,0.6)" }}>{nextAction}</span>
+                  <span className="flip-back-sub">Path: {track}</span>
+                </>
+              }
+            />
 
-            <div className="card" id="insights">
-              <h3>Growth Intelligence</h3>
-              {aiInsights.map((insight, i) => (
-                <div className="insight" key={i}>
-                  <p>{insight.text}</p>
-                  {insight.action && <button onClick={insight.action}>{insight.actionLabel}</button>}
-                </div>
-              ))}
-            </div>
+            <FlipCard
+              className="card-flip"
+              id="insights"
+              front={
+                <>
+                  <h3>Growth Intelligence</h3>
+                  {aiInsights.map((insight, i) => (
+                    <div className="insight" key={i}>
+                      <Typewriter text={insight.text} speed={14} delay={i * 200} />
+                      {insight.action && <button onClick={insight.action}>{insight.actionLabel}</button>}
+                    </div>
+                  ))}
+                </>
+              }
+              back={
+                <>
+                  <span className="flip-back-label">Growth Intelligence</span>
+                  <span className="flip-back-count">{aiInsights.length}</span>
+                  <span className="flip-back-sub">personalised insights based on your financial profile</span>
+                </>
+              }
+            />
           </div>
 
           {/* RIGHT — progress & tracking */}

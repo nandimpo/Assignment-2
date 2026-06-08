@@ -11,6 +11,7 @@ import { TrendingUp, AlertTriangle, BookOpen, ChevronDown, ClipboardCheck, Check
          Shield, Target, RefreshCw, Rocket, Info, CheckCircle2, Zap, Lightbulb,
          Scale, TriangleAlert, ArrowRight, Minus } from "lucide-react";
 import MonthlySavingsTracker from "../components/MonthlySavingsTracker";
+import { getTrackMonthlyAmount } from "../utils/trackAmounts";
 
 /* ─── Stage Timeline ──────────────────────────────────────────────────────── */
 const STAGES = [
@@ -145,7 +146,7 @@ export default function CatchUpTrack() {
   const savings    = income - expenses;
   const savingsRate = income > 0 ? Math.round((savings / income) * 100) : 0;
   const catchDebt  = Number(user?.debt || user?.goalAmount) || 0;
-  const catchMonthly = Number(user?.catchupMonthly) || savings;
+  const catchMonthly = getTrackMonthlyAmount(user, "catchup");
 
   return (
     <div className="track-page">
@@ -181,7 +182,7 @@ export default function CatchUpTrack() {
         {/* ── TOP 2-COL: YOUR PLAN + STAGE TIMELINE ── */}
         {(() => {
           const debt      = Number(user?.debt || user?.goalAmount) || 0;
-          const monthly   = Number(user?.catchupMonthly) || 0;
+          const monthly   = getTrackMonthlyAmount(user, "catchup");
           const target    = Number(user?.catchupTargetMonths) || 0;
           const actual    = monthly > 0 && debt > 0 ? Math.ceil(debt / monthly) : null;
           const required  = target > 0 && debt > 0 ? Math.ceil(debt / target) : null;
@@ -304,7 +305,7 @@ export default function CatchUpTrack() {
         {/* ================= MONTHLY PAYMENT TRACKER ================= */}
         {(() => {
           const debt    = Number(user?.debt || user?.goalAmount) || 0;
-          const monthly = Number(user?.catchupMonthly) || savings;
+          const monthly = getTrackMonthlyAmount(user, "catchup");
           if (!monthly) return null;
           return (
             <MonthlySavingsTracker
@@ -321,7 +322,7 @@ export default function CatchUpTrack() {
         {/* ================= 5-YEAR JOURNEY ================= */}
         {(() => {
           const debt    = Number(user?.debt || user?.goalAmount) || 0;
-          const monthly = Number(user?.catchupMonthly) || savings;
+          const monthly = getTrackMonthlyAmount(user, "catchup");
           return (
             <FiveYearJourney
               trackKey="catchup"
@@ -514,7 +515,7 @@ export default function CatchUpTrack() {
               </button>
               {openCards.engine && (() => {
                 const debt    = Number(user?.debt || user?.goalAmount) || 0;
-                const base    = Number(user?.catchupMonthly) || savings;
+                const base    = getTrackMonthlyAmount(user, "catchup");
                 const total   = base + extraSaving;
                 const months  = total > 0 && debt > 0 ? Math.ceil(debt / total) : null;
                 const saving  = base > 0 && debt > 0 ? Math.ceil(debt / base) - (months || 0) : 0;

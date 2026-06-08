@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import rootsImg from "../assets/roots.png";
 import AppNav from "../components/AppNav";
 import "../styles/track.css";
@@ -7,6 +8,7 @@ import FiveYearJourney from "../components/FiveYearJourney";
 import SimNudge from "../components/SimNudge";
 import { useUser } from "../context/UserContext";
 import useProgress from "../hooks/useProgress";
+import { getTrackMonthlyAmount } from "../utils/trackAmounts";
 import {
   RefreshCw, AlertTriangle, BookOpen, ChevronDown, ClipboardCheck, Check,
   Shield, Target, Rocket, Info, ArrowRight, Minus, Scale, TriangleAlert,
@@ -98,6 +100,7 @@ const MILESTONES_DETAIL = [
 ];
 
 export default function LifestyleCorrectionTrack() {
+  const navigate = useNavigate();
   const { user } = useUser();
 
   const [expenseCut, setExpenseCut]   = useState(0);
@@ -142,6 +145,7 @@ export default function LifestyleCorrectionTrack() {
   const savingsRate = income > 0 ? Math.round((savings / income) * 100) : 0;
 
   const corrOverspend    = Number(user?.goalAmount) || 0;
+  const corrMonthly      = getTrackMonthlyAmount(user, "correction");
   const corrPlanTarget   = Number(user?.correctionTargetMonths) || 0;
   const corrAnnualSaving = corrOverspend * 12;
   const corrTotalReclaim = corrOverspend * corrPlanTarget;
@@ -226,7 +230,8 @@ export default function LifestyleCorrectionTrack() {
             <div className="track-card" style={{ display:"flex", flexDirection:"column", gap:10, justifyContent:"center" }}>
               <p style={{ margin:0, fontSize:"0.6rem", fontWeight:700, color:"#445550", textTransform:"uppercase", letterSpacing:"0.12em" }}>Your Plan</p>
               <p style={{ margin:0, fontSize:"0.88rem", color:"#667c74" }}>No correction target set yet.</p>
-              <p style={{ margin:0, fontSize:"0.76rem", color:"#556660" }}>Go to Setup → enter your monthly overspend amount to unlock your personalised plan.</p>
+              <p style={{ margin:0, fontSize:"0.76rem", color:"#556660" }}>Enter your monthly overspend amount to unlock your personalised plan.</p>
+              <button className="pill" style={{ marginTop:4, alignSelf:"flex-start" }} onClick={() => navigate("/setup")}>Go to Setup →</button>
             </div>
           )}
 
@@ -351,7 +356,7 @@ export default function LifestyleCorrectionTrack() {
         {/* ── 5-YEAR JOURNEY ── */}
         <FiveYearJourney
           trackKey="correction"
-          monthlyAmount={savings}
+          monthlyAmount={corrMonthly}
           currentSaved={Number(user?.savings) || 0}
           fiveYearTarget={Number(user?.fiveYearGoal) || 0}
         />

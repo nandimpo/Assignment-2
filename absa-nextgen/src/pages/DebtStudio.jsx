@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { BarChart2, Cpu, HelpCircle } from "lucide-react";
 import growthImg from "../assets/growth.png.gif";
 import AppNav from "../components/AppNav";
+import FlipCard from "../components/FlipCard";
+import Typewriter from "../components/Typewriter";
 import SlideIn from "../components/SlideIn";
 import YearFiveCallout from "../components/YearFiveCallout";
 import ExplainerPanel from "../components/ExplainerPanel";
@@ -236,7 +238,7 @@ Net worth = portfolio value minus remaining debt at each point in time. The winn
           >
             <div className="hover-preview large">
               <h4 className="sim-section-title"><BarChart2 size={14} /> AI Financial Verdict</h4>
-              <p>{verdict}</p>
+              <Typewriter text={verdict} speed={14} />
               <span>Click to explore in full →</span>
             </div>
             <h3 className="sim-section-title"><BarChart2 size={16} /> AI Financial Verdict</h3>
@@ -244,12 +246,24 @@ Net worth = portfolio value minus remaining debt at each point in time. The winn
           </div>
 
           {/* INSIGHTS */}
-          <div className="sim-card">
-            <h3 className="sim-section-title"><Cpu size={16} /> Smart Insights</h3>
-            {insights.map((item, i) => (
-              <div key={i} className="insight"><p>{item}</p></div>
-            ))}
-          </div>
+          <FlipCard
+            className="sim-card-flip"
+            front={
+              <div className="sim-card">
+                <h3 className="sim-section-title"><Cpu size={16} /> Smart Insights</h3>
+                {insights.map((item, i) => (
+                  <div key={i} className="insight"><Typewriter text={item} speed={14} delay={i * 180} /></div>
+                ))}
+              </div>
+            }
+            back={
+              <>
+                <span className="flip-back-label">Smart Insights</span>
+                <span className="flip-back-count">{insights.length}</span>
+                <span className="flip-back-sub">AI-generated insights on your debt strategy</span>
+              </>
+            }
+          />
 
           {/* EXPLAINER */}
           <div

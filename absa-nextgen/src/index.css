@@ -242,10 +242,9 @@ body {
 .custom-cursor.cursor--hover {
   width: 64px;
   height: 64px;
-  background: rgba(178, 200, 188, 0.15);
+  background: rgba(178, 200, 188, 0.1);
   border: 1.5px solid rgba(178, 200, 188, 0.6);
   animation: none; /* stop pulse when expanded */
-  backdrop-filter: blur(2px);
 }
 
 .custom-cursor::after {
@@ -271,4 +270,129 @@ body {
 @keyframes cursorRing {
   0%, 100% { transform: scale(1);   opacity: 0.4; }
   50%       { transform: scale(1.8); opacity: 0;   }
+}
+
+/* ================= TYPEWRITER ================= */
+.typewriter {
+  display: inline;
+}
+
+.typewriter-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 0.9em;
+  background: #84a794;
+  margin-left: 2px;
+  vertical-align: middle;
+  border-radius: 1px;
+  animation: tw-blink 0.75s step-end infinite;
+}
+
+@keyframes tw-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* ================= FLIP CARD ================= */
+.flip-card {
+  perspective: 1000px;
+}
+
+.flip-card-inner {
+  display: grid;
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(0.4, 0.2, 0.2, 1);
+}
+
+.flip-card:hover .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front,
+.flip-card-back {
+  grid-area: 1 / 1;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.flip-card-back {
+  transform: rotateY(180deg);
+}
+
+/* Container card flip (wraps entire insight/tips cards) */
+.flip-card.card-flip .flip-card-front {
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #0d1412, #111817);
+  border: 1px solid rgba(178, 200, 188, 0.09);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.flip-card.card-flip .flip-card-back {
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: linear-gradient(145deg, rgba(132, 167, 148, 0.1), #0d1412);
+  border: 1px solid rgba(132, 167, 148, 0.2);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.flip-card.card-flip .flip-card-back .flip-back-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #84a794;
+}
+
+.flip-card.card-flip .flip-card-back .flip-back-count {
+  font-size: 36px;
+  font-weight: 800;
+  color: rgba(132, 167, 148, 0.3);
+  line-height: 1;
+}
+
+.flip-card.card-flip .flip-card-back .flip-back-sub {
+  font-size: 11px;
+  color: #6a8a7a;
+  line-height: 1.5;
+}
+
+/* sim-card-flip: outer wrapper only provides perspective; front keeps sim-card class */
+.flip-card.sim-card-flip .flip-card-back {
+  background: linear-gradient(145deg, rgba(132, 167, 148, 0.08), #0c1110);
+  border: 1px solid rgba(132, 167, 148, 0.2);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.flip-card.sim-card-flip .flip-card-back .flip-back-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #84a794;
+}
+
+.flip-card.sim-card-flip .flip-card-back .flip-back-count {
+  font-size: 48px;
+  font-weight: 800;
+  color: rgba(132, 167, 148, 0.25);
+  line-height: 1;
+}
+
+.flip-card.sim-card-flip .flip-card-back .flip-back-sub {
+  font-size: 11px;
+  color: #6a8a7a;
+  line-height: 1.5;
 }

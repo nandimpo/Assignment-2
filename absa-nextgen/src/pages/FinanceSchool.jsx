@@ -334,6 +334,7 @@ export default function FinanceSchool() {
   const [feedbackVisible, setFeedbackVisible] = useState(false);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [showLevelUp,   setShowLevelUp]   = useState(false);
+  const [levelUpPending, setLevelUpPending] = useState(false);
   const [activeTab,     setActiveTab]     = useState(0);
 
   const feedbackTimer = useRef(null);
@@ -390,6 +391,8 @@ export default function FinanceSchool() {
     setSelected(null);
     setFeedback(null);
     setFeedbackVisible(false);
+    setShowLevelUp(false);
+    setLevelUpPending(false);
     setQuestionIndex(0);
   };
 
@@ -405,15 +408,27 @@ export default function FinanceSchool() {
     }
   };
 
+  const chooseAnswer = (index) => {
+    if (feedback === "correct") return;
+    if (feedback === "wrong") {
+      clearTimeout(feedbackTimer.current);
+      setFeedback(null);
+      setFeedbackVisible(false);
+    }
+    setSelected(index);
+  };
+
   const submitAnswer = () => {
     if (selected === null) return;
     const currentQ = activeLesson.quiz[questionIndex];
     if (selected === currentQ.answer) {
       showFeedback("correct");
       const updated = { ...learning, xp: learning.xp + 50 };
+      let didLevelUp = false;
       if (updated.xp >= updated.level * 100) {
         updated.level += 1;
-        setTimeout(() => setShowLevelUp(true), 800);
+        didLevelUp = true;
+        setLevelUpPending(true);
       }
       saveLearning(updated);
       confetti({ particleCount: 80, spread: 60 });
@@ -431,6 +446,15 @@ export default function FinanceSchool() {
           saveLearning(finalUpdated);
           setView("path");
           setActiveLesson(null);
+          setFeedback(null);
+          setFeedbackVisible(false);
+          setSelected(null);
+          if (didLevelUp || levelUpPending) {
+            setTimeout(() => {
+              setShowLevelUp(true);
+              setLevelUpPending(false);
+            }, 250);
+          }
         }
       }, 1800);
     } else {
@@ -633,7 +657,15 @@ export default function FinanceSchool() {
                   <div
                     key={i}
                     className={`option ${state}`}
-                    onClick={() => !feedback && setSelected(i)}
+                    role="button"
+                    tabIndex={feedback === "correct" ? -1 : 0}
+                    onClick={() => chooseAnswer(i)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        chooseAnswer(i);
+                      }
+                    }}
                   >
                     {opt}
                   </div>
@@ -661,7 +693,7 @@ export default function FinanceSchool() {
               )}
             </div>
 
-            {!feedback && (
+            {feedback !== "correct" && (
               <button className="pill" onClick={submitAnswer}>Submit</button>
             )}
 
@@ -672,7 +704,7 @@ export default function FinanceSchool() {
         )}
 
         {/* LEVEL UP OVERLAY */}
-        {showLevelUp && (
+        {showLevelUp && view !== "quiz" && (
           <div className="level-overlay">
             <div className="level-popup">
               <p className="level-emoji">🎉</p>

@@ -125,8 +125,14 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 20px;
-  background: rgba(214, 168, 90, 0.06);
-  border: 1px solid rgba(214, 168, 90, 0.2);
+  border: 1px solid transparent;
+  background:
+    linear-gradient(145deg, rgba(18, 27, 22, 0.96), rgba(8, 14, 12, 0.94)) padding-box,
+    linear-gradient(155deg, rgba(214,168,90,0.72), rgba(132,167,148,0.44), rgba(132,167,148,0.1)) border-box;
+  box-shadow:
+    0 0 24px rgba(214, 168, 90, 0.12),
+    0 0 50px rgba(132, 167, 148, 0.06),
+    0 4px 16px rgba(0,0,0,0.35);
   border-radius: 14px;
   padding: 20px 24px;
   flex-wrap: wrap;
@@ -142,8 +148,10 @@
   font-size: 0.65rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #d6a85a;
+  color: #e3bd73;
   margin: 0;
+  font-weight: 800;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
 }
 
 .fy-outcome-number {
@@ -152,12 +160,15 @@
   color: #f4f6fc;
   margin: 0;
   line-height: 1;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.75);
 }
 
 .fy-outcome-sub {
   font-size: 0.8rem;
-  color: #8a9a96;
+  color: #c5d8d0;
   margin: 0;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
 }
 
 .fy-outcome-right {
@@ -174,9 +185,10 @@
 }
 
 .fy-badge--good {
-  background: rgba(132, 167, 148, 0.12);
-  border: 1px solid rgba(132, 167, 148, 0.3);
-  color: #84a794;
+  background: rgba(132, 167, 148, 0.16);
+  border: 1px solid rgba(178, 200, 188, 0.34);
+  color: #b8d3c6;
+  font-weight: 700;
 }
 
 .fy-badge--gap {
@@ -408,8 +420,14 @@
 
 /* ── YEAR 5 CALLOUT (studios) ── */
 .y5-callout {
-  background: rgba(214, 168, 90, 0.06);
-  border: 1px solid rgba(214, 168, 90, 0.25);
+  border: 1px solid transparent;
+  background:
+    linear-gradient(145deg, rgba(214,168,90,0.06), rgba(11,15,14,0.85)) padding-box,
+    linear-gradient(155deg, #D6A85A 0%, #84A794 50%, rgba(132,167,148,0.08) 100%) border-box;
+  box-shadow:
+    0 0 24px rgba(214, 168, 90, 0.12),
+    0 0 50px rgba(132, 167, 148, 0.06),
+    0 4px 16px rgba(0,0,0,0.35);
   border-radius: 14px;
   padding: 18px 22px;
   display: flex;

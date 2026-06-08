@@ -5,6 +5,8 @@ import "../styles/profile.css";
 import { useUser } from "../context/UserContext";
 import SlideIn from "../components/SlideIn";
 import tree2Img from "../assets/tree2.png";
+import FlipCard from "../components/FlipCard";
+import "../styles/money.css";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -222,7 +224,7 @@ export default function Profile() {
                   </span>
                 </div>
 
-                <button onClick={() => navigate("/setup")}>Edit</button>
+                <button onClick={() => navigate("/setup")} className="pill">Edit Setup →</button>
 
                 <button
                   onClick={handleLogout}
@@ -325,41 +327,62 @@ export default function Profile() {
 
           {/* RIGHT */}
           <div className="profile-side" id="insights">
-            <div className="card glass">
-              <h3>Insights</h3>
-              <p>
-                {savingsRate > 25
-                  ? "You're in a strong financial position"
-                  : "Increase your savings to improve your position"}
-              </p>
-              <p>
-                Strategy:{" "}
-                <span className="accent">
-                  {{
-                    property: "First Property",
-                    balanced: "Balanced Lifestyle",
-                    catchup: "Catch-Up Wealth",
-                    correction: "Lifestyle Correction",
-                    foundation: "Foundation Builder",
-                  }[user?.strategy] || "Not selected"}
-                </span>
-              </p>
-              <button onClick={() => navigate("/learn")} className="pill">
-                Go to Finance School →
-              </button>
-            </div>
+            <FlipCard
+              className="sim-card-flip"
+              front={
+                <div className="card glass">
+                  <h3>Insights</h3>
+                  <p>
+                    {savingsRate > 25
+                      ? "You're in a strong financial position"
+                      : "Increase your savings to improve your position"}
+                  </p>
+                  <p>
+                    Strategy:{" "}
+                    <span className="accent">
+                      {{
+                        property: "First Property",
+                        balanced: "Balanced Lifestyle",
+                        catchup: "Catch-Up Wealth",
+                        correction: "Lifestyle Correction",
+                        foundation: "Foundation Builder",
+                      }[user?.strategy] || "Not selected"}
+                    </span>
+                  </p>
+                  <button onClick={() => navigate("/learn")} className="pill">
+                    Go to Finance School →
+                  </button>
+                </div>
+              }
+              back={
+                <>
+                  <span className="flip-back-label">Insights</span>
+                  <span className="flip-back-count">{savingsRate.toFixed(0)}%</span>
+                  <span className="flip-back-sub">{savingsRate > 25 ? "On track for your goals" : "Aim for 25%+ to accelerate growth"}</span>
+                </>
+              }
+            />
 
-            <div className="card glass" id="next-actions">
-              <h3>Next Actions</h3>
-              <p>Update financial details</p>
-              <p>Run simulation</p>
-              <div className="side-actions">
-                <button onClick={() => navigate("/setup")}>Edit</button>
-                <button onClick={() => navigate("/simulation")}>
-                  Simulate
-                </button>
-              </div>
-            </div>
+            <FlipCard
+              className="sim-card-flip"
+              front={
+                <div className="card glass">
+                  <h3>Next Actions</h3>
+                  <p>Update financial details</p>
+                  <p>Run simulation</p>
+                  <div className="side-actions">
+                    <button onClick={() => navigate("/setup")}>Edit</button>
+                    <button onClick={() => navigate("/simulation")}>Simulate</button>
+                  </div>
+                </div>
+              }
+              back={
+                <>
+                  <span className="flip-back-label">Next Actions</span>
+                  <span className="flip-back-sub">Keep your profile current to get accurate projections and personalised insights.</span>
+                </>
+              }
+            />
           </div>
         </div>
       </div>

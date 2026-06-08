@@ -144,8 +144,8 @@
 }
 
 .metric-pill {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(132, 167, 148, 0.12);
+  background: rgba(10, 18, 16, 0.78);
+  border: 1px solid rgba(132, 167, 148, 0.22);
   border-radius: 10px;
   padding: 10px 12px;
   display: flex;
@@ -154,15 +154,16 @@
 }
 
 .metric-label {
-  font-size: 9px;
-  color: #556660;
+  font-size: 10px;
+  color: #b8cec5;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  font-weight: 800;
 }
 
 .metric-pill strong {
-  font-size: 15px;
-  color: #84a794;
+  font-size: 16px;
+  color: #f4f6fc;
   font-weight: 700;
 }
 

@@ -20,6 +20,7 @@ const MILESTONES_DETAIL = [
 import MonthlySavingsTracker from "../components/MonthlySavingsTracker";
 import FiveYearJourney from "../components/FiveYearJourney";
 import SlideIn from "../components/SlideIn";
+import { getTrackMonthlyAmount } from "../utils/trackAmounts";
 
 // ── All explainer content for this track ──
 const EXPLAINERS = {
@@ -106,7 +107,7 @@ export default function BalancedLifestyleTrack() {
   const expenses = Number(user?.expenses) || 0;
   const surplus  = Math.max(0, income - expenses);
 
-  const goalMonthly = Number(user?.goalAmount) || Math.round(surplus * 0.2);
+  const goalMonthly = getTrackMonthlyAmount(user, "balanced");
 
   const setupPct = surplus > 0 ? Math.round((goalMonthly / surplus) * 100) : 20;
   const [investmentPct, setInvestmentPct] = useState(Math.min(90, Math.max(10, setupPct)));

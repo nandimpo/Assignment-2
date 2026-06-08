@@ -8,6 +8,7 @@ import debtSim from "../assets/debt-sim.gif";
 import AppNav from "../components/AppNav";
 import SlideIn from "../components/SlideIn";
 import { useUser } from "../context/UserContext";
+import { getTrackMonthlyAmount } from "../utils/trackAmounts";
 import "../styles/simulation.css";
 import "../styles/fiveyear.css";
 
@@ -16,8 +17,7 @@ export default function SimulationLab() {
   const { user }   = useUser();
   const userTrack  = user?.strategy || "property";
 
-  const monthlyNet     = Math.max((Number(user?.netSalary || user?.salary) || 0) - (Number(user?.expenses) || 0), 0);
-  const monthlyInvest  = Math.round(monthlyNet * 0.2);
+  const monthlyInvest  = getTrackMonthlyAmount(user, userTrack);
   const r              = 0.10 / 12;
   const year5Portfolio = monthlyInvest > 0
     ? Math.round((Number(user?.savings) || 0) + monthlyInvest * ((Math.pow(1 + r, 60) - 1) / r))
@@ -62,7 +62,6 @@ export default function SimulationLab() {
       id:          "property",
       step:        "Studio 01",
       title:       "Property vs Renting",
-      description: "Traditional HVAC forces your compressor and coils to cool humid air, wasting massive energy.",
       description: "Your landlord is building equity. You're not. But is buying always the right move in your first 5 years?",
       detail:      "Model a R1.8M bond vs R12,000/month rent. See total cost, interest paid, and the equity you'd build — side by side over 5 years.",
       route:       "/simulation/property",

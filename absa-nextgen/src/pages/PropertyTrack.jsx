@@ -6,7 +6,10 @@ import "../styles/track.css";
 import ExplainerPanel from "../components/ExplainerPanel";
 import SlideIn from "../components/SlideIn";
 import { useUser } from "../context/UserContext";
+import FlipCard from "../components/FlipCard";
+import Typewriter from "../components/Typewriter";
 import useProgress from "../hooks/useProgress";
+import { getTrackMonthlyAmount } from "../utils/trackAmounts";
 import {
   Target, TrendingUp, AlertTriangle, BookOpen, Lightbulb,
   FileText, GraduationCap, Check, ChevronDown, Home, Shield,
@@ -106,7 +109,7 @@ export default function PropertyTrack() {
 
   const confirmSaved = (amount) => {
     if (alreadyLogged) return;
-    const amt    = amount ?? savings;
+    const amt    = amount ?? monthlyContribution;
     const newLog = [...log, { month: thisMonth, amount: Number(amt), missed: false }];
     updateUser({ savingsLog: newLog });
     setShowRecovery(false);
@@ -150,6 +153,7 @@ export default function PropertyTrack() {
   const income      = Number(user?.netSalary || user?.salary) || 0;
   const expenses    = Number(user?.expenses) || 0;
   const savings     = Math.max(income - expenses, 0);
+  const monthlyContribution = getTrackMonthlyAmount(user, "property");
   const housePrice  = Number(user?.housePrice) || 1000000;
   const goal        = Number(user?.depositAmount) || Number(user?.depositGoal) || Math.round(housePrice * 0.1);
   const savingsRate = income > 0 ? Math.round((savings / income) * 100) : 0;
@@ -168,10 +172,10 @@ export default function PropertyTrack() {
 
   // ── Plan logic from Setup ─────────────────────────────────────────────────
   const planTarget     = Number(user?.propertyTargetMonths) || 0;
-  const actualMonths   = savings > 0 && goal > 0 ? Math.ceil(goal / savings) : null;
+  const actualMonths   = monthlyContribution > 0 && goal > 0 ? Math.ceil(goal / monthlyContribution) : null;
   const planOnTrack    = actualMonths !== null && planTarget > 0 ? actualMonths <= planTarget : null;
   const planRequired   = planTarget > 0 && goal > 0 ? Math.ceil(goal / planTarget) : null;
-  const planShortfall  = planRequired && savings ? Math.max(0, planRequired - savings) : 0;
+  const planShortfall  = planRequired && monthlyContribution ? Math.max(0, planRequired - monthlyContribution) : 0;
   const planAhead      = planOnTrack === true && planTarget > 0 ? planTarget - actualMonths : 0;
 
   const insights = [];
@@ -220,7 +224,7 @@ export default function PropertyTrack() {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
               {[
                 { label: "Deposit Target",   value: `R${goal.toLocaleString("en-ZA")}`,                              color: "#d6a85a" },
-                { label: "Monthly Surplus",  value: `R${savings.toLocaleString("en-ZA")}`,                           color: "#84a794" },
+                { label: "Monthly Contribution",  value: `R${monthlyContribution.toLocaleString("en-ZA")}`,           color: "#84a794" },
                 { label: "Months to Goal",   value: actualMonths ? `${actualMonths} mo` : "—",                       color: "#4facfe" },
                 { label: "Your Target",      value: planTarget ? `${planTarget} mo` : "Not set",                     color: planOnTrack === true ? "#84a794" : planOnTrack === false ? "#ff9898" : "#445550" },
               ].map(({ label, value, color }, i) => (
@@ -239,11 +243,11 @@ export default function PropertyTrack() {
                   {planOnTrack === true ? `On track — ${planAhead} months ahead of your target!`
                     : planOnTrack === false ? `Shortfall: need R${planShortfall.toLocaleString("en-ZA")} more/month to hit ${planTarget}-month target`
                     : planTarget === 0 ? <span onClick={() => navigate("/setup")} style={{ cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3 }}>Set a deposit target in Setup to track your progress</span>
-                    : `At R${savings.toLocaleString("en-ZA")}/month you'll reach your deposit in ${actualMonths} months`}
+                    : `At R${monthlyContribution.toLocaleString("en-ZA")}/month you'll reach your deposit in ${actualMonths} months`}
                 </p>
                 {planOnTrack === false && planRequired && (
                   <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
-                    {[["Saving now", `R${savings.toLocaleString("en-ZA")}/mo`, "#d6a85a"], ["Need", `R${planRequired.toLocaleString("en-ZA")}/mo`, "#4facfe"], ["Gap", `R${planShortfall.toLocaleString("en-ZA")}/mo`, "#ff9898"]].map(([l, v, c]) => (
+                    {[["Saving now", `R${monthlyContribution.toLocaleString("en-ZA")}/mo`, "#d6a85a"], ["Need", `R${planRequired.toLocaleString("en-ZA")}/mo`, "#4facfe"], ["Gap", `R${planShortfall.toLocaleString("en-ZA")}/mo`, "#ff9898"]].map(([l, v, c]) => (
                       <div key={l} style={{ background: "rgba(255,255,255,0.04)", borderRadius: 7, padding: "4px 10px" }}>
                         <p style={{ margin: 0, fontSize: "0.6rem", color: "#445550", textTransform: "uppercase" }}>{l}</p>
                         <p style={{ margin: 0, fontSize: "0.78rem", fontWeight: 700, color: c }}>{v}</p>
@@ -259,7 +263,7 @@ export default function PropertyTrack() {
         {/* 1 ── 5-YEAR JOURNEY ── hero visual at the top */}
         <FiveYearJourney
           trackKey="property"
-          monthlyAmount={savings}
+          monthlyAmount={monthlyContribution}
           currentSaved={savingsLogTotal}
           fiveYearTarget={Number(user?.fiveYearGoal) || Number(user?.depositAmount) || 0}
         />
@@ -532,16 +536,29 @@ export default function PropertyTrack() {
             </div>
           </div>
 
-          <div className="track-card" id="insights" style={{ flex: 1 }}>
-            <h3 style={{ fontSize: "0.9rem", display: "flex", alignItems: "center", gap: 7, marginBottom: 12 }}>
-              <Lightbulb size={15} /> AI Insights
-            </h3>
-            <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
-              {insights.map((item, i) => (
-                <div key={i} className="insight" style={{ padding: "8px 12px" }}><p style={{ fontSize: "0.77rem" }}>{item}</p></div>
-              ))}
-            </div>
-          </div>
+          <FlipCard
+            className="sim-card-flip"
+            style={{ flex: 1 }}
+            front={
+              <div className="track-card" id="insights">
+                <h3 style={{ fontSize: "0.9rem", display: "flex", alignItems: "center", gap: 7, marginBottom: 12 }}>
+                  <Lightbulb size={15} /> AI Insights
+                </h3>
+                <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+                  {insights.map((item, i) => (
+                    <div key={i} className="insight" style={{ padding: "8px 12px" }}><Typewriter text={item} speed={14} delay={i * 180} style={{ fontSize: "0.77rem" }} /></div>
+                  ))}
+                </div>
+              </div>
+            }
+            back={
+              <>
+                <span className="flip-back-label">AI Insights</span>
+                <span className="flip-back-count">{insights.length}</span>
+                <span className="flip-back-sub">personalised insights on your property path</span>
+              </>
+            }
+          />
         </div>
 
         {/* 5 ── MILESTONE CHECKLIST ── standalone main card */}

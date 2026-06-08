@@ -3,6 +3,7 @@
 .nav {
   position: fixed;
   top: 0;
+  left: 0;
   width: 100%;
   height: 72px;
 
@@ -12,14 +13,35 @@
 
   padding: 0 48px;
 
-  background: rgba(2, 2, 2, 0.7);
-  backdrop-filter: blur(14px);
-
+  /* no background or backdrop-filter here — moved to ::before */
+  background: transparent;
   border-bottom: 1px solid rgba(132, 167, 148, 0.1);
 
-  z-index: 1000;
+  z-index: 9999;
 
-  transition: all 0.4s ease; /* 🔥 smooth glow transitions */
+  transition: border-color 0.35s ease, box-shadow 0.35s ease;
+}
+
+/* Frosted glass lives on a pseudo-element so nav children are never inside
+   the blur compositing layer — this stops hover states from looking blurry */
+.nav::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(2, 2, 2, 0.7);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  z-index: -1;
+  transition: background 0.35s ease;
+}
+
+/* Solidifies when the page is scrolled */
+.nav.scrolled {
+  border-bottom-color: rgba(132, 167, 148, 0.18);
+  box-shadow: 0 2px 24px rgba(0, 0, 0, 0.6);
+}
+.nav.scrolled::before {
+  background: rgba(2, 2, 2, 0.96);
 }
 
 /* LOGO */
@@ -40,18 +62,19 @@
 .nav-links button {
   padding: 6px 14px;
   border-radius: 20px;
-  border: none;
+  border: 1px solid transparent;
 
-  background: #1a1a1a;
-  color: white;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.82);
 
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: color 0.2s ease, border-color 0.2s ease;
 }
 
 .nav-links button:hover {
-  background: #2a2a2a;
-  transform: translateY(-1px);
+  color: #fff;
+  border-color: rgba(132, 167, 148, 0.55);
+  background: transparent;
 }
 
 /* LOGOUT BUTTON */
@@ -69,7 +92,6 @@
 .nav-logout:hover {
   background: rgba(255, 80, 80, 0.1) !important;
   border-color: #ff6b6b !important;
-  transform: translateY(-1px);
 }
 
 /* PRIMARY BUTTON */
@@ -139,10 +161,6 @@
     0 0 45px rgba(214, 168, 90, 0.4),
     0 0 100px rgba(214, 168, 90, 0.18);
 }
-.nav {
-  backdrop-filter: blur(16px);
-}
-
 .logo {
   display: flex;
   align-items: center;

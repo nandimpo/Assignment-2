@@ -5,11 +5,14 @@ import AppNav from "../components/AppNav";
 import "../styles/home.css";
 import "../styles/fiveyear.css";
 import SlideIn from "../components/SlideIn";
-import { Home as HomeIcon, Scale, Shield, RefreshCw, Building2, TrendingUp, CreditCard, Target, GraduationCap, Sparkles, ChevronRight, ChevronLeft } from "lucide-react";
+import { Home as HomeIcon, Scale, Shield, RefreshCw, Building2, TrendingUp, CreditCard, Target, GraduationCap, Sparkles, ChevronRight, ChevronLeft, Sprout } from "lucide-react";
+import FlipCard from "../components/FlipCard";
+import Typewriter from "../components/Typewriter";
 import { useUser } from "../context/UserContext";
 import rootsImg from "../assets/roots.png";
 import treeImg from "../assets/tree.png";
 import leafImg from "../assets/leaf.png";
+import { getTrackMonthlyAmount } from "../utils/trackAmounts";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -19,7 +22,7 @@ export default function Home() {
   const expenses = Number(user?.expenses) || 0;
   const net      = income - expenses;
   const safeIncome  = income > 0 ? income : 1;
-  const investingAmount = Number(user?.goalAmount) > 0 ? Number(user.goalAmount) : Math.max(net, 0);
+  const investingAmount = getTrackMonthlyAmount(user);
   const savingsRate = Math.round((investingAmount / safeIncome) * 100);
 
   const [nudgeType, setNudgeType] = useState("positive");
@@ -82,10 +85,8 @@ export default function Home() {
   const trackIs = user?.strategy;
 
   const totalDebt      = Number(user?.debt || user?.goalAmount) || 0;
-  const catchupMonthly = Number(user?.catchupMonthly) || Math.max(Math.round(net * 0.3), 0);
-  const monthlyInvest  = trackIs === "catchup"
-    ? catchupMonthly
-    : Number(user?.goalAmount) > 0 ? Number(user.goalAmount) : Math.max(Math.round(net * 0.2), 0);
+  const catchupMonthly = getTrackMonthlyAmount(user, "catchup");
+  const monthlyInvest  = getTrackMonthlyAmount(user, trackIs);
 
   const y5Values = [1, 2, 3, 4, 5].map((y) => {
     if (trackIs === "catchup") return Math.max(0, totalDebt - catchupMonthly * 12 * y);
@@ -138,7 +139,10 @@ export default function Home() {
           <img src={treeImg} alt="" className="hero__bg" />
           <div className="hero__vignette" />
           <div className="hero__greeting">
-            <SlideIn tag="h1" text={`Good evening, ${user?.name?.split(" ")[0] || "there"} 🌿`} />
+            <div className="hero__title-row">
+              <SlideIn tag="h1" text={`Hi, ${user?.name?.split(" ")[0] || "there"}`} />
+              <Sprout className="hero__title-icon" size={34} strokeWidth={2.2} aria-hidden="true" />
+            </div>
             <p className="hero__sub">Your growth journey continues.<br />Small steps today. Strong future tomorrow.</p>
           </div>
           <div className="hero__year-card">
@@ -241,26 +245,43 @@ export default function Home() {
           </section>
 
           <div className="home-nudge-tip-col">
-            <section className={`nudge ${nudgeType}`} id="nudge">
-              <p className="nudge-label">Savings insight</p>
-              <p className="nudge-text">
-                {nudgeType === "positive"
-                  ? `You're saving ${savingsRate}% — strong position`
-                  : `Savings rate is ${savingsRate}% — consider reducing expenses`}
-              </p>
-              <p className="nudge-sub muted">
-                {nudgeType === "positive"
-                  ? "Keep contributing consistently and you'll reach your goal faster."
-                  : "Even a R500/month reduction in expenses can make a significant difference."}
-              </p>
-            </section>
+            <FlipCard
+              className="sim-card-flip"
+              front={
+                <section className={`nudge ${nudgeType}`} id="nudge">
+                  <p className="nudge-label">Savings insight</p>
+                  <Typewriter
+                    className="nudge-text"
+                    text={nudgeType === "positive"
+                      ? `You're saving ${savingsRate}% — strong position`
+                      : `Savings rate is ${savingsRate}% — consider reducing expenses`}
+                    speed={18}
+                  />
+                  <Typewriter
+                    className="nudge-sub muted"
+                    text={nudgeType === "positive"
+                      ? "Keep contributing consistently and you'll reach your goal faster."
+                      : "Even a R500/month reduction in expenses can make a significant difference."}
+                    speed={14}
+                    delay={400}
+                  />
+                </section>
+              }
+              back={
+                <>
+                  <span className="flip-back-label">Savings Insight</span>
+                  <span className="flip-back-count">{savingsRate}%</span>
+                  <span className="flip-back-sub">{nudgeType === "positive" ? "Strong savings rate" : "Room to improve"}</span>
+                </>
+              }
+            />
 
             <section className="daily-tip-compact">
               <div className="daily-tip-compact-top">
                 <Sparkles size={13} className="daily-tip-icon" />
                 <span className="daily-tip-tag">{currentTip.tag}</span>
               </div>
-              <p className="daily-tip-text">{currentTip.text}</p>
+              <Typewriter className="daily-tip-text" text={currentTip.text} speed={16} />
               <div className="daily-tip-nav">
                 <button onClick={() => setTipIndex((tipIndex - 1 + tips.length) % tips.length)}><ChevronLeft size={14} /></button>
                 <span>{tipIndex + 1} / {tips.length}</span>
