@@ -506,7 +506,7 @@
   transition: all 0.25s ease;
   overflow: visible;
   box-sizing: border-box;
-  min-height: 320px;
+  min-height: 0;
 }
 
 .sim-card:hover {
