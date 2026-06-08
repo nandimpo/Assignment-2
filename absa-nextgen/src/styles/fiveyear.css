@@ -422,10 +422,10 @@
 .y5-callout {
   border: 1px solid transparent;
   background:
-    linear-gradient(145deg, rgba(214,168,90,0.06), rgba(11,15,14,0.85)) padding-box,
-    linear-gradient(155deg, #D6A85A 0%, #84A794 50%, rgba(132,167,148,0.08) 100%) border-box;
+    linear-gradient(145deg, rgba(11,15,14,0.85), rgba(132,167,148,0.12)) padding-box,
+    linear-gradient(155deg, rgba(132,167,148,0.05) 0%, rgba(132,167,148,0.3) 40%, #84A794 100%) border-box;
   box-shadow:
-    0 0 24px rgba(214, 168, 90, 0.12),
+    0 0 24px rgba(132, 167, 148, 0.1),
     0 0 50px rgba(132, 167, 148, 0.06),
     0 4px 16px rgba(0,0,0,0.35);
   border-radius: 14px;
