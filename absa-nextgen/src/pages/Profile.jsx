@@ -4,6 +4,7 @@ import AppNav from "../components/AppNav";
 import "../styles/profile.css";
 import { useUser } from "../context/UserContext";
 import SlideIn from "../components/SlideIn";
+import tree2Img from "../assets/tree2.png";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -192,7 +193,8 @@ export default function Profile() {
   // ── Render ──────────────────────────────────────────────────────────────────
 
   return (
-    <div className="profile">
+    <div className="profile" style={{ position: "relative" }}>
+      <img src={tree2Img} alt="" style={{ position: "fixed", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", opacity: 0.06, pointerEvents: "none", zIndex: 0 }} />
       <AppNav />
 
       <div className="container">

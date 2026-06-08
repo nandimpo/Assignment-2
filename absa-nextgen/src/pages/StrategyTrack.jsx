@@ -7,6 +7,7 @@ import SlideIn from "../components/SlideIn";
 import { useEffect, useRef, useState } from "react";
 import { getTrackProgression } from "../utils/trackProgression";
 import useProgress from "../hooks/useProgress";
+import growthImg from "../assets/growth.png.gif";
 
 // ─── Static track data ────────────────────────────────────────────────────────
 
@@ -329,8 +330,11 @@ export default function StrategyTrack() {
     if (!user) return;
     const progression = getTrackProgression(user);
     if (progression?.track && progression.track !== user.strategy) {
-      setNewTrack(progression.track);
-      setShowPopup(true);
+      const dismissedKey = `dismissedUpgrade_${progression.track}`;
+      if (!localStorage.getItem(dismissedKey)) {
+        setNewTrack(progression.track);
+        setShowPopup(true);
+      }
     }
   }, []);
 
@@ -357,7 +361,9 @@ export default function StrategyTrack() {
           <div style={{ display: "flex", gap: 14, alignItems: "stretch", flexWrap: "wrap" }}>
 
             {/* LEFT: current track card */}
-            <div className="current-track-hero" id="current-track" style={{ flex: "1 1 280px", margin: 0 }}>
+            <div className="current-track-hero" id="current-track" style={{ flex: "1 1 280px", margin: 0, position: "relative", overflow: "hidden" }}>
+              <img src={growthImg} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", opacity: 0.08, pointerEvents: "none", zIndex: 0 }} />
+              <div style={{ position: "relative", zIndex: 1, display: "contents" }}>
               <div className="current-track-left">
                 <div className="current-track-icon">{icons[selectedTrack]}</div>
                 <div>
@@ -375,6 +381,7 @@ export default function StrategyTrack() {
                 <button className="current-track-btn" onClick={() => navigate(tracks[selectedTrack]?.route)}>
                   Open my track <ArrowRight size={14} />
                 </button>
+              </div>
               </div>
             </div>
 
@@ -727,7 +734,7 @@ export default function StrategyTrack() {
             <p>Based on your progress, you may be ready for the <strong>{tracks[newTrack]?.name}</strong> track.</p>
             <p className="small" style={{ marginTop: 8, color: "#8a9a96" }}>Your current track stays the same — this is just a suggestion.</p>
             <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
-              <button className="pill outline" onClick={() => setShowPopup(false)}>Stay on current</button>
+              <button className="pill outline" onClick={() => { localStorage.setItem(`dismissedUpgrade_${newTrack}`, "1"); setShowPopup(false); }}>Stay on current</button>
               <button className="pill" onClick={() => { updateUser({ strategy: newTrack }); setShowPopup(false); navigate(tracks[newTrack].route); }}>
                 Switch to {tracks[newTrack]?.name} →
               </button>

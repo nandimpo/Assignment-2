@@ -5,9 +5,11 @@ import AppNav from "../components/AppNav";
 import "../styles/home.css";
 import "../styles/fiveyear.css";
 import SlideIn from "../components/SlideIn";
-import { Home as HomeIcon, Scale, Shield, RefreshCw, Building2, TrendingUp, CreditCard, Target, GraduationCap, Info, Sparkles, ChevronRight, ChevronLeft } from "lucide-react";
+import { Home as HomeIcon, Scale, Shield, RefreshCw, Building2, TrendingUp, CreditCard, Target, GraduationCap, Sparkles, ChevronRight, ChevronLeft } from "lucide-react";
 import { useUser } from "../context/UserContext";
 import rootsImg from "../assets/roots.png";
+import treeImg from "../assets/tree.png";
+import leafImg from "../assets/leaf.png";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -17,14 +19,8 @@ export default function Home() {
   const expenses = Number(user?.expenses) || 0;
   const net      = income - expenses;
   const safeIncome  = income > 0 ? income : 1;
-  // Use actual goalAmount (monthly investing) for savings rate if set, else net surplus
   const investingAmount = Number(user?.goalAmount) > 0 ? Number(user.goalAmount) : Math.max(net, 0);
   const savingsRate = Math.round((investingAmount / safeIncome) * 100);
-
-  let nextStep = "Move closer to your 5-year goal";
-  if (!user?.strategy)  nextStep = "Choose your financial strategy";
-  else if (!user?.salary)   nextStep = "Add your income details";
-  else if (!user?.expenses) nextStep = "Track your monthly expenses";
 
   const [nudgeType, setNudgeType] = useState("positive");
   useEffect(() => {
@@ -46,13 +42,6 @@ export default function Home() {
     catchup:    "Catch-Up Wealth",
   };
 
-  const trackDetails = {
-    property:   { explanation: "Save aggressively toward a home deposit in 3–5 years.", tradeoffs: "Reduced lifestyle flexibility." },
-    balanced:   { explanation: "Balance saving and investing while maintaining your lifestyle.", tradeoffs: "Slower long-term goals." },
-    foundation: { explanation: "Build a strong financial base through emergency savings and budgeting.", tradeoffs: "Slower progress toward large goals." },
-    correction: { explanation: "Reduce debt and rebalance spending habits.", tradeoffs: "Requires strict discipline short-term." },
-  };
-
   const tourSteps = [
     { text: "Welcome — this is your financial dashboard.", target: "home-header" },
     { text: "This shows your next financial action.", target: "next-step" },
@@ -62,66 +51,80 @@ export default function Home() {
   ];
 
   const strategyTracks = [
-    { id: "property",   Icon: HomeIcon,  name: "First Property Path",             sub: "Save for a home deposit in 3–5 years",          focus: "Saving & Stability" },
-    { id: "balanced",   Icon: Scale,     name: "Balanced Lifestyle & Investing",  sub: "Maintain your lifestyle while building wealth",  focus: "Flexibility & Investing" },
-    { id: "foundation", Icon: Shield,    name: "Foundation Builder",              sub: "Build financial stability from scratch",         focus: "Emergency Funds & Basics" },
-    { id: "correction", Icon: RefreshCw, name: "Lifestyle Correction",            sub: "Rebalance spending and reduce debt",             focus: "Behavioural Change" },
+    { id: "property",   Icon: HomeIcon,  name: "First Property Path",            sub: "Save for a home deposit in 3–5 years",         focus: "Saving & Stability" },
+    { id: "balanced",   Icon: Scale,     name: "Balanced Lifestyle & Investing", sub: "Maintain your lifestyle while building wealth", focus: "Flexibility & Investing" },
+    { id: "foundation", Icon: Shield,    name: "Foundation Builder",             sub: "Build financial stability from scratch",        focus: "Emergency Funds & Basics" },
+    { id: "correction", Icon: RefreshCw, name: "Lifestyle Correction",           sub: "Rebalance spending and reduce debt",            focus: "Behavioural Change" },
   ];
 
   const tips = [
-    { tag: "Saving",     text: "Automating your savings on payday removes the temptation to spend first. Set it and forget it." },
-    { tag: "Property",   text: "A 10% deposit on a R1.8M home is R180 000. At R18k/month saved, you're 10 months away." },
-    { tag: "Debt",       text: "Paying off the highest-interest debt first (avalanche method) saves you the most money long-term." },
-    { tag: "Investing",  text: "Time in the market beats timing the market. Starting with R500/month at 25 beats R2000/month at 35." },
-    { tag: "Budgeting",  text: "The 50/30/20 rule: 50% needs, 30% wants, 20% savings. Adjust the ratios for your track." },
-    { tag: "Property",   text: "Bond pre-approval strengthens your offer when buying. Get it before you start house-hunting." },
-    { tag: "Mindset",    text: "A R500 daily coffee habit costs R10 950/year. Small habits have large compounding effects." },
-    { tag: "Investing",  text: "Offshore investing gives you rand-hedge protection. Even 20–30% offshore reduces local risk." },
-    { tag: "Emergency",  text: "3–6 months of expenses in an emergency fund prevents you from dipping into your savings goals." },
-    { tag: "Saving",     text: "Increasing your savings rate by just 2% per year compounds dramatically over a 5-year horizon." },
-    { tag: "Tax",        text: "A Tax-Free Savings Account (TFSA) lets you invest up to R36 000/year with zero tax on returns." },
-    { tag: "Debt",       text: "Never take on new debt while paying off existing debt — the interest works against you twice." },
-    { tag: "Property",   text: "Transfer duty on a R1.8M property is roughly R22 000. Budget for it alongside your deposit." },
-    { tag: "Mindset",    text: "Your net salary — not your gross — is your real income. Build your budget around take-home pay." },
-    { tag: "Investing",  text: "Compound interest is most powerful in the first few years. Every month you delay costs more than you think." },
+    { tag: "Saving",    text: "Automating your savings on payday removes the temptation to spend first." },
+    { tag: "Property",  text: "A 10% deposit on a R1.8M home is R180 000. At R18k/month saved, you're 10 months away." },
+    { tag: "Debt",      text: "Paying off the highest-interest debt first (avalanche method) saves the most long-term." },
+    { tag: "Investing", text: "Time in the market beats timing the market. Starting at 25 with R500/month beats R2000/month at 35." },
+    { tag: "Budgeting", text: "The 50/30/20 rule: 50% needs, 30% wants, 20% savings. Adjust for your track." },
+    { tag: "Property",  text: "Bond pre-approval strengthens your offer when buying. Get it before house-hunting." },
+    { tag: "Mindset",   text: "A R500 daily coffee habit costs R10 950/year. Small habits have large compounding effects." },
+    { tag: "Investing", text: "Offshore investing gives rand-hedge protection. Even 20–30% offshore reduces local risk." },
+    { tag: "Emergency", text: "3–6 months of expenses in an emergency fund prevents dipping into your savings goals." },
+    { tag: "Saving",    text: "Increasing your savings rate by just 2% per year compounds dramatically over 5 years." },
+    { tag: "Tax",       text: "A TFSA lets you invest up to R36 000/year with zero tax on returns." },
+    { tag: "Debt",      text: "Never take on new debt while paying off existing debt — interest works against you twice." },
+    { tag: "Property",  text: "Transfer duty on a R1.8M property is roughly R22 000. Budget for it alongside your deposit." },
+    { tag: "Mindset",   text: "Your net salary — not gross — is your real income. Build your budget around take-home pay." },
+    { tag: "Investing", text: "Compound interest is most powerful early. Every month you delay costs more than you think." },
   ];
 
   const r = 0.10 / 12;
   const savingsLogTotal = (user?.savingsLog || [])
     .filter(e => e.status !== "missed")
     .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
-  const currentSaved = savingsLogTotal;
   const trackIs = user?.strategy;
 
-  // Catch-up track: show debt clearance, not wealth accumulation
   const totalDebt      = Number(user?.debt || user?.goalAmount) || 0;
   const catchupMonthly = Number(user?.catchupMonthly) || Math.max(Math.round(net * 0.3), 0);
-
-  // All other tracks: monthly investment amount
-  const monthlyInvest = trackIs === "catchup"
+  const monthlyInvest  = trackIs === "catchup"
     ? catchupMonthly
-    : Number(user?.goalAmount) > 0
-      ? Number(user.goalAmount)
-      : Math.max(Math.round(net * 0.2), 0);
+    : Number(user?.goalAmount) > 0 ? Number(user.goalAmount) : Math.max(Math.round(net * 0.2), 0);
 
   const y5Values = [1, 2, 3, 4, 5].map((y) => {
-    if (trackIs === "catchup") {
-      // Show remaining debt each year (floors at 0)
-      return Math.max(0, totalDebt - catchupMonthly * 12 * y);
-    }
-    if (trackIs === "balanced") return Math.round(currentSaved + monthlyInvest * ((Math.pow(1 + r, y * 12) - 1) / r));
-    return Math.round(currentSaved + monthlyInvest * 12 * y);
+    if (trackIs === "catchup") return Math.max(0, totalDebt - catchupMonthly * 12 * y);
+    if (trackIs === "balanced") return Math.round(savingsLogTotal + monthlyInvest * ((Math.pow(1 + r, y * 12) - 1) / r));
+    return Math.round(savingsLogTotal + monthlyInvest * 12 * y);
   });
+
+  const goalLabels = { property: "Deposit Target", balanced: "5-Year Portfolio Goal", catchup: "Debt to Clear", correction: "Correction Goal" };
+  const goalLabel  = goalLabels[user?.strategy] || "Financial Goal";
+  let displayAmount, goalSubLine;
+  if (user?.strategy === "property") {
+    displayAmount = user?.depositAmount;
+    goalSubLine = user?.monthsToGoal ? `${user.monthsToGoal} months to deposit` : "Set your house price in Setup";
+  } else if (user?.strategy === "balanced") {
+    displayAmount = user?.fiveYearGoal || null;
+    goalSubLine = user?.goalAmount ? `Investing R${Number(user.goalAmount).toLocaleString("en-ZA")}/month` : "Set monthly target in Setup";
+  } else if (user?.strategy === "catchup") {
+    displayAmount = user?.debt || user?.goalAmount;
+    const cu = Number(user?.catchupMonthly), debt = Number(user?.debt || user?.goalAmount);
+    const mo = cu > 0 && debt > 0 ? Math.ceil(debt / cu) : null;
+    goalSubLine = mo ? `${mo} months to clear at R${cu.toLocaleString("en-ZA")}/month` : "Set your debt + contribution in Setup";
+  } else {
+    displayAmount = user?.goalAmount;
+    goalSubLine = displayAmount ? `R${Number(displayAmount).toLocaleString("en-ZA")}/month to reduce` : "Set your target in Setup";
+  }
+
+  const depositProgress = user?.strategy === "property" && user?.depositAmount > 0
+    ? Math.min(Math.round((savingsLogTotal / Number(user.depositAmount)) * 100), 100)
+    : 70;
 
   const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
   const [tipIndex, setTipIndex] = useState(dayOfYear % tips.length);
   const currentTip = tips[tipIndex];
 
   const simCards = [
-    { Icon: Building2,  label: "Buy vs Rent",          desc: "Compare long-term cost of buying vs renting" },
-    { Icon: TrendingUp, label: "Investment Growth",     desc: "Project returns across asset classes" },
-    { Icon: CreditCard, label: "Debt Payoff Planner",   desc: "Find the fastest path to debt-free" },
-    { Icon: Target,     label: "Retirement Readiness",  desc: "See if you're on track for retirement" },
+    { Icon: Building2,  label: "Buy vs Rent",         desc: "Compare buying vs renting long-term" },
+    { Icon: TrendingUp, label: "Investment Growth",    desc: "Project returns across asset classes" },
+    { Icon: CreditCard, label: "Debt Payoff Planner",  desc: "Find the fastest path to debt-free" },
+    { Icon: Target,     label: "Retirement Readiness", desc: "See if you're on track for retirement" },
   ];
 
   return (
@@ -130,38 +133,48 @@ export default function Home() {
 
       <div className="home-container">
 
-        {/* ── HEADER ── */}
-        <section className="home-header fade-in" id="home-header">
-          <SlideIn tag="h2" text={`Welcome back, ${user?.name?.split(" ")[0] || "there"}`} />
-          <SlideIn tag="p" className="subtitle" delay={120} text={`You are on the ${trackNames[user?.strategy] || "—"} track`} />
-        </section>
-
-        {/* ── ROW 1: NEXT STEP + HEALTH ── */}
-        <div className="home-row fade-in">
-          <section className="next-step" id="next-step">
-            <div>
-              <p className="label">Next Step</p>
-              <h3>{nextStep}</h3>
+        {/* ══ HERO ══ */}
+        <div className="hero" id="home-header">
+          <img src={treeImg} alt="" className="hero__bg" />
+          <div className="hero__vignette" />
+          <div className="hero__greeting">
+            <SlideIn tag="h1" text={`Good evening, ${user?.name?.split(" ")[0] || "there"} 🌿`} />
+            <p className="hero__sub">Your growth journey continues.<br />Small steps today. Strong future tomorrow.</p>
+          </div>
+          <div className="hero__year-card">
+            <p className="hero__year-label">Year 2 of 5</p>
+            <p className="hero__year-text">You're building real momentum.</p>
+            <button className="ghost-btn" onClick={() => navigate("/strategy")}>View your journey →</button>
+          </div>
+          <div className="hero__pos-card" id="health" onClick={() => navigate("/money")}>
+            <p className="hero__card-eyebrow">Financial Position</p>
+            <div className="hero__pos-score">
+              <span className="hero__pos-num">{healthScore}</span>
+              <span className="hero__pos-denom">/100</span>
             </div>
-            <button className="primary-btn" onClick={() => navigate("/strategy")}>Continue →</button>
-          </section>
-
-          <section className="health-card" id="health">
-            <div className="score-ring">{healthScore}</div>
-            <div>
-              <h3 style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                Financial Health
-                <span className="info-hover" style={{ display: "flex", alignItems: "center" }}>
-                  <Info size={14} strokeWidth={1.5} />
-                  <div className="tooltip">Based on:<br />• Savings rate<br />• Spending behaviour<br />• Setup progress</div>
-                </span>
-              </h3>
-              <p className="muted">{healthLabel}</p>
+            <p className="hero__card-sub">{healthLabel} position.<br />You're well on track.</p>
+            <button className="ghost-btn" style={{ marginTop: 8 }}>View details →</button>
+          </div>
+          <div className="hero__path-card" id="next-step" onClick={() => navigate("/strategy")}>
+            <p className="hero__card-eyebrow">Active Path</p>
+            <h3 className="hero__path-name">{trackNames[user?.strategy] || "Choose a path"}</h3>
+            {user?.strategy === "property" && (
+              <p className="hero__card-sub" style={{ marginBottom: 6 }}>Stage 2 of 4 · Deposit Saving</p>
+            )}
+            <div className="hero__progress-bar">
+              <div className="hero__progress-fill" style={{ width: `${depositProgress}%` }} />
             </div>
-          </section>
+            <p className="hero__progress-pct">{depositProgress}%</p>
+            <button className="ghost-btn" style={{ marginTop: 8 }}>Continue your path →</button>
+          </div>
+          <div className="hero__bottom-strip hero__bottom-strip--single">
+            <p className="hero__strip-label">Today's Insight</p>
+            <p className="hero__insight-text">{currentTip.text}</p>
+            <button className="ghost-btn" style={{ marginTop: 8 }} onClick={() => navigate("/money")}>See breakdown →</button>
+          </div>
         </div>
 
-        {/* ── ROW 2: STATS ── */}
+        {/* ══ ROW A: Stats 3-col ══ */}
         <section className="stats fade-in" id="stats">
           <div className="stat">
             <p>Monthly income</p>
@@ -178,7 +191,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ── 5-YEAR PROJECTION STRIP ── */}
+        {/* ══ ROW B: 5-year strip ══ */}
         {net > 0 && (
           <div className="home-y5-strip fade-in">
             <div className="home-y5-left">
@@ -207,7 +220,7 @@ export default function Home() {
               {[1, 2, 3, 4, 5].map((y, i) => (
                 <div key={y} className={`home-y5-year ${y === 5 ? "home-y5-year--end" : ""}`}>
                   <span className="home-y5-year-label">Yr {y}</span>
-                  <span className="home-y5-year-value" style={ trackIs === "catchup" && y5Values[i] === 0 ? { color: "#84a794" } : {} }>
+                  <span className="home-y5-year-value" style={trackIs === "catchup" && y5Values[i] === 0 ? { color: "#84a794" } : {}}>
                     {trackIs === "catchup" && y5Values[i] === 0 ? "Gone ✓" : `R${(y5Values[i] / 1000).toFixed(0)}k`}
                   </span>
                 </div>
@@ -216,151 +229,100 @@ export default function Home() {
           </div>
         )}
 
-        {/* ── ROW 3: GOAL + NUDGE ── */}
-        <div className="home-row fade-in">
+        {/* ══ ROW B: Goal (left) + Nudge | Tip (right stacked) ══ */}
+        <div className="home-goal-row fade-in">
           <section className="goal-card" id="goal">
-            {(() => {
-              const strategy = user?.strategy;
-              const goalLabels  = { property: "Deposit Target", balanced: "5-Year Portfolio Goal", catchup: "Debt to Clear", correction: "Correction Goal" };
-              const goalLabel   = goalLabels[strategy] || "Financial Goal";
-
-              let displayAmount, subLine;
-
-              if (strategy === "property") {
-                displayAmount = user?.depositAmount;
-                const months = user?.monthsToGoal;
-                subLine = months ? `${months} months to reach deposit` : "Set your house price in Setup";
-              } else if (strategy === "balanced") {
-                displayAmount = user?.fiveYearGoal || null;
-                const monthly = user?.goalAmount;
-                subLine = monthly
-                  ? `Investing R${Number(monthly).toLocaleString("en-ZA")}/month`
-                  : "Set your monthly target in Setup";
-              } else if (strategy === "catchup") {
-                displayAmount = user?.debt || user?.goalAmount;
-                const cu = Number(user?.catchupMonthly);
-                const debt = Number(user?.debt || user?.goalAmount);
-                const months = cu > 0 && debt > 0 ? Math.ceil(debt / cu) : null;
-                subLine = months
-                  ? `${months} months to clear at R${cu.toLocaleString("en-ZA")}/month`
-                  : "Set your debt + contribution in Setup";
-              } else {
-                displayAmount = user?.goalAmount;
-                subLine = displayAmount ? `R${Number(displayAmount).toLocaleString("en-ZA")}/month to reduce` : "Set your target in Setup";
-              }
-
-              return (
-                <>
-                  <span className="label">{goalLabel}</span>
-                  <h3 style={{ fontSize: 26, fontWeight: 700, margin: "6px 0 4px" }}>
-                    {displayAmount ? `R${Number(displayAmount).toLocaleString("en-ZA")}` : "Not set"}
-                  </h3>
-                  <p className="muted" style={{ fontSize: 13 }}>{subLine}</p>
-                  <button className="primary-btn" style={{ marginTop: 12 }} onClick={() => navigate("/money")}>
-                    View Snapshot →
-                  </button>
-                </>
-              );
-            })()}
+            <span className="label">{goalLabel}</span>
+            <h3 style={{ fontSize: 20, fontWeight: 700, margin: "3px 0 2px" }}>
+              {displayAmount ? `R${Number(displayAmount).toLocaleString("en-ZA")}` : "Not set"}
+            </h3>
+            <p className="muted" style={{ fontSize: 11 }}>{goalSubLine}</p>
+            <button className="primary-btn" style={{ marginTop: 8 }} onClick={() => navigate("/money")}>View Snapshot →</button>
           </section>
 
-          <section className={`nudge ${nudgeType} fade-in`} id="nudge">
-            <p className="nudge-label">Savings insight</p>
-            <p className="nudge-text">
-              {nudgeType === "positive"
-                ? `You're saving ${savingsRate}% — strong position`
-                : `Your savings rate is ${savingsRate}% — consider reducing expenses`}
-            </p>
-            <p className="nudge-sub muted">
-              {nudgeType === "positive"
-                ? "Keep contributing consistently and you'll reach your goal faster."
-                : "Even a R500/month reduction in expenses can make a significant difference."}
-            </p>
-          </section>
+          <div className="home-nudge-tip-col">
+            <section className={`nudge ${nudgeType}`} id="nudge">
+              <p className="nudge-label">Savings insight</p>
+              <p className="nudge-text">
+                {nudgeType === "positive"
+                  ? `You're saving ${savingsRate}% — strong position`
+                  : `Savings rate is ${savingsRate}% — consider reducing expenses`}
+              </p>
+              <p className="nudge-sub muted">
+                {nudgeType === "positive"
+                  ? "Keep contributing consistently and you'll reach your goal faster."
+                  : "Even a R500/month reduction in expenses can make a significant difference."}
+              </p>
+            </section>
+
+            <section className="daily-tip-compact">
+              <div className="daily-tip-compact-top">
+                <Sparkles size={13} className="daily-tip-icon" />
+                <span className="daily-tip-tag">{currentTip.tag}</span>
+              </div>
+              <p className="daily-tip-text">{currentTip.text}</p>
+              <div className="daily-tip-nav">
+                <button onClick={() => setTipIndex((tipIndex - 1 + tips.length) % tips.length)}><ChevronLeft size={14} /></button>
+                <span>{tipIndex + 1} / {tips.length}</span>
+                <button onClick={() => setTipIndex((tipIndex + 1) % tips.length)}><ChevronRight size={14} /></button>
+              </div>
+            </section>
+          </div>
         </div>
 
-        {/* ── DAILY TIP ── */}
-        <section className="daily-tip fade-in">
-          <div className="daily-tip-left">
-            <Sparkles size={16} className="daily-tip-icon" />
-            <span className="daily-tip-tag">{currentTip.tag}</span>
-          </div>
-          <p className="daily-tip-text">{currentTip.text}</p>
-          <div className="daily-tip-nav">
-            <button onClick={() => setTipIndex((tipIndex - 1 + tips.length) % tips.length)}><ChevronLeft size={14} /></button>
-            <span>{tipIndex + 1} / {tips.length}</span>
-            <button onClick={() => setTipIndex((tipIndex + 1) % tips.length)}><ChevronRight size={14} /></button>
-          </div>
-        </section>
+        {/* ══ ROW C: Strategy Paths (left) + Decision Studio (right) ══ */}
+        <div className="home-bottom-row fade-in">
 
-        {/* ── STRATEGY TRACKS ── */}
-        <section className="tracks-organic-section fade-in" id="tracks">
-          <div className="tracks-organic-header">
-            <h3>Strategy Tracks</h3>
-            <p className="muted">Pathways built around your goals &amp; life stage</p>
-            <button className="primary-btn" style={{ marginTop: 12 }} onClick={() => navigate("/strategy")}>View Tracks →</button>
-          </div>
-
-          <div className="tracks-shelf-grid">
-            {strategyTracks.map(({ id, Icon, name, sub, focus }) => {
-              const isActive = user?.strategy === id || (id === "correction" && user?.strategy === "catchup");
-              const colors = {
-                property:   { rgb: "214,168,90",  hex: "#D6A85A" },
-                balanced:   { rgb: "178,194,195", hex: "#B2C2C3" },
-                foundation: { rgb: "132,167,148", hex: "#84A794" },
-                correction: { rgb: "178,200,188", hex: "#B2C8BC" },
-              };
-              const c = colors[id] || colors.foundation;
-              return (
-                <div
-                  key={id}
-                  className={`track-shelf-card ${isActive ? "track-shelf-active" : ""}`}
-                  style={{ "--track-color": c.hex, "--track-rgb": c.rgb }}
-                  onClick={() => navigate("/strategy")}
-                >
-                  <div className="track-shelf-img-wrap">
-                    <img src={rootsImg} alt="" className="track-shelf-img" />
+          <section className="home-paths-panel" id="tracks">
+            <img src={rootsImg} alt="" className="home-panel-bg" />
+            <div className="home-panel-header">
+              <p className="home-panel-eyebrow">Growth Paths</p>
+              <h3 className="home-panel-title">Strategy Paths</h3>
+              <p className="muted" style={{ fontSize: 11 }}>Pathways built around your goals &amp; life stage</p>
+            </div>
+            <div className="home-paths-list">
+              {strategyTracks.map(({ id, Icon, name, sub, focus }) => {
+                const isActive = user?.strategy === id || (id === "correction" && user?.strategy === "catchup");
+                return (
+                  <div key={id} className={`home-path-row ${isActive ? "home-path-row--active" : ""}`} onClick={() => navigate("/strategy")}>
+                    <div className="home-path-icon"><Icon size={14} strokeWidth={1.7} /></div>
+                    <div className="home-path-text">
+                      <p className="home-path-name">{name}</p>
+                      <p className="home-path-sub">{sub}</p>
+                    </div>
+                    {isActive && <span className="home-path-badge">Active</span>}
+                    <ChevronRight size={13} className="home-path-arrow" />
                   </div>
+                );
+              })}
+            </div>
+            <button className="ghost-btn" style={{ marginTop: 12 }} onClick={() => navigate("/strategy")}>Explore all paths →</button>
+          </section>
 
-                  <div className="track-shelf-text">
-                    <div className="track-shelf-icon"><Icon size={16} strokeWidth={1.7} /></div>
-                    <p className="track-shelf-name">{name}</p>
-                    <p className="track-shelf-sub">{sub}</p>
-                    <p className="track-shelf-focus">{focus}</p>
-                    <span className="track-shelf-cta">Explore</span>
-                    {isActive && <span className="track-shelf-badge">Active</span>}
-                  </div>
+          <section className="home-studio-panel">
+            <img src={leafImg} alt="" className="home-panel-bg home-panel-bg--canopy" />
+            <div className="home-panel-header">
+              <p className="home-panel-eyebrow">Decision Studio</p>
+              <h3 className="home-panel-title">Test before you commit</h3>
+              <p className="muted" style={{ fontSize: 11 }}>Run scenarios before committing to a path</p>
+            </div>
+            <div className="home-studio-grid">
+              {simCards.map(({ Icon, label, desc }) => (
+                <div key={label} className="home-studio-card" onClick={() => navigate("/simulation")}>
+                  <Icon size={16} strokeWidth={1.5} className="home-studio-icon" />
+                  <p className="home-studio-label">{label}</p>
+                  <p className="home-studio-desc">{desc}</p>
                 </div>
-              );
-            })}
-          </div>
-        </section>
+              ))}
+            </div>
+            <button className="ghost-btn" style={{ marginTop: 12 }} onClick={() => navigate("/simulation")}>Open Studio →</button>
+          </section>
 
-        {/* ── SIMULATION LAB ── */}
-        <section className="sim-lab-section fade-in">
-          <div className="sim-lab-left">
-            <p className="sim-lab-eyebrow">04</p>
-            <h3 className="sim-lab-title">Simulation Lab</h3>
-            <p className="sim-lab-sub">Test financial decisions before you make them</p>
-            <button className="primary-btn" style={{ marginTop: 16 }} onClick={() => navigate("/simulation")}>Open Lab →</button>
-          </div>
-          <div className="sim-preview-grid">
-            {simCards.map(({ Icon, label, desc }) => (
-              <div key={label} className="sim-card available" onClick={() => navigate("/simulation")}>
-                <div className="sim-card-top">
-                  <span className="sim-icon"><Icon size={20} strokeWidth={1.5} /></span>
-                </div>
-                <h4>{label}</h4>
-                <p className="muted">{desc}</p>
-              </div>
-            ))}
-          </div>
-        </section>
+        </div>
 
       </div>
 
-      {/* Finance School orb */}
-      <div className="finance-orb" onClick={() => navigate("/learn")} title="Finance School">
+      <div className="finance-orb" onClick={() => navigate("/learn")} title="Knowledge Hub">
         <GraduationCap size={22} strokeWidth={1.5} />
       </div>
 
