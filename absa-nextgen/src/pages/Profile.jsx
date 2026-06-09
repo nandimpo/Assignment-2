@@ -329,6 +329,7 @@ export default function Profile() {
           <div className="profile-side" id="insights">
             <FlipCard
               className="sim-card-flip"
+              noFlip
               front={
                 <div className="card glass">
                   <h3>Insights</h3>
@@ -364,6 +365,7 @@ export default function Profile() {
 
             <FlipCard
               className="sim-card-flip"
+              noFlip
               front={
                 <div className="card glass">
                   <h3>Next Actions</h3>

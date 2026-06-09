@@ -5,7 +5,7 @@ import AppNav from "../components/AppNav";
 import "../styles/home.css";
 import "../styles/fiveyear.css";
 import SlideIn from "../components/SlideIn";
-import { Home as HomeIcon, Scale, RefreshCw, Building2, TrendingUp, CreditCard, Target, GraduationCap, Sparkles, ChevronRight, ChevronLeft, Sprout } from "lucide-react";
+import { Home as HomeIcon, Scale, RefreshCw, Building2, TrendingUp, CreditCard, Target, GraduationCap, Sparkles, ChevronRight, ChevronLeft, Sprout, AlertTriangle } from "lucide-react";
 import FlipCard from "../components/FlipCard";
 import Typewriter from "../components/Typewriter";
 import NumberCounter from "../components/NumberCounter";
@@ -14,6 +14,7 @@ import rootsImg from "../assets/roots.png";
 import treeImg from "../assets/tree.png";
 import leafImg from "../assets/leaf.png";
 import { getTrackMonthlyAmount } from "../utils/trackAmounts";
+import { getPropertyFeasibility } from "../utils/propertyFeasibility";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -91,6 +92,12 @@ export default function Home() {
     if (trackIs === "catchup") return Math.max(0, totalDebt - catchupMonthly * 12 * y);
     if (trackIs === "balanced") return Math.round(savingsLogTotal + monthlyInvest * ((Math.pow(1 + r, y * 12) - 1) / r));
     return Math.round(savingsLogTotal + monthlyInvest * 12 * y);
+  });
+  const propertyFeasibility = getPropertyFeasibility({
+    strategy: user?.strategy,
+    housePrice: user?.housePrice,
+    monthlyContribution: monthlyInvest,
+    currentSaved: savingsLogTotal,
   });
   const formatCompactRand = (value) => `R${Math.round(value / 1000).toLocaleString("en-ZA")}k`;
 
@@ -234,6 +241,19 @@ export default function Home() {
         )}
 
         {/* ══ ROW B: Goal (left) + Nudge | Tip (right stacked) ══ */}
+        {propertyFeasibility.shouldWarn && (
+          <section className="property-warning property-warning--home fade-in" onClick={() => navigate("/setup")}>
+            <AlertTriangle size={18} strokeWidth={2.4} className="property-warning-icon" />
+            <div>
+              <p className="property-warning-title">Property target needs an adjustment</p>
+              <p className="property-warning-text">
+                Your 5-year projection is R{propertyFeasibility.projection.toLocaleString("en-ZA")}, below your R{propertyFeasibility.targetPrice.toLocaleString("en-ZA")} target price. Increase your monthly contribution by about R{propertyFeasibility.monthlyShortfall.toLocaleString("en-ZA")} or choose a lower property target in Setup.
+              </p>
+            </div>
+            <ChevronRight size={18} className="property-warning-cta" />
+          </section>
+        )}
+
         <div className="home-goal-row fade-in">
           <section className="goal-card money-glow" id="goal">
             <span className="label">{goalLabel}</span>

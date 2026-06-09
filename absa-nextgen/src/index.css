@@ -191,6 +191,63 @@ body {
   border-radius: 4px 16px 16px 16px !important;
 }
 
+.property-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid rgba(214, 168, 90, 0.34);
+  border-left: 3px solid #d6a85a;
+  border-radius: 4px 24px 24px 24px;
+  background:
+    linear-gradient(145deg, rgba(214, 168, 90, 0.11), rgba(8, 13, 12, 0.88)),
+    rgba(12, 17, 16, 0.92);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
+}
+
+.property-warning-icon {
+  color: #d6a85a;
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+
+.property-warning-title {
+  margin: 0 0 4px;
+  color: #d6a85a;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.property-warning-text {
+  margin: 0;
+  color: #c9d5d1;
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.property-warning--home {
+  cursor: pointer;
+}
+
+.property-warning-cta {
+  color: #d6a85a;
+  margin-left: auto;
+  flex: 0 0 auto;
+  align-self: center;
+}
+
+.property-warning-link {
+  margin-top: 10px;
+  padding: 7px 13px;
+  border: 1px solid rgba(214, 168, 90, 0.42);
+  border-radius: 4px 16px 16px 16px;
+  background: rgba(214, 168, 90, 0.12);
+  color: #f1d39a;
+  font-size: 0.75rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
 /* ══════════════════════════════════════════════════════════
    ORGANIC CARD SHAPE SYSTEM — app-wide
    Same 5 leaf gestures as the button system, applied to panels.
@@ -342,8 +399,13 @@ body {
   transition: transform 0.55s cubic-bezier(0.4, 0.2, 0.2, 1);
 }
 
-.flip-card:hover .flip-card-inner {
+.flip-card:not(.flip-card--no-flip):hover .flip-card-inner {
   transform: rotateY(180deg);
+}
+
+.flip-card--no-flip .flip-card-inner {
+  transform: none !important;
+  cursor: default;
 }
 
 .flip-card-front,

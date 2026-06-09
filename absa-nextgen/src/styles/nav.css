@@ -82,6 +82,21 @@
   background: rgba(132, 167, 148, 0.1);
 }
 
+.nav-locked .logo,
+.nav-locked .nav-links button:not(.nav-logout) {
+  cursor: not-allowed;
+}
+
+.nav-locked .nav-links button:not(.nav-logout) {
+  opacity: 0.58;
+}
+
+.nav-locked .nav-links button:not(.nav-logout):hover {
+  color: rgba(255, 255, 255, 0.75);
+  border-color: rgba(214, 168, 90, 0.45);
+  background: rgba(214, 168, 90, 0.08);
+}
+
 /* LOGOUT BUTTON */
 .nav-logout {
   padding: 6px 14px;

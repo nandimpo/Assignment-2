@@ -518,6 +518,7 @@ export default function MoneySnapshot() {
             <FlipCard
               className="card-flip"
               id="insights"
+              noFlip
               front={
                 <>
                   <h3>Growth Intelligence</h3>

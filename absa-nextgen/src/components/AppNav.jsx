@@ -17,7 +17,15 @@ export default function AppNav() {
   const { user, setUser } = useUser();
   const { navTrigger } = useTransition();
 
-  const go = (path) => navTrigger(path);
+  const isSetupPage = location.pathname === "/setup";
+
+  const go = (path) => {
+    if (isSetupPage) {
+      window.dispatchEvent(new CustomEvent("setup-lock-attempt"));
+      return;
+    }
+    navTrigger(path);
+  };
 
   const handleLogout = () => {
     // Only clear the session token — keep user data so they can log back in
@@ -40,7 +48,7 @@ export default function AppNav() {
   };
 
   return (
-    <div className={`nav ${getPageClass()}`}>
+    <div className={`nav ${getPageClass()}${isSetupPage ? " nav-locked" : ""}`}>
       {/* ✅ LOGO (UPDATED) */}
       <div className="logo" onClick={() => go("/home")}>
         <img src={logo} alt="logo" className="logo-img" />
@@ -51,6 +59,7 @@ export default function AppNav() {
         <button
           className={isActive("/home") ? "active" : ""}
           onClick={() => go("/home")}
+          title={isSetupPage ? "Complete setup first" : undefined}
         >
           Home
         </button>
@@ -58,6 +67,7 @@ export default function AppNav() {
         <button
           className={isActive("/money") || isActive("/snapshot") ? "active" : ""}
           onClick={() => go("/money")}
+          title={isSetupPage ? "Complete setup first" : undefined}
         >
           Snapshot
         </button>
@@ -71,6 +81,7 @@ export default function AppNav() {
               : ""
           }
           onClick={() => go("/strategy")}
+          title={isSetupPage ? "Complete setup first" : undefined}
         >
           Tracks
         </button>
@@ -78,6 +89,7 @@ export default function AppNav() {
         <button
           className={isActive("/simulation") ? "active" : ""}
           onClick={() => go("/simulation")}
+          title={isSetupPage ? "Complete setup first" : undefined}
         >
           Simulation
         </button>
@@ -85,6 +97,7 @@ export default function AppNav() {
         <button
           className={isActive("/profile") ? "active" : ""}
           onClick={() => go("/profile")}
+          title={isSetupPage ? "Complete setup first" : undefined}
         >
           Profile
         </button>

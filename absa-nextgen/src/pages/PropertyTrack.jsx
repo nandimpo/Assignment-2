@@ -10,6 +10,7 @@ import FlipCard from "../components/FlipCard";
 import Typewriter from "../components/Typewriter";
 import useProgress from "../hooks/useProgress";
 import { getTrackMonthlyAmount } from "../utils/trackAmounts";
+import { getPropertyFeasibility } from "../utils/propertyFeasibility";
 import {
   Target, TrendingUp, AlertTriangle, BookOpen, Lightbulb,
   FileText, GraduationCap, Check, ChevronDown, Home, Shield,
@@ -177,8 +178,15 @@ export default function PropertyTrack() {
   const planRequired   = planTarget > 0 && goal > 0 ? Math.ceil(goal / planTarget) : null;
   const planShortfall  = planRequired && monthlyContribution ? Math.max(0, planRequired - monthlyContribution) : 0;
   const planAhead      = planOnTrack === true && planTarget > 0 ? planTarget - actualMonths : 0;
+  const propertyFeasibility = getPropertyFeasibility({
+    strategy: "property",
+    housePrice,
+    monthlyContribution,
+    currentSaved: savingsLogTotal,
+  });
 
   const insights = [];
+  if (propertyFeasibility.shouldWarn) insights.push(`Your 5-year projection is R${propertyFeasibility.projection.toLocaleString("en-ZA")}, below your R${propertyFeasibility.targetPrice.toLocaleString("en-ZA")} property target. Adjust the target price or increase your monthly contribution.`);
   if (planOnTrack === false)                   insights.push(`You need R${planShortfall.toLocaleString("en-ZA")} more per month to reach your deposit in ${planTarget} months. Consider reducing expenses.`);
   if (planOnTrack === true)                    insights.push(`You're ${planAhead} months ahead of your ${planTarget}-month target. Keep your savings rate consistent.`);
   if (savingsRate < 15)                        insights.push("Your savings rate is below 15%. Increasing it by even 5% noticeably accelerates your deposit timeline.");
@@ -261,6 +269,19 @@ export default function PropertyTrack() {
         )}
 
         {/* 1 ── 5-YEAR JOURNEY ── hero visual at the top */}
+        {propertyFeasibility.shouldWarn && (
+          <div className="property-warning property-warning--track">
+            <AlertTriangle size={18} strokeWidth={2.4} className="property-warning-icon" />
+            <div>
+              <p className="property-warning-title">This property target is above your 5-year projection</p>
+              <p className="property-warning-text">
+                At R{monthlyContribution.toLocaleString("en-ZA")}/month you are projected to save R{propertyFeasibility.projection.toLocaleString("en-ZA")} in 5 years, below the R{propertyFeasibility.targetPrice.toLocaleString("en-ZA")} target price. Consider changing the target in Setup or increasing your contribution by about R{propertyFeasibility.monthlyShortfall.toLocaleString("en-ZA")}/month.
+              </p>
+              <button className="property-warning-link" onClick={() => navigate("/setup")}>Adjust setup</button>
+            </div>
+          </div>
+        )}
+
         <FiveYearJourney
           trackKey="property"
           monthlyAmount={monthlyContribution}
@@ -667,13 +688,19 @@ export default function PropertyTrack() {
               </button>
               {openCards.nextSteps && (
                 <div className="bl-tile-body" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  <div className="nudge available" onClick={() => { setContent(explainers.bond); setShowPanel(true); }}>
-                    <Lightbulb size={14} style={{ flexShrink: 0 }} /> Secure bond pre-approval
-                    <div className="tooltip-box">{explainers.bond.text}</div>
+                  <div className="next-step-action" onClick={() => { setContent(explainers.bond); setShowPanel(true); }}>
+                    <div className="next-step-action-main">
+                      <Lightbulb size={14} style={{ flexShrink: 0 }} />
+                      <span>Secure bond pre-approval</span>
+                    </div>
+                    <div className="next-step-tooltip">{explainers.bond.text}</div>
                   </div>
-                  <div className="nudge available" onClick={() => { setContent(explainers.transfer); setShowPanel(true); }}>
-                    <FileText size={14} style={{ flexShrink: 0 }} /> Estimate transfer costs
-                    <div className="tooltip-box">{explainers.transfer.text}</div>
+                  <div className="next-step-action" onClick={() => { setContent(explainers.transfer); setShowPanel(true); }}>
+                    <div className="next-step-action-main">
+                      <FileText size={14} style={{ flexShrink: 0 }} />
+                      <span>Estimate transfer costs</span>
+                    </div>
+                    <div className="next-step-tooltip">{explainers.transfer.text}</div>
                   </div>
                   <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 6 }}>
                     <p className="small">Monthly savings: <strong className="accent">R{savings.toLocaleString("en-ZA")}</strong></p>

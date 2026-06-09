@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AppNav from "../components/AppNav";
 import "../styles/setup.css";
 import { useUser } from "../context/UserContext";
 import { calcMonthlyTax } from "../utils/tax";
-import { Home, Wallet, Zap, RefreshCw, Building2, Car, ShoppingBag, CreditCard, TrendingDown, Clock, CheckCircle, Target } from "lucide-react";
+import { getPropertyFeasibility } from "../utils/propertyFeasibility";
+import { Home, Wallet, Zap, RefreshCw, Building2, Car, ShoppingBag, CreditCard, TrendingDown, TrendingUp, Clock, CheckCircle, Target, AlertTriangle, ArrowRight, Check } from "lucide-react";
 import tree2Img from "../assets/tree2.png";
 
 export default function Setup() {
@@ -52,6 +53,8 @@ export default function Setup() {
   const [userPercent, setUserPercent] = useState(10);
   const [goalFlash, setGoalFlash] = useState(false);
   const [breakdownFlash, setBreakdownFlash] = useState(false);
+  const [setupAttention, setSetupAttention] = useState(false);
+  const [setupNudge, setSetupNudge] = useState("");
   const [errors, setErrors] = useState({});
 
   const [breakdown, setBreakdown] = useState({
@@ -74,6 +77,7 @@ export default function Setup() {
       }
     }
     setForm({ ...form, [name]: value });
+    setErrors(prev => ({ ...prev, [name]: "", breakdownTotal: "" }));
   };
 
   const handleBreakdownChange = (e) => {
@@ -88,6 +92,7 @@ export default function Setup() {
       return;
     }
     setBreakdown(updated);
+    setErrors(prev => ({ ...prev, [e.target.name]: "", breakdownTotal: "" }));
   };
 
   const grossSalary = Number(form.grossSalary) || 0;
@@ -190,6 +195,11 @@ export default function Setup() {
   const propRequired       = propTarget > 0 && propDeposit > 0 ? Math.ceil(propDeposit / propTarget) : null;
   const propShortfall      = propRequired && propMonthly ? Math.max(0, propRequired - propMonthly) : 0;
   const propOnTrack        = propActualMonths !== null && propTarget > 0 ? propActualMonths <= propTarget : null;
+  const propertyFeasibility = getPropertyFeasibility({
+    strategy: selectedTrack,
+    housePrice: form.housePrice,
+    monthlyContribution: propMonthly,
+  });
 
   const propertySuggestion = (() => {
     if (!propDeposit || !propMonthly) return null;
@@ -253,32 +263,95 @@ export default function Setup() {
     correction: rawGoal > 0 ? `Reduce R${rawGoal.toLocaleString("en-ZA")} / month` : "Set your target",
   }[selectedTrack];
 
-  /* ================= SUBMIT ================= */
-  const handleSubmit = () => {
+  const triggerSetupAttention = (message = "Finish every setup field before continuing.") => {
+    setSetupNudge(message);
+    setSetupAttention(false);
+    window.requestAnimationFrame(() => {
+      setSetupAttention(true);
+      window.setTimeout(() => setSetupAttention(false), 850);
+    });
+  };
+
+  const getValidationErrors = useCallback(() => {
     const gross = Number(form.grossSalary);
     const exp = Number(form.expenses);
-    const housePrice = selectedTrack === "property" ? Number(form.housePrice) : 0;
-
     const newErrors = {};
     if (!form.name.trim())  newErrors.name       = "Please enter your name.";
     if (!gross || gross <= 0) newErrors.grossSalary = "Please enter a valid gross salary.";
     if (exp === "" || exp < 0 || isNaN(exp)) newErrors.expenses = "Please enter your monthly expenses.";
+    if (!Number(form[goalConfig.field]) || Number(form[goalConfig.field]) <= 0) newErrors[goalConfig.field] = "Complete this goal before continuing.";
+    if (!Number(form.fiveYearGoal) || Number(form.fiveYearGoal) <= 0) newErrors.fiveYearGoal = "Add your 5-year goal.";
 
+    if (selectedTrack === "property") {
+      if (!Number(form.propertyTargetMonths) || Number(form.propertyTargetMonths) <= 0) newErrors.propertyTargetMonths = "Add your target months.";
+      if (!Number(form.monthlyContribution) || Number(form.monthlyContribution) <= 0) newErrors.monthlyContribution = "Add your monthly contribution.";
+    }
+
+    if (selectedTrack === "catchup") {
+      if (!Number(form.catchupMonthly) || Number(form.catchupMonthly) <= 0) newErrors.catchupMonthly = "Add your monthly debt contribution.";
+      if (!Number(form.catchupTargetMonths) || Number(form.catchupTargetMonths) <= 0) newErrors.catchupTargetMonths = "Add your debt-free target months.";
+    }
+
+    if (selectedTrack === "correction" && (!Number(form.correctionTargetMonths) || Number(form.correctionTargetMonths) <= 0)) {
+      newErrors.correctionTargetMonths = "Add your correction target months.";
+    }
+
+    const breakdownTotal = Object.values(breakdown).reduce((sum, value) => sum + (Number(value) || 0), 0);
+    Object.entries(breakdown).forEach(([key, value]) => {
+      if (value === "" || Number(value) < 0 || Number.isNaN(Number(value))) {
+        newErrors[key] = "Complete this category.";
+      }
+    });
+
+    if (exp > 0 && breakdownTotal !== exp) {
+      newErrors.breakdownTotal = `Allocate the full R${exp.toLocaleString("en-ZA")} across your spending breakdown.`;
+      ["housing", "mobility", "lifestyle", "debt"].forEach(key => {
+        newErrors[key] = newErrors[key] || "Adjust this breakdown.";
+      });
+    }
+
+    if (gross > 0 && !newErrors.expenses) {
+      const { netPay: submittedNet } = calcMonthlyTax(gross);
+      if (exp >= submittedNet) {
+        newErrors.expenses = `Expenses (R${exp.toLocaleString("en-ZA")}) cannot exceed your take-home pay (R${submittedNet.toLocaleString("en-ZA")}).`;
+      }
+    }
+
+    return newErrors;
+  }, [breakdown, form, goalConfig.field, selectedTrack]);
+
+  const handleInvalidAttempt = useCallback((source = "save") => {
+    const newErrors = getValidationErrors();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      // scroll to first error
+      triggerSetupAttention(source === "navigation"
+        ? "Setup is locked until every field is complete."
+        : "Finish the highlighted fields to continue.");
       const firstKey = Object.keys(newErrors)[0];
-      document.querySelector(`[name="${firstKey}"]`)?.focus();
-      return;
+      const firstField = document.querySelector(`[name="${firstKey}"]`);
+      firstField?.scrollIntoView({ behavior: "smooth", block: "center" });
+      firstField?.focus();
+      return false;
     }
+    return true;
+  }, [getValidationErrors]);
+
+  useEffect(() => {
+    const handleLockedNav = () => handleInvalidAttempt("navigation");
+    window.addEventListener("setup-lock-attempt", handleLockedNav);
+    return () => window.removeEventListener("setup-lock-attempt", handleLockedNav);
+  }, [handleInvalidAttempt]);
+
+  /* ================= SUBMIT ================= */
+  const handleSubmit = () => {
+    if (!handleInvalidAttempt("save")) return;
+
     setErrors({});
 
+    const gross = Number(form.grossSalary);
+    const exp = Number(form.expenses);
+    const housePrice = selectedTrack === "property" ? Number(form.housePrice) : 0;
     const { paye: submittedPAYE, uif: submittedUIF, netPay: submittedNet } = calcMonthlyTax(gross);
-
-    if (exp >= submittedNet) {
-      setErrors({ expenses: `Expenses (R${exp.toLocaleString("en-ZA")}) cannot exceed your take-home pay (R${submittedNet.toLocaleString("en-ZA")}).` });
-      return;
-    }
 
     const updatedUser = {
       ...user,
@@ -303,13 +376,15 @@ export default function Setup() {
       catchupMonthly:         Number(form.catchupMonthly) || 0,
       catchupTargetMonths:    Number(form.catchupTargetMonths) || 0,
       propertyTargetMonths:   Number(form.propertyTargetMonths) || 0,
+      propertyFiveYearProjection: propertyFeasibility.projection,
+      propertyTargetReachable: propertyFeasibility.isReachable,
       correctionTargetMonths: Number(form.correctionTargetMonths) || 0,
       debt:                 selectedTrack === "catchup" ? totalDebt : Number(form.goalAmount) || 0,
       actualDebtMonths:     actualMonths,
       requiredMonthlyDebt:  requiredMonthly,
     };
 
-    setUser(updatedUser); // ✅ THIS replaces localStorage.setItem
+    setUser(updatedUser);
     navigate("/home");
   };
 
@@ -320,12 +395,24 @@ export default function Setup() {
     { id: "correction", Icon: RefreshCw,  label: "Lifestyle Correction", desc: "Reduce debt & reset your finances" },
   ];
 
+  const ErrorText = ({ children }) => (
+    <p className="field-error">
+      <AlertTriangle size={13} strokeWidth={2.4} />
+      <span>{children}</span>
+    </p>
+  );
+
   return (
-    <div className="setup-page" style={{ position: "relative" }}>
+    <div className={`setup-page${setupAttention ? " setup-attention" : ""}`} style={{ position: "relative" }}>
       <img src={tree2Img} alt="" style={{ position: "fixed", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", opacity: 0.06, pointerEvents: "none", zIndex: 0 }} />
       <AppNav />
 
       <div className="setup-container">
+        {setupNudge && (
+          <div className="setup-nudge" role="alert" aria-live="polite">
+            {setupNudge}
+          </div>
+        )}
         <div className="setup-header">
           <h2>Set your finances</h2>
           <p className="setup-sub">Tell us about your situation to personalise your experience</p>
@@ -351,7 +438,7 @@ export default function Setup() {
                       <div className="track-title">{label}</div>
                       <div className="track-preview">{desc}</div>
                     </div>
-                    {selectedTrack === id && <span className="track-check">✓</span>}
+                    {selectedTrack === id && <span className="track-check"><Check size={14} strokeWidth={3} /></span>}
                   </div>
                 ))}
               </div>
@@ -386,12 +473,12 @@ export default function Setup() {
                 <div className="labelled-input">
                   <label htmlFor="setup-name">Your name</label>
                   <input id="setup-name" type="text" name="name" placeholder="e.g. Thabo Nkosi" value={form.name} onChange={(e) => { handleChange(e); setErrors(prev => ({ ...prev, name: "" })); }} className={errors.name ? "input-error" : ""} />
-                  {errors.name && <p className="field-error">{errors.name}</p>}
+                  {errors.name && <ErrorText>{errors.name}</ErrorText>}
                 </div>
                 <div className="labelled-input">
                   <label htmlFor="setup-salary">Gross monthly salary (R)</label>
                   <input id="setup-salary" type="number" name="grossSalary" placeholder="e.g. 35 000" value={form.grossSalary} onChange={(e) => { handleChange(e); setErrors(prev => ({ ...prev, grossSalary: "" })); }} className={errors.grossSalary ? "input-error" : ""} />
-                  {errors.grossSalary && <p className="field-error">{errors.grossSalary}</p>}
+                  {errors.grossSalary && <ErrorText>{errors.grossSalary}</ErrorText>}
                   {grossSalary > 0 && (
                     <div className="tax-inline">
                       <span>PAYE <strong>R{paye.toLocaleString("en-ZA")}</strong></span>
@@ -405,7 +492,7 @@ export default function Setup() {
                 <div className="labelled-input">
                   <label htmlFor="setup-expenses">Monthly expenses (R)</label>
                   <input id="setup-expenses" type="number" name="expenses" placeholder="e.g. 15 000" value={form.expenses} onChange={(e) => { handleChange(e); setErrors(prev => ({ ...prev, expenses: "" })); }} className={errors.expenses ? "input-error" : ""} />
-                  {errors.expenses && <p className="field-error">{errors.expenses}</p>}
+                  {errors.expenses && <ErrorText>{errors.expenses}</ErrorText>}
                 </div>
                 <div className={`goal-input-wrap${goalFlash ? " goal-input-flash" : ""}`}>
                   <input
@@ -414,6 +501,7 @@ export default function Setup() {
                     placeholder={goalConfig.label}
                     value={form[goalConfig.field]}
                     onChange={handleChange}
+                    className={errors[goalConfig.field] ? "input-error" : ""}
                   />
                   <span className="goal-hint" style={{ display: "flex", alignItems: "center", gap: 6 }}>
                     {goalConfig.hint}
@@ -426,9 +514,11 @@ export default function Setup() {
                   </span>
                   {goalFlash && (
                     <p className="goal-flash-warning">
-                      ⚠ Your investment goal exceeds your disposable income of R{disposableIncome.toLocaleString("en-ZA")}. Please enter a lower amount.
+                      <AlertTriangle size={14} strokeWidth={2.4} />
+                      <span>Your investment goal exceeds your disposable income of R{disposableIncome.toLocaleString("en-ZA")}. Please enter a lower amount.</span>
                     </p>
                   )}
+                  {errors[goalConfig.field] && <ErrorText>{errors[goalConfig.field]}</ErrorText>}
                 </div>
               </div>
 
@@ -447,9 +537,10 @@ export default function Setup() {
                   placeholder={(fiveYearGoalConfig[selectedTrack] || fiveYearGoalConfig.balanced).label}
                   value={form.fiveYearGoal}
                   onChange={handleChange}
-                  className="five-year-input"
+                  className={`five-year-input ${errors.fiveYearGoal ? "input-error" : ""}`}
                 />
               </div>
+              {errors.fiveYearGoal && <ErrorText>{errors.fiveYearGoal}</ErrorText>}
             </div>
 
             {/* ── PROPERTY PLAN ── */}
@@ -460,8 +551,9 @@ export default function Setup() {
                   <div className="labelled-input">
                     <label><Target size={12} /> Target months to save deposit</label>
                     <input type="number" name="propertyTargetMonths" placeholder="e.g. 24"
-                      value={form.propertyTargetMonths} onChange={handleChange} />
+                      value={form.propertyTargetMonths} onChange={handleChange} className={errors.propertyTargetMonths ? "input-error" : ""} />
                     <span className="goal-hint">How many months do you want to save your deposit in?</span>
+                    {errors.propertyTargetMonths && <ErrorText>{errors.propertyTargetMonths}</ErrorText>}
                   </div>
                   <div className="labelled-input">
                     <label><Target size={12} /> Monthly contribution (R)</label>
@@ -470,6 +562,7 @@ export default function Setup() {
                       name="monthlyContribution"
                       placeholder={monthlySavings > 0 ? monthlySavings : "e.g. 5 000"}
                       value={form.monthlyContribution}
+                      className={errors.monthlyContribution ? "input-error" : ""}
                       onChange={(e) => {
                         setContribTouched(true);
                         handleChange(e);
@@ -489,6 +582,7 @@ export default function Setup() {
                         )}
                       </span>
                     )}
+                    {errors.monthlyContribution && <ErrorText>{errors.monthlyContribution}</ErrorText>}
                   </div>
                 </div>
                 {propertySuggestion && (
@@ -497,8 +591,8 @@ export default function Setup() {
                     border: `1px solid ${propertySuggestion.type === "good" ? "rgba(132,167,148,0.25)" : propertySuggestion.type === "warn" ? "rgba(214,168,90,0.25)" : "rgba(79,172,254,0.2)"}` }}>
                     <CheckCircle size={16} color={propertySuggestion.type === "good" ? "#84a794" : propertySuggestion.type === "warn" ? "#d6a85a" : "#4facfe"} style={{ flexShrink: 0, marginTop: 1 }} />
                     <div>
-                      <p style={{ margin: "0 0 4px", fontSize: "0.78rem", fontWeight: 700, color: propertySuggestion.type === "good" ? "#84a794" : propertySuggestion.type === "warn" ? "#d6a85a" : "#4facfe" }}>
-                        {propertySuggestion.type === "good" ? "On track 🏠" : propertySuggestion.type === "warn" ? "Needs adjustment ⚡" : "Deposit insight"}
+                      <p style={{ margin: "0 0 4px", fontSize: "0.78rem", fontWeight: 700, color: propertySuggestion.type === "good" ? "#84a794" : propertySuggestion.type === "warn" ? "#d6a85a" : "#4facfe", display: "flex", alignItems: "center", gap: 6 }}>
+                        {propertySuggestion.type === "good" ? <><Home size={14} /> <span>On track</span></> : propertySuggestion.type === "warn" ? <><Zap size={14} /> <span>Needs adjustment</span></> : <><CheckCircle size={14} /> <span>Deposit insight</span></>}
                       </p>
                       <p style={{ margin: 0, fontSize: "0.76rem", color: "#c0ccc8", lineHeight: 1.6 }}>{propertySuggestion.msg}</p>
                       {propertySuggestion.type === "warn" && propRequired && (
@@ -511,6 +605,18 @@ export default function Setup() {
                           ))}
                         </div>
                       )}
+                    </div>
+                  </div>
+                )}
+                {propertyFeasibility.shouldWarn && (
+                  <div className="property-warning">
+                    <AlertTriangle size={17} strokeWidth={2.4} className="property-warning-icon" />
+                    <div>
+                      <p className="property-warning-title">Target price is above your 5-year projection</p>
+                      <p className="property-warning-text">
+                        At R{propMonthly.toLocaleString("en-ZA")}/month you are projected to save R{propertyFeasibility.projection.toLocaleString("en-ZA")} in 5 years, below your R{propertyFeasibility.targetPrice.toLocaleString("en-ZA")} property target.
+                        You can still continue, but consider a lower target price or increasing your monthly contribution by about R{propertyFeasibility.monthlyShortfall.toLocaleString("en-ZA")}.
+                      </p>
                     </div>
                   </div>
                 )}
@@ -543,8 +649,8 @@ export default function Setup() {
                     border: `1px solid ${balancedSuggestion.type === "good" ? "rgba(132,167,148,0.25)" : balancedSuggestion.type === "warn" ? "rgba(214,168,90,0.25)" : "rgba(79,172,254,0.2)"}` }}>
                     <CheckCircle size={16} color={balancedSuggestion.type === "good" ? "#84a794" : balancedSuggestion.type === "warn" ? "#d6a85a" : "#4facfe"} style={{ flexShrink: 0, marginTop: 1 }} />
                     <div>
-                      <p style={{ margin: "0 0 4px", fontSize: "0.78rem", fontWeight: 700, color: balancedSuggestion.type === "good" ? "#84a794" : balancedSuggestion.type === "warn" ? "#d6a85a" : "#4facfe" }}>
-                        {balancedSuggestion.type === "good" ? "On track 📈" : balancedSuggestion.type === "warn" ? "Increase monthly amount ⚡" : "Projection insight"}
+                      <p style={{ margin: "0 0 4px", fontSize: "0.78rem", fontWeight: 700, color: balancedSuggestion.type === "good" ? "#84a794" : balancedSuggestion.type === "warn" ? "#d6a85a" : "#4facfe", display: "flex", alignItems: "center", gap: 6 }}>
+                        {balancedSuggestion.type === "good" ? <><TrendingUp size={14} /> <span>On track</span></> : balancedSuggestion.type === "warn" ? <><Zap size={14} /> <span>Increase monthly amount</span></> : <><CheckCircle size={14} /> <span>Projection insight</span></>}
                       </p>
                       <p style={{ margin: 0, fontSize: "0.76rem", color: "#c0ccc8", lineHeight: 1.6 }}>{balancedSuggestion.msg}</p>
                       {balancedSuggestion.type === "warn" && balRequired && (
@@ -571,8 +677,9 @@ export default function Setup() {
                   <div className="labelled-input">
                     <label><Clock size={12} /> Target months to correct habits</label>
                     <input type="number" name="correctionTargetMonths" placeholder="e.g. 12"
-                      value={form.correctionTargetMonths} onChange={handleChange} />
+                      value={form.correctionTargetMonths} onChange={handleChange} className={errors.correctionTargetMonths ? "input-error" : ""} />
                     <span className="goal-hint">In how many months do you want to be back on track?</span>
+                    {errors.correctionTargetMonths && <ErrorText>{errors.correctionTargetMonths}</ErrorText>}
                   </div>
                   <div className="labelled-input" style={{ background: "rgba(255,255,255,0.02)", borderRadius: 10, padding: "10px 14px", border: "1px solid rgba(255,255,255,0.06)" }}>
                     <p style={{ margin: 0, fontSize: "0.65rem", color: "#445550", textTransform: "uppercase", letterSpacing: "0.08em" }}>Annual saving if corrected</p>
@@ -588,8 +695,8 @@ export default function Setup() {
                     border: `1px solid ${correctionSuggestion.type === "good" ? "rgba(132,167,148,0.25)" : correctionSuggestion.type === "warn" ? "rgba(214,168,90,0.25)" : "rgba(79,172,254,0.2)"}` }}>
                     <CheckCircle size={16} color={correctionSuggestion.type === "good" ? "#84a794" : correctionSuggestion.type === "warn" ? "#d6a85a" : "#4facfe"} style={{ flexShrink: 0, marginTop: 1 }} />
                     <div>
-                      <p style={{ margin: "0 0 4px", fontSize: "0.78rem", fontWeight: 700, color: correctionSuggestion.type === "good" ? "#84a794" : correctionSuggestion.type === "warn" ? "#d6a85a" : "#4facfe" }}>
-                        {correctionSuggestion.type === "good" ? "Realistic plan 🔄" : correctionSuggestion.type === "warn" ? "Set a longer target ⚠" : "Correction insight"}
+                      <p style={{ margin: "0 0 4px", fontSize: "0.78rem", fontWeight: 700, color: correctionSuggestion.type === "good" ? "#84a794" : correctionSuggestion.type === "warn" ? "#d6a85a" : "#4facfe", display: "flex", alignItems: "center", gap: 6 }}>
+                        {correctionSuggestion.type === "good" ? <><RefreshCw size={14} /> <span>Realistic plan</span></> : correctionSuggestion.type === "warn" ? <><AlertTriangle size={14} /> <span>Set a longer target</span></> : <><CheckCircle size={14} /> <span>Correction insight</span></>}
                       </p>
                       <p style={{ margin: 0, fontSize: "0.76rem", color: "#c0ccc8", lineHeight: 1.6 }}>{correctionSuggestion.msg}</p>
                       {correctionSuggestion.type === "good" && corrMonthly && corrTarget && (
@@ -622,6 +729,7 @@ export default function Setup() {
                       placeholder="e.g. 5 000"
                       value={form.catchupMonthly}
                       onChange={handleChange}
+                      className={errors.catchupMonthly ? "input-error" : ""}
                     />
                     <span className="goal-hint" style={{ display: "flex", alignItems: "center", gap: 6 }}>
                       How much can you put toward debt each month?
@@ -632,6 +740,7 @@ export default function Setup() {
                         </button>
                       )}
                     </span>
+                    {errors.catchupMonthly && <ErrorText>{errors.catchupMonthly}</ErrorText>}
                   </div>
                   <div className="labelled-input">
                     <label><Clock size={12} /> Target months to clear debt</label>
@@ -641,8 +750,10 @@ export default function Setup() {
                       placeholder="e.g. 24"
                       value={form.catchupTargetMonths}
                       onChange={handleChange}
+                      className={errors.catchupTargetMonths ? "input-error" : ""}
                     />
                     <span className="goal-hint">In how many months do you want to be debt-free?</span>
+                    {errors.catchupTargetMonths && <ErrorText>{errors.catchupTargetMonths}</ErrorText>}
                   </div>
                 </div>
 
@@ -664,8 +775,8 @@ export default function Setup() {
                   }}>
                     <CheckCircle size={16} color={catchupSuggestion.type === "good" ? "#84a794" : catchupSuggestion.type === "warn" ? "#d6a85a" : "#4facfe"} style={{ flexShrink: 0, marginTop: 1 }} />
                     <div>
-                      <p style={{ margin: 0, fontSize: "0.78rem", fontWeight: 600, color: catchupSuggestion.type === "good" ? "#84a794" : catchupSuggestion.type === "warn" ? "#d6a85a" : "#4facfe", marginBottom: 4 }}>
-                        {catchupSuggestion.type === "good" ? "On track 🎯" : catchupSuggestion.type === "warn" ? "Needs adjustment ⚡" : "Plan insight"}
+                      <p style={{ margin: 0, fontSize: "0.78rem", fontWeight: 600, color: catchupSuggestion.type === "good" ? "#84a794" : catchupSuggestion.type === "warn" ? "#d6a85a" : "#4facfe", marginBottom: 4, display: "flex", alignItems: "center", gap: 6 }}>
+                        {catchupSuggestion.type === "good" ? <><Target size={14} /> <span>On track</span></> : catchupSuggestion.type === "warn" ? <><Zap size={14} /> <span>Needs adjustment</span></> : <><CheckCircle size={14} /> <span>Plan insight</span></>}
                       </p>
                       <p style={{ margin: 0, fontSize: "0.76rem", color: "#c0ccc8", lineHeight: 1.6 }}>{catchupSuggestion.msg}</p>
                       {catchupSuggestion.type === "warn" && requiredMonthly && (
@@ -699,8 +810,8 @@ export default function Setup() {
                   <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:8 }}>
                     <p className="section-label" style={{ margin:0 }}>Spending breakdown</p>
                     {totalExpenses > 0 && (
-                      <span style={{ fontSize:"0.72rem", color: isOver?"#ff6b6b": remaining===0?"#84a794":"#667c74" }}>
-                        {isOver ? `Over R${Math.abs(remaining).toLocaleString("en-ZA")}` : remaining===0 ? "Fully allocated ✓" : `R${remaining.toLocaleString("en-ZA")} left`}
+                      <span style={{ fontSize:"0.72rem", color: isOver?"#ff6b6b": remaining===0?"#84a794":"#667c74", display: "inline-flex", alignItems: "center", gap: 5 }}>
+                        {isOver ? `Over R${Math.abs(remaining).toLocaleString("en-ZA")}` : remaining===0 ? <><CheckCircle size={12} /> <span>Fully allocated</span></> : `R${remaining.toLocaleString("en-ZA")} left`}
                       </span>
                     )}
                   </div>
@@ -715,11 +826,18 @@ export default function Setup() {
                 ].map(({ icon, label, name, ph }) => (
                   <div key={name} className="labelled-input">
                     <label>{icon} {label}</label>
-                    <input type="number" name={name} placeholder={ph} value={breakdown[name]} onChange={handleBreakdownChange} />
+                    <input type="number" name={name} placeholder={ph} value={breakdown[name]} onChange={handleBreakdownChange} className={errors[name] ? "input-error" : ""} />
+                    {errors[name] && <ErrorText>{errors[name]}</ErrorText>}
                   </div>
                 ))}
               </div>
-              {breakdownFlash && <p className="goal-flash-warning">⚠ Total exceeds R{(Number(form.expenses)||0).toLocaleString("en-ZA")} — reduce a category first.</p>}
+              {errors.breakdownTotal && <ErrorText>{errors.breakdownTotal}</ErrorText>}
+              {breakdownFlash && (
+                <p className="goal-flash-warning">
+                  <AlertTriangle size={14} strokeWidth={2.4} />
+                  <span>Total exceeds R{(Number(form.expenses)||0).toLocaleString("en-ZA")} — reduce a category first.</span>
+                </p>
+              )}
             </div>
 
             {/* GOAL CARD — adapts per track */}
@@ -746,7 +864,8 @@ export default function Setup() {
             )}
 
             <button className="btn primary" onClick={handleSubmit}>
-              Save & Continue →
+              <span>Save & Continue</span>
+              <ArrowRight size={17} strokeWidth={2.4} />
             </button>
           </div>
 
