@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { getTrackProgression } from "../utils/trackProgression";
 import useProgress from "../hooks/useProgress";
 import growthImg from "../assets/growth.png.gif";
+import rootsImg from "../assets/roots.png";
 
 // ─── Static track data ────────────────────────────────────────────────────────
 
@@ -555,11 +556,11 @@ export default function StrategyTrack() {
                       {/* Expandable details */}
                       {isExpanded && (
                         <div style={{ marginBottom: 16, display: "flex", flexDirection: "column", gap: 10 }}>
-                          <div style={{ background: "rgba(214,168,90,0.06)", border: "1px solid rgba(214,168,90,0.15)", borderRadius: 10, padding: "10px 14px" }}>
+                          <div className="strategy-detail-leaf strategy-detail-leaf--trade">
                             <p style={{ fontSize: "0.72rem", fontWeight: 700, color: "#d6a85a", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 4px" }}>⚖ Trade-off</p>
                             <p style={{ fontSize: "0.8rem", color: "#c0ccc8", margin: 0, lineHeight: 1.5 }}>{track.tradeoffs}</p>
                           </div>
-                          <div style={{ background: "rgba(255,152,152,0.06)", border: "1px solid rgba(255,152,152,0.15)", borderRadius: 10, padding: "12px 14px" }}>
+                          <div className="strategy-detail-leaf strategy-detail-leaf--warning">
                             <p style={{ fontSize: "0.7rem", fontWeight: 700, color: "#ff9898", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>⚠ Warnings</p>
                             {track.warnings.map((w, i) => (
                               <div key={i} style={{ display: "flex", gap: 7, alignItems: "flex-start", marginBottom: 6 }}>
@@ -568,7 +569,7 @@ export default function StrategyTrack() {
                               </div>
                             ))}
                           </div>
-                          <div style={{ background: "rgba(79,172,254,0.06)", border: "1px solid rgba(79,172,254,0.15)", borderRadius: 10, padding: "10px 14px" }}>
+                          <div className="strategy-detail-leaf strategy-detail-leaf--example">
                             <p style={{ fontSize: "0.72rem", fontWeight: 700, color: "#4facfe", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 4px" }}>📊 Real example</p>
                             <p style={{ fontSize: "0.8rem", color: "#c0ccc8", margin: 0, lineHeight: 1.5 }}>{track.example}</p>
                           </div>
@@ -585,7 +586,7 @@ export default function StrategyTrack() {
                         </button>
                         <button
                           onClick={() => setExpandedTrack(isExpanded ? null : key)}
-                          style={{ background: "none", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, padding: "10px 16px", color: "#8a9a96", cursor: "pointer", fontSize: "0.82rem", transition: "border-color 0.2s" }}
+                          className="sim-step-details-btn"
                         >
                           {isExpanded ? "Less ↑" : "Details ↓"}
                         </button>
@@ -593,8 +594,15 @@ export default function StrategyTrack() {
                     </div>
 
                     {/* MEDIA / STATS BLOCK */}
-                    <div className="sim-step-media">
-                      <div style={{ background: "rgba(255,255,255,0.04)", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)", border: `1px solid ${isActive ? `rgba(${track.colorRgb},0.35)` : "rgba(255,255,255,0.09)"}`, boxShadow: isActive ? `0 8px 32px rgba(${track.colorRgb},0.12)` : "0 8px 32px rgba(0,0,0,0.3)", borderRadius: 16, padding: "20px 22px", display: "flex", flexDirection: "column", gap: 16 }}>
+                    <div
+                      className="sim-step-media"
+                      style={{
+                        background: `linear-gradient(145deg, rgba(6,12,10,0.72), rgba(13,22,19,0.86)), url(${rootsImg})`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                      }}
+                    >
+                      <div style={{ background: "linear-gradient(145deg, rgba(12,17,16,0.9), rgba(17,24,23,0.84))", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)", border: `1px solid ${isActive ? `rgba(${track.colorRgb},0.35)` : "rgba(255,255,255,0.09)"}`, boxShadow: isActive ? `0 8px 32px rgba(${track.colorRgb},0.12)` : "0 8px 32px rgba(0,0,0,0.3)", borderRadius: "34px 12px 34px 12px", padding: "20px 22px", display: "flex", flexDirection: "column", gap: 16 }}>
 
                         {/* Icon + name */}
                         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>

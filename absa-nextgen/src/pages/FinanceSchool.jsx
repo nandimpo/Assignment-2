@@ -4,6 +4,8 @@ import AppNav from "../components/AppNav";
 import confetti from "canvas-confetti";
 import { useUser } from "../context/UserContext";
 import Tour from "../components/Tour";
+import FlipCard from "../components/FlipCard";
+import seedsImg from "../assets/seeds.png";
 
 /* ─── LESSONS ────────────────────────────────────────────── */
 
@@ -486,7 +488,7 @@ export default function FinanceSchool() {
   ];
 
   return (
-    <div className="learn-page">
+    <div className="learn-page" style={{ "--school-bg": `url(${seedsImg})` }}>
       <AppNav />
 
       <div className="learn-container">
@@ -528,6 +530,8 @@ export default function FinanceSchool() {
           </div>
         </div>
 
+        {view === "path" && (
+          <>
         {/* TAG FILTER */}
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", margin: "8px 0" }}>
           {tags.map(tag => (
@@ -552,7 +556,12 @@ export default function FinanceSchool() {
           {visibleLessons.map(lesson => {
             const done = learning.completed.includes(lesson.id);
             return (
-              <div key={lesson.id} className="card module-card" style={{ borderTop: `3px solid ${lesson.color}`, opacity: done ? 0.8 : 1 }}>
+              <FlipCard
+                key={lesson.id}
+                className="school-module-flip"
+                style={{ "--lesson-color": lesson.color, opacity: done ? 0.8 : 1 }}
+                front={
+                  <div className="card module-card" onClick={() => openLesson(lesson)} style={{ borderTop: `3px solid ${lesson.color}` }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
                   <span style={{ fontSize: "0.65rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: lesson.color }}>{lesson.tag}</span>
                   {done && <span style={{ fontSize: "0.7rem", color: "#84a794", fontWeight: 600 }}>✓ Done</span>}
@@ -565,10 +574,32 @@ export default function FinanceSchool() {
                     {done ? "Review" : "Start →"}
                   </button>
                 </div>
-              </div>
+                  </div>
+                }
+                back={
+                  <div className="card module-card module-card-back" onClick={() => openLesson(lesson)}>
+                    <span className="module-back-label">{lesson.tag}</span>
+                    <h3>{lesson.title}</h3>
+                    <p>
+                      {done
+                        ? "Revisit the lesson, refresh the roots, and strengthen the quiz memory."
+                        : "Open the lesson, learn the core idea, then earn XP through the quiz."}
+                    </p>
+                    <div className="module-back-meta">
+                      <span>{lesson.quiz.length} questions</span>
+                      <span>+{lesson.quiz.length * 50} XP</span>
+                    </div>
+                    <button className="module-card-action" onClick={() => openLesson(lesson)}>
+                      {done ? "Review lesson ->" : "Start lesson ->"}
+                    </button>
+                  </div>
+                }
+              />
             );
           })}
         </div>
+          </>
+        )}
 
         {/* LESSON VIEW */}
         {view === "lesson" && activeLesson && (

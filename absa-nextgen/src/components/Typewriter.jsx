@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 
-export default function Typewriter({ text = "", speed = 16, delay = 0, tag: Tag = "p", className = "", style = {} }) {
+export default function Typewriter({ text = "", speed = 24, delay = 0, tag: Tag = "p", className = "", style = {} }) {
   const [displayed, setDisplayed] = useState("");
   const [started, setStarted] = useState(false);
   const containerRef = useRef(null);
@@ -51,13 +51,16 @@ export default function Typewriter({ text = "", speed = 16, delay = 0, tag: Tag 
     clearInterval(timerRef.current);
     clearTimeout(delayRef.current);
 
+    const growthSpeed = Math.max(28, Math.round(speed * 2.4));
+    const growthDelay = Math.round(delay * 1.25);
+
     delayRef.current = setTimeout(() => {
       timerRef.current = setInterval(() => {
         indexRef.current += 1;
         setDisplayed(text.slice(0, indexRef.current));
         if (indexRef.current >= text.length) clearInterval(timerRef.current);
-      }, speed);
-    }, delay);
+      }, growthSpeed);
+    }, growthDelay);
 
     return () => {
       clearInterval(timerRef.current);

@@ -92,6 +92,7 @@ export default function Home() {
     if (trackIs === "balanced") return Math.round(savingsLogTotal + monthlyInvest * ((Math.pow(1 + r, y * 12) - 1) / r));
     return Math.round(savingsLogTotal + monthlyInvest * 12 * y);
   });
+  const formatCompactRand = (value) => `R${Math.round(value / 1000).toLocaleString("en-ZA")}k`;
 
   const goalLabels = { property: "Deposit Target", balanced: "5-Year Portfolio Goal", catchup: "Debt to Clear", correction: "Correction Goal" };
   const goalLabel  = goalLabels[user?.strategy] || "Financial Goal";
@@ -224,7 +225,7 @@ export default function Home() {
                 <div key={y} className={`home-y5-year ${y === 5 ? "home-y5-year--end" : ""}`}>
                   <span className="home-y5-year-label">Yr {y}</span>
                   <span className="home-y5-year-value" style={trackIs === "catchup" && y5Values[i] === 0 ? { color: "#84a794" } : {}}>
-                    {trackIs === "catchup" && y5Values[i] === 0 ? "Gone" : <NumberCounter value={y5Values[i]} prefix="R" compact />}
+                    {trackIs === "catchup" && y5Values[i] === 0 ? "Gone" : formatCompactRand(y5Values[i])}
                   </span>
                 </div>
               ))}

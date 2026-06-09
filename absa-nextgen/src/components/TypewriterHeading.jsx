@@ -4,7 +4,7 @@ export default function TypewriterHeading({
   text,
   className,
   style,
-  speed = 70,
+  speed = 105,
   delay = 0,
   tag: Tag = "h2",
   scrollTriggered = true,
@@ -56,7 +56,9 @@ export default function TypewriterHeading({
 
     if (displayed.length >= text.length) return;
     // when scrollTriggered, use delay for first char; otherwise already handled above
-    const wait = (scrollTriggered && displayed.length === 0) ? delay : speed;
+    const growthSpeed = Math.max(90, Math.round(speed * 1.25));
+    const growthDelay = Math.round(delay * 1.25);
+    const wait = (scrollTriggered && displayed.length === 0) ? growthDelay : growthSpeed;
     const t = setTimeout(() => setDisplayed(text.slice(0, displayed.length + 1)), wait);
     return () => clearTimeout(t);
   }, [started, displayed, text, speed]);

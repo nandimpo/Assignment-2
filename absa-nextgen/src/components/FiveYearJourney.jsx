@@ -140,7 +140,7 @@ export default function FiveYearJourney({ trackKey, monthlyAmount, currentSaved 
                     {nodeCleared ? "Gone ✓" : `R${yearValues[i].toLocaleString("en-ZA")} left`}
                   </p>
                 ) : (
-                  <p className="fy-value"><NumberCounter value={yearValues[i]} prefix="R" /></p>
+                  <p className="fy-value">R{yearValues[i].toLocaleString("en-ZA")}</p>
                 )}
               </div>
             );

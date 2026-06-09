@@ -1,13 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
-const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+const growLikeRoots = (t) => {
+  if (t < 0.38) return 0.12 * (t / 0.38) ** 2;
+  if (t < 0.82) return 0.12 + 0.58 * ((t - 0.38) / 0.44);
+  return 0.7 + 0.3 * (1 - (1 - (t - 0.82) / 0.18) ** 2);
+};
 
 export default function NumberCounter({
   value,
   prefix = "",
   suffix = "",
   locale = "en-ZA",
-  duration = 1800,
+  duration = 8400,
   decimals = 0,
   compact = false,
   className = "",
@@ -82,7 +86,7 @@ export default function NumberCounter({
 
     const tick = (now) => {
       const progress = Math.min((now - startedAt) / duration, 1);
-      const eased = easeOutCubic(progress);
+      const eased = growLikeRoots(progress);
       const nextValue = startValue + (endValue - startValue) * eased;
 
       setDisplay(nextValue);

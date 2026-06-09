@@ -5,7 +5,7 @@
   background:
     linear-gradient(180deg, rgba(2, 2, 2, 0.74), rgba(2, 2, 2, 0.9) 42%, #020202 100%),
     radial-gradient(circle at top, rgba(214, 168, 90, 0.2), transparent 32%),
-    url("../assets/soil.png") center top / cover no-repeat fixed,
+    var(--school-bg, url("../assets/seeds.png")) center top / cover no-repeat fixed,
     #020202;
   color: white;
   min-height: 100vh;
@@ -86,6 +86,95 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 18px;
+}
+
+.school-module-flip {
+  min-height: 276px;
+  perspective: 1200px;
+}
+
+.school-module-flip .flip-card-inner {
+  min-height: 276px;
+  height: 100%;
+  transition: transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.school-module-flip .flip-card-front,
+.school-module-flip .flip-card-back {
+  min-height: 276px;
+  display: flex;
+  backface-visibility: hidden;
+}
+
+.school-module-flip .flip-card-back {
+  transform: rotateY(180deg);
+}
+
+.school-module-flip .module-card {
+  width: 100%;
+  min-height: 276px;
+  margin-bottom: 0;
+}
+
+.school-module-flip .module-card:hover {
+  transform: none;
+}
+
+.school-module-flip:hover .flip-card-inner,
+.school-module-flip:focus-within .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+.module-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.module-card-back {
+  border-color: color-mix(in srgb, var(--lesson-color) 46%, rgba(132, 167, 148, 0.2));
+  border-radius: 34px 10px 34px 10px;
+  background:
+    radial-gradient(circle at 82% 18%, color-mix(in srgb, var(--lesson-color) 26%, transparent), transparent 30%),
+    linear-gradient(145deg, rgba(10, 18, 16, 0.96), rgba(16, 25, 22, 0.92));
+  box-shadow: inset 0 0 42px rgba(132, 167, 148, 0.06);
+  gap: 12px;
+}
+
+.module-card-back h3 {
+  margin: 0;
+}
+
+.module-card-back p {
+  margin: 0;
+  color: #9badac;
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.module-back-label {
+  color: var(--lesson-color);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.module-back-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: #6f827c;
+  font-size: 0.74rem;
+}
+
+.module-card .module-card-action {
+  width: fit-content;
+  align-self: flex-end;
+  border: 1px solid var(--lesson-color);
+  color: var(--lesson-color);
+  background: color-mix(in srgb, var(--lesson-color) 13%, transparent);
 }
 
 /* BUTTONS */
