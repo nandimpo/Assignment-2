@@ -8,6 +8,7 @@ import SlideIn from "../components/SlideIn";
 import { Home as HomeIcon, Scale, RefreshCw, Building2, TrendingUp, CreditCard, Target, GraduationCap, Sparkles, ChevronRight, ChevronLeft, Sprout } from "lucide-react";
 import FlipCard from "../components/FlipCard";
 import Typewriter from "../components/Typewriter";
+import NumberCounter from "../components/NumberCounter";
 import { useUser } from "../context/UserContext";
 import rootsImg from "../assets/roots.png";
 import treeImg from "../assets/tree.png";
@@ -151,7 +152,7 @@ export default function Home() {
           <div className="hero__pos-card" id="health" onClick={() => navigate("/money")}>
             <p className="hero__card-eyebrow">Financial Position</p>
             <div className="hero__pos-score">
-              <span className="hero__pos-num">{healthScore}</span>
+              <NumberCounter as="span" className="hero__pos-num" value={healthScore} />
               <span className="hero__pos-denom">/100</span>
             </div>
             <p className="hero__card-sub">{healthLabel} position.<br />You're well on track.</p>
@@ -166,7 +167,7 @@ export default function Home() {
             <div className="hero__progress-bar">
               <div className="hero__progress-fill" style={{ width: `${depositProgress}%` }} />
             </div>
-            <p className="hero__progress-pct">{depositProgress}%</p>
+            <NumberCounter as="p" className="hero__progress-pct" value={depositProgress} suffix="%" />
             <button className="ghost-btn" style={{ marginTop: 8 }}>Continue your path →</button>
           </div>
           <div className="hero__bottom-strip hero__bottom-strip--single">
@@ -180,15 +181,15 @@ export default function Home() {
         <section className="stats fade-in" id="stats">
           <div className="stat money-glow">
             <p>Monthly income</p>
-            <h3>R{income.toLocaleString("en-ZA")}</h3>
+            <h3><NumberCounter value={income} prefix="R" /></h3>
           </div>
           <div className="stat money-glow">
             <p>Fixed Costs</p>
-            <h3>R{expenses.toLocaleString("en-ZA")}</h3>
+            <h3><NumberCounter value={expenses} prefix="R" /></h3>
           </div>
           <div className="stat highlight clickable money-glow" onClick={() => navigate("/money")}>
             <p>Net Position</p>
-            <h3>R{net.toLocaleString("en-ZA")}</h3>
+            <h3><NumberCounter value={net} prefix="R" /></h3>
             <span className="view-link">View breakdown →</span>
           </div>
         </section>
@@ -203,7 +204,7 @@ export default function Home() {
               {trackIs === "catchup" ? (
                 <>
                   <p className="home-y5-amount" style={{ color: y5Values[4] === 0 ? "#84a794" : "#ff9898" }}>
-                    {y5Values[4] === 0 ? "Debt-Free ✓" : `R${y5Values[4].toLocaleString("en-ZA")} left`}
+                    {y5Values[4] === 0 ? "Debt-Free" : <><NumberCounter value={y5Values[4]} prefix="R" /> left</>}
                   </p>
                   <p className="home-y5-sub">
                     {y5Values[4] === 0
@@ -213,7 +214,7 @@ export default function Home() {
                 </>
               ) : (
                 <>
-                  <p className="home-y5-amount">R{y5Values[4].toLocaleString("en-ZA")}</p>
+                  <p className="home-y5-amount"><NumberCounter value={y5Values[4]} prefix="R" /></p>
                   <p className="home-y5-sub">projected by Year 5 at R{monthlyInvest.toLocaleString("en-ZA")}/month</p>
                 </>
               )}
@@ -223,7 +224,7 @@ export default function Home() {
                 <div key={y} className={`home-y5-year ${y === 5 ? "home-y5-year--end" : ""}`}>
                   <span className="home-y5-year-label">Yr {y}</span>
                   <span className="home-y5-year-value" style={trackIs === "catchup" && y5Values[i] === 0 ? { color: "#84a794" } : {}}>
-                    {trackIs === "catchup" && y5Values[i] === 0 ? "Gone ✓" : `R${(y5Values[i] / 1000).toFixed(0)}k`}
+                    {trackIs === "catchup" && y5Values[i] === 0 ? "Gone" : <NumberCounter value={y5Values[i]} prefix="R" compact />}
                   </span>
                 </div>
               ))}
@@ -236,7 +237,7 @@ export default function Home() {
           <section className="goal-card money-glow" id="goal">
             <span className="label">{goalLabel}</span>
             <h3 style={{ fontSize: 20, fontWeight: 700, margin: "3px 0 2px" }}>
-              {displayAmount ? `R${Number(displayAmount).toLocaleString("en-ZA")}` : "Not set"}
+              {displayAmount ? <NumberCounter value={Number(displayAmount)} prefix="R" /> : "Not set"}
             </h3>
             <p className="muted" style={{ fontSize: 11 }}>{goalSubLine}</p>
             <button className="primary-btn" style={{ marginTop: 8 }} onClick={() => navigate("/money")}>View Snapshot →</button>

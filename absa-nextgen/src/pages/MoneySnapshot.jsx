@@ -11,6 +11,7 @@ import { Target, GraduationCap } from "lucide-react";
 import FlipCard from "../components/FlipCard";
 import Typewriter from "../components/Typewriter";
 import SlideIn from "../components/SlideIn";
+import NumberCounter from "../components/NumberCounter";
 import soilBg from "../assets/soil.png";
 import sandImg from "../assets/sand.png";
 import { getTrackMonthlyAmount } from "../utils/trackAmounts";
@@ -370,7 +371,7 @@ export default function MoneySnapshot() {
         <div className="money-hero__score-card">
           <p className="money-hero__card-eye">Financial Health Score</p>
           <div className="money-hero__score-row">
-            <span className="money-hero__score-num">{soilScore}</span>
+            <NumberCounter as="span" className="money-hero__score-num" value={soilScore} />
             <span className="money-hero__score-denom">/100</span>
           </div>
           <p className="money-hero__score-label">{soilLabel} · {savingsRate}% nourishment rate</p>
@@ -383,25 +384,25 @@ export default function MoneySnapshot() {
           <div className="money-hero__track-bar">
             <div className="money-hero__track-fill" style={{ width: `${tgvProgress}%` }} />
           </div>
-          <p className="money-hero__track-pct">{tgvProgress}% toward goal</p>
+          <p className="money-hero__track-pct"><NumberCounter value={tgvProgress} suffix="%" /> toward goal</p>
           <button className="ghost-btn" style={{ marginTop: 8 }} onClick={() => navigate("/strategy")}>Tend your path →</button>
         </div>
 
         <div className="money-hero__strip">
           <div className="money-hero__strip-item money-glow">
             <p className="money-hero__strip-label">Gross Monthly</p>
-            <p className="money-hero__strip-value">R{grossIncome.toLocaleString("en-ZA")}</p>
+            <p className="money-hero__strip-value"><NumberCounter value={grossIncome} prefix="R" /></p>
           </div>
           <div className="money-hero__strip-divider" />
           <div className="money-hero__strip-item money-glow">
             <p className="money-hero__strip-label">Take-home</p>
-            <p className="money-hero__strip-value">R{income.toLocaleString("en-ZA")}</p>
+            <p className="money-hero__strip-value"><NumberCounter value={income} prefix="R" /></p>
           </div>
           <div className="money-hero__strip-divider" />
           <div className="money-hero__strip-item money-glow">
             <p className="money-hero__strip-label">Monthly Surplus</p>
             <p className="money-hero__strip-value" style={{ color: net >= 0 ? "#84a794" : "#d6765a" }}>
-              R{net.toLocaleString("en-ZA")}
+              <NumberCounter value={net} prefix="R" />
             </p>
           </div>
         </div>
@@ -438,7 +439,9 @@ export default function MoneySnapshot() {
                 Net Position
                 <span className="info-icon" onMouseEnter={(e) => showTooltip("net", e)} onMouseLeave={hideTooltip} onClick={() => { setContent(explainers.net); setShowPanel(true); }}>ⓘ</span>
               </p>
-              <h3 className="big-number" style={{ color: net >= 0 ? "#f4f6fc" : "#d6765a" }}>R{net.toLocaleString("en-ZA")}</h3>
+              <h3 className="big-number" style={{ color: net >= 0 ? "#f4f6fc" : "#d6765a" }}>
+                <NumberCounter value={net} prefix="R" />
+              </h3>
               <span className="small">{savingsRate}% nourishment rate</span>
             </div>
           </div>
@@ -454,15 +457,15 @@ export default function MoneySnapshot() {
               <div className="metrics-inline">
                 <div className="metric-item money-glow">
                   <span className="metric-item-label">Debt-to-Income</span>
-                  <strong>{debtToIncome}%</strong>
+                  <strong><NumberCounter value={debtToIncome} suffix="%" /></strong>
                 </div>
                 <div className="metric-item money-glow">
                   <span className="metric-item-label">Disposable</span>
-                  <strong>R{disposableIncome.toLocaleString("en-ZA")}</strong>
+                  <strong><NumberCounter value={disposableIncome} prefix="R" /></strong>
                 </div>
                 <div className="metric-item">
                   <span className="metric-item-label">Nourishment</span>
-                  <strong>{savingsRate}%</strong>
+                  <strong><NumberCounter value={savingsRate} suffix="%" /></strong>
                 </div>
               </div>
               <div className="metrics-sliders">
@@ -577,31 +580,25 @@ export default function MoneySnapshot() {
               <div className="progress">
                 <div className="fill" style={{ width: `${tgvProgress}%` }} />
               </div>
-              <Typewriter
-                text={`${tgvLabel}${tgvMonths !== null ? ` - ${tgvMonths} months to go` : ""}`}
-                speed={12}
-                tag="p"
-                className="small"
-              />
+              <p className="small">
+                {tgvLabel}
+                {tgvMonths !== null ? ` - ${tgvMonths} months to go` : ""}
+              </p>
               <button className="pill" onClick={() => navigate("/setup")}>{trackCfg.depositButtonLabel}</button>
             </div>
 
             <div className="card" style={{ position: "relative", overflow: "hidden" }}>
               <img src={sandImg} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center", opacity: 0.07, pointerEvents: "none", zIndex: 0 }} />
               <h3 style={{ position: "relative", zIndex: 1 }}>The Current</h3>
-              <Typewriter
-                text="Where your money flows each month"
-                speed={14}
-                tag="p"
-                className="small"
-                style={{ marginBottom: 4, color: "#8fa3a0", position: "relative", zIndex: 1 }}
-              />
+              <p className="small" style={{ marginBottom: 4, color: "#8fa3a0", position: "relative", zIndex: 1 }}>
+                Where your money flows each month
+              </p>
               <div style={{ position: "relative", zIndex: 1 }}>
                 <div className="chart" style={{ background: `conic-gradient(#84a794 0% ${(monthlySurplus / safeIncome) * 100}%, #6faad3 ${(monthlySurplus / safeIncome) * 100}% ${((monthlySurplus + expenses) / safeIncome) * 100}%, #d6a85a ${((monthlySurplus + expenses) / safeIncome) * 100}% 100%)` }} />
                 <div className="legend">
-                  <Typewriter text={`Surplus - R${monthlySurplus.toLocaleString("en-ZA")}`} speed={12} delay={250} tag="p" />
-                  <Typewriter text={`Expenses - R${expenses.toLocaleString("en-ZA")}`} speed={12} delay={500} tag="p" />
-                  <Typewriter text={`Invested total - R${savingsLogTotal.toLocaleString("en-ZA")}`} speed={12} delay={750} tag="p" />
+                  <p>Surplus - R{monthlySurplus.toLocaleString("en-ZA")}</p>
+                  <p>Expenses - R{expenses.toLocaleString("en-ZA")}</p>
+                  <p>Invested total - R{savingsLogTotal.toLocaleString("en-ZA")}</p>
                 </div>
                 <button className="pill full" onClick={() => navigate("/simulation")}>Explore financial scenarios →</button>
               </div>

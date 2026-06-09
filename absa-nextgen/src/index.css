@@ -216,7 +216,9 @@ body {
 .stat-card,
 .simulation-card,
 .fy-outcome,
-.property-box {
+.property-box,
+.sim-card,
+.glass {
   border-radius: 28px 4px 28px 28px !important;
 }
 
@@ -431,4 +433,32 @@ body {
   font-size: 11px;
   color: #6a8a7a;
   line-height: 1.5;
+}
+
+.flip-card.verdict-flip .flip-card-inner {
+  min-height: 100%;
+}
+
+.flip-card.verdict-flip .flip-card-front,
+.flip-card.verdict-flip .flip-card-back {
+  display: flex;
+}
+
+.flip-card.verdict-flip .flip-card-front > .sim-card {
+  width: 100%;
+  min-height: 100%;
+}
+
+.flip-card.verdict-flip .flip-card-back {
+  justify-content: center;
+}
+
+.flip-card.verdict-flip .flip-card-back .flip-back-count {
+  font-size: 24px;
+  color: rgba(214, 168, 90, 0.55);
+}
+
+.flip-card.verdict-flip .flip-back-action {
+  margin-top: 4px;
+  align-self: flex-start;
 }

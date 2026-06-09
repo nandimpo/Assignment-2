@@ -6,6 +6,7 @@ import { useUser } from "../context/UserContext";
 import SlideIn from "../components/SlideIn";
 import tree2Img from "../assets/tree2.png";
 import FlipCard from "../components/FlipCard";
+import NumberCounter from "../components/NumberCounter";
 import "../styles/money.css";
 
 export default function Profile() {
@@ -248,7 +249,7 @@ export default function Profile() {
                       }deg, #1a1f1e 0deg)`,
                     }}
                   >
-                    <div className="donut-inner">{savingsRate}%</div>
+                    <div className="donut-inner"><NumberCounter value={savingsRate} suffix="%" /></div>
                   </div>
                   <p className="center-text">Saving Rate</p>
                 </div>
@@ -256,15 +257,15 @@ export default function Profile() {
                 <div className="snapshot" id="snapshot">
                   <div>
                     <p>Income</p>
-                    <h4>R {income.toLocaleString()}</h4>
+                    <h4>R <NumberCounter value={income} /></h4>
                   </div>
                   <div>
                     <p>Expenses</p>
-                    <h4>R {expenses.toLocaleString()}</h4>
+                    <h4>R <NumberCounter value={expenses} /></h4>
                   </div>
                   <div>
                     <p>Savings</p>
-                    <h4>R {savings.toLocaleString()}</h4>
+                    <h4>R <NumberCounter value={savings} /></h4>
                   </div>
                 </div>
               </div>
@@ -281,23 +282,23 @@ export default function Profile() {
                 </h3>
                 <div className="property-row">
                   <span>Target</span>
-                  <strong>R {Number(user.housePrice || user.goalAmount || 0).toLocaleString()}</strong>
+                  <strong>R <NumberCounter value={Number(user.housePrice || user.goalAmount || 0)} /></strong>
                 </div>
                 {strategy === "property" && (
                   <>
                     <div className="property-row">
                       <span>Deposit</span>
-                      <strong>R {Number(user.depositAmount || 0).toLocaleString()}</strong>
+                      <strong>R <NumberCounter value={Number(user.depositAmount || 0)} /></strong>
                     </div>
                     <div className="property-row">
                       <span>Deposit %</span>
-                      <strong>{user.depositPercent || 0}%</strong>
+                      <strong><NumberCounter value={Number(user.depositPercent || 0)} suffix="%" /></strong>
                     </div>
                   </>
                 )}
                 <div className="property-row">
                   <span>Timeline</span>
-                  <strong>{user.monthsToGoal || 0} months</strong>
+                  <strong><NumberCounter value={Number(user.monthsToGoal || 0)} suffix=" months" /></strong>
                 </div>
               </div>
             )}

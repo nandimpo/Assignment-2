@@ -1,9 +1,10 @@
-﻿import { useNavigate, useSearchParams } from "react-router-dom";
+﻿import { useSearchParams } from "react-router-dom";
 import useTransitionNavigate from "../hooks/useTransitionNavigate";
 import { useEffect, useState } from "react";
 import LandingNav from "../components/LandingNav";
 import Intro from "../components/Intro";
 import TypewriterHeading from "../components/TypewriterHeading";
+import NumberCounter from "../components/NumberCounter";
 import "../styles/landing.css";
 
 import {
@@ -25,7 +26,6 @@ import soilImg from "../assets/soil.png";
 import leafImg from "../assets/leaf.png";
 
 export default function Landing() {
-  const navigate = useNavigate();
   const transitionTo = useTransitionNavigate();
   const [searchParams] = useSearchParams();
 
@@ -35,12 +35,6 @@ export default function Landing() {
       sessionStorage.getItem("introSeen") === "true",
   );
   const [fadeOut, setFadeOut] = useState(false);
-
-  /* -- redirect if already logged in -- */
-  useEffect(() => {
-    const session = sessionStorage.getItem("session");
-    if (session) navigate("/home");
-  }, [navigate]);
 
   /* -- scroll fade-in observer -- */
   useEffect(() => {
@@ -97,7 +91,7 @@ export default function Landing() {
             Wealth isn't built overnight — it grows from small, consistent decisions.
             ABSA Wealth Studio gives young South Africans the tools to plant their financial roots and watch them compound.
           </p>
-          <button className="cta-btn" onClick={() => transitionTo("/login")}>
+          <button className="cta-btn" onClick={() => transitionTo("/register")}>
             Plant your first seed
           </button>
         </div>
@@ -112,22 +106,22 @@ export default function Landing() {
       {/* STATS BAR */}
       <div className="stats-bar container fade-in">
         <div className="stat">
-          <h3>R 2.4B+</h3>
+          <h3>R <NumberCounter value={2.4} decimals={1} suffix="B+" /></h3>
           <p>Wealth nurtured</p>
         </div>
         <div className="stat-divider"></div>
         <div className="stat">
-          <h3>47,000+</h3>
+          <h3><NumberCounter value={47000} suffix="+" /></h3>
           <p>Seeds planted</p>
         </div>
         <div className="stat-divider"></div>
         <div className="stat">
-          <h3>92%</h3>
+          <h3><NumberCounter value={92} suffix="%" /></h3>
           <p>Reached their harvest</p>
         </div>
         <div className="stat-divider"></div>
         <div className="stat">
-          <h3>5 Years</h3>
+          <h3><NumberCounter value={5} suffix=" Years" /></h3>
           <p>To financial freedom</p>
         </div>
       </div>
@@ -223,7 +217,7 @@ export default function Landing() {
           style={{ textAlign: "center", marginBottom: "40px" }}
         />
         <div className="feature-cards">
-          <div className="feature-card" onClick={() => transitionTo("/login")}>
+          <div className="feature-card" onClick={() => transitionTo("/register")}>
             <div className="feature-icon"><Sprout size={28} strokeWidth={1.5} color="#84a794" /></div>
             <h3>Financial Health</h3>
             <p>
@@ -234,7 +228,7 @@ export default function Landing() {
           </div>
           <div
             className="feature-card feature-card--accent"
-            onClick={() => transitionTo("/login")}
+            onClick={() => transitionTo("/register")}
           >
             <div className="feature-icon"><TreePine size={28} strokeWidth={1.5} color="#84a794" /></div>
             <h3>Growth Paths</h3>
@@ -244,7 +238,7 @@ export default function Landing() {
             </p>
             <span className="feature-link">Find your path &rarr;</span>
           </div>
-          <div className="feature-card" onClick={() => transitionTo("/login")}>
+          <div className="feature-card" onClick={() => transitionTo("/register")}>
             <div className="feature-icon"><Leaf size={28} strokeWidth={1.5} color="#84a794" /></div>
             <h3>Decision Studio</h3>
             <p>
@@ -321,7 +315,7 @@ export default function Landing() {
           style={{ textAlign: "center" }}
         />
         <p className="cta-sub">Plant · Nurture · Grow · Harvest</p>
-        <button className="cta-btn" onClick={() => transitionTo("/login")}>
+        <button className="cta-btn" onClick={() => transitionTo("/register")}>
           Begin growing today
         </button>
       </section>

@@ -41,8 +41,6 @@ export default function LandingNav() {
   }, [location]);
 
   const isLoginPage = location.pathname === "/login";
-  const isRegisterPage = location.pathname === "/register";
-
   return (
     <nav className={`nav${scrolled ? " scrolled" : ""}`}>
       <div className="logo" onClick={() => navigate("/")}>

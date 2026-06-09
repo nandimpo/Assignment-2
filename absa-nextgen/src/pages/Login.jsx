@@ -1,5 +1,5 @@
 ﻿import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import "../styles/login.css";
 import planet from "../assets/planet.png";
@@ -19,12 +19,6 @@ export default function Login() {
 
   const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email);
   const passwordValid = form.password.length >= 6;
-
-  //  If already logged in
-  useEffect(() => {
-    const session = localStorage.getItem("session");
-    if (session) navigate("/home");
-  }, [navigate]);
 
   const handleLogin = () => {
     if (!form.email || !form.password) {
@@ -66,8 +60,8 @@ export default function Login() {
         <div className="login-left">
           <img src={planet} alt="planet" />
           <div className="brand">
-            <h2>ABSA WEALTH</h2>
-            <p>Financial clarity for your first 5 years</p>
+            <h2>ABSA WEALTH STUDIO</h2>
+            <p>Plant · Nurture · Grow your first 5 years</p>
           </div>
         </div>
 

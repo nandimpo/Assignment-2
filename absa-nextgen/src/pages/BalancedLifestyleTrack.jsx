@@ -20,6 +20,7 @@ const MILESTONES_DETAIL = [
 import MonthlySavingsTracker from "../components/MonthlySavingsTracker";
 import FiveYearJourney from "../components/FiveYearJourney";
 import SlideIn from "../components/SlideIn";
+import NumberCounter from "../components/NumberCounter";
 import { getTrackMonthlyAmount } from "../utils/trackAmounts";
 
 // ── All explainer content for this track ──
@@ -295,17 +296,19 @@ export default function BalancedLifestyleTrack() {
                     <div className="bl-stat">
                       <TrendingUp size={15} />
                       <span className="bl-stat-label">Investing <Info id="compoundGrowth" /></span>
-                      <strong style={{ color: isAboveSetup ? "#84a794" : isBelowSetup ? "#d6a85a" : "#f4f6fc" }}>R{scenarioInvesting.toLocaleString()}</strong>
+                      <strong style={{ color: isAboveSetup ? "#84a794" : isBelowSetup ? "#d6a85a" : "#f4f6fc" }}>
+                        <NumberCounter value={scenarioInvesting} prefix="R" />
+                      </strong>
                     </div>
                     <div className="bl-stat">
                       <Wallet size={15} />
                       <span className="bl-stat-label">Liquid savings <Info id="liquidSavings" /></span>
-                      <strong>R{scenarioSaved.toLocaleString()}</strong>
+                      <strong><NumberCounter value={scenarioSaved} prefix="R" /></strong>
                     </div>
                     <div className="bl-stat">
                       <PiggyBank size={15} />
                       <span className="bl-stat-label">Expenses</span>
-                      <strong>R{expenses.toLocaleString()}</strong>
+                      <strong><NumberCounter value={expenses} prefix="R" /></strong>
                     </div>
                   </div>
                   <div className="bl-bar" style={{ marginTop: 14 }}>

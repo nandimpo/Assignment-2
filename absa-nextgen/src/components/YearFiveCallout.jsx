@@ -1,4 +1,22 @@
 import "../styles/fiveyear.css";
+import NumberCounter from "./NumberCounter";
+
+function AnimatedCalloutValue({ value }) {
+  const text = String(value);
+  const match = text.match(/^R([\d\s,]+)(.*)$/);
+
+  if (!match) return value;
+
+  const amount = Number(match[1].replace(/[,\s]/g, ""));
+  if (!Number.isFinite(amount)) return value;
+
+  return (
+    <>
+      <NumberCounter value={amount} prefix="R" />
+      {match[2]}
+    </>
+  );
+}
 
 /**
  * Compact "By Year 5" callout card for simulation studios.
@@ -13,7 +31,7 @@ export default function YearFiveCallout({ label, items, note }) {
         {items.map(({ name, value, highlight }) => (
           <div key={name} className={`y5-callout-item ${highlight ? "y5-callout-item--highlight" : ""}`}>
             <p className="y5-callout-item-name">{name}</p>
-            <p className="y5-callout-item-value">{value}</p>
+            <p className="y5-callout-item-value"><AnimatedCalloutValue value={value} /></p>
           </div>
         ))}
       </div>

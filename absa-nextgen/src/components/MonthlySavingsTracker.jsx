@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useUser } from "../context/UserContext";
 import { CheckCircle, Circle, XCircle, TrendingUp, AlertTriangle, RefreshCw, Lightbulb, CalendarClock, Target, BarChart2 } from "lucide-react";
+import NumberCounter from "./NumberCounter";
 
 export default function MonthlySavingsTracker({
   monthlyTarget,
@@ -88,15 +89,17 @@ export default function MonthlySavingsTracker({
         <div className="mst-totals">
           <div className="mst-stat money-glow">
             <span className="mst-stat-label">{verb === "paid" ? "Paid total" : "Saved total"}</span>
-            <strong className="mst-stat-value accent">R{totalSaved.toLocaleString("en-ZA")}</strong>
+            <strong className="mst-stat-value accent"><NumberCounter value={totalSaved} prefix="R" /></strong>
           </div>
           <div className="mst-stat">
             <span className="mst-stat-label">Months left</span>
-            <strong className="mst-stat-value">{monthsLeft}</strong>
+            <strong className="mst-stat-value">
+              {Number.isFinite(Number(monthsLeft)) ? <NumberCounter value={Number(monthsLeft)} /> : monthsLeft}
+            </strong>
           </div>
           <div className="mst-stat">
             <span className="mst-stat-label">Progress</span>
-            <strong className="mst-stat-value">{progress}%</strong>
+            <strong className="mst-stat-value"><NumberCounter value={progress} suffix="%" /></strong>
           </div>
         </div>
       </div>

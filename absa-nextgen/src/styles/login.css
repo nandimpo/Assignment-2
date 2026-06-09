@@ -79,6 +79,8 @@ html {
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  padding-bottom: 120px;
 
   animation: slideLeft 0.8s ease;
 }
@@ -95,40 +97,38 @@ html {
 }
 
 .login-left img {
-  width: 70%;
+  width: min(62%, 520px);
+  max-height: 58vh;
   transform: rotate(180deg);
+  transform-origin: center;
   opacity: 0.9;
-
-  /* ✨ FLOAT + ROTATE */
-  animation:
-    floatPlanet 8s ease-in-out infinite,
-    rotatePlanet 40s linear infinite;
+  filter: drop-shadow(0 0 28px rgba(132, 167, 148, 0.18));
+  animation: planetPulseFloat 5.6s ease-in-out infinite;
 }
 
-@keyframes floatPlanet {
+@keyframes planetPulseFloat {
   0% {
-    transform: rotate(180deg) translateY(0px);
+    transform: rotate(180deg) translateY(0) scale(1);
+    filter: drop-shadow(0 0 24px rgba(132, 167, 148, 0.14));
   }
   50% {
-    transform: rotate(180deg) translateY(-12px);
+    transform: rotate(180deg) translateY(-12px) scale(1.045);
+    filter:
+      drop-shadow(0 0 34px rgba(132, 167, 148, 0.28))
+      drop-shadow(0 0 18px rgba(214, 168, 90, 0.14));
   }
   100% {
-    transform: rotate(180deg) translateY(0px);
-  }
-}
-
-@keyframes rotatePlanet {
-  0% {
-    transform: rotate(180deg) rotate(0deg);
-  }
-  100% {
-    transform: rotate(180deg) rotate(360deg);
+    transform: rotate(180deg) translateY(0) scale(1);
+    filter: drop-shadow(0 0 24px rgba(132, 167, 148, 0.14));
   }
 }
 
 .brand {
   position: absolute;
-  bottom: 60px;
+  bottom: 48px;
+  left: 50%;
+  width: min(86%, 520px);
+  transform: translateX(-50%);
   text-align: center;
 
   animation: fadeUp 1s ease;
@@ -136,11 +136,19 @@ html {
 
 .brand h2 {
   font-family: "Montserrat";
+  font-size: clamp(24px, 3.2vw, 38px);
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  line-height: 1.08;
+  margin: 0;
 }
 
 .brand p {
-  color: #aaa;
-  font-size: 14px;
+  color: #b2c8bc;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  margin-top: 8px;
 }
 
 /* RIGHT */
@@ -213,7 +221,7 @@ form input {
   width: 100%;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+  border-radius: 4px 14px 14px 14px;
   padding: 12px 16px;
   margin-bottom: 16px;
   color: white;
@@ -299,9 +307,10 @@ form .input-valid {
 /* BUTTON */
 
 .submit {
-  width: 100%;
-  padding: 12px;
-  border-radius: 25px;
+  width: min(100%, 320px);
+  align-self: flex-start;
+  padding: 10px 18px;
+  border-radius: 4px 24px 24px 24px;
   border: none;
   background: #84a794;
   color: black;
@@ -318,7 +327,7 @@ form .input-valid {
 /* SWITCH */
 
 .switch {
-  margin-top: 20px;
+  margin-top: 24px;
   font-size: 13px;
   color: #aaa;
 }
@@ -388,4 +397,40 @@ form .input-valid {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-left img {
+    animation: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .login-container {
+    flex-direction: column;
+    min-height: calc(100vh - 80px);
+    height: auto;
+  }
+
+  .login-left {
+    min-height: 280px;
+    padding-bottom: 80px;
+  }
+
+  .login-left img {
+    width: 260px;
+    max-height: none;
+  }
+
+  .brand {
+    bottom: 28px;
+  }
+
+  .brand h2 {
+    font-size: 24px;
+  }
+
+  .login-right {
+    padding: 40px 24px;
+  }
 }

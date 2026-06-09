@@ -246,25 +246,28 @@ The outcome is highly sensitive to interest rates, time horizon, and your income
         {/* ── BOTTOM ── */}
         <div className="sim-bottom">
           {/* VERDICT */}
-          <div
-            className="sim-card clickable verdict-card"
-            onClick={() => {
-              setContent(explainers.verdict);
-              setShowPanel(true);
-            }}
-          >
-            <div className="hover-preview large">
-              <h4 className="sim-section-title">
-                <BarChart2 size={14} /> AI Financial Verdict
-              </h4>
-              <Typewriter text={verdict} speed={14} />
-              <span>Click to explore in full →</span>
-            </div>
-            <h3 className="sim-section-title">
-              <BarChart2 size={16} /> AI Financial Verdict
-            </h3>
-            <p>{verdict}</p>
-          </div>
+          <FlipCard
+            className="sim-card-flip verdict-flip"
+            front={
+              <div className="sim-card verdict-card">
+                <h3 className="sim-section-title"><BarChart2 size={16} /> AI Financial Verdict</h3>
+                <p>{verdict}</p>
+              </div>
+            }
+            back={
+              <>
+                <span className="flip-back-label">AI Financial Verdict</span>
+                <span className="flip-back-count">Verdict</span>
+                <span className="flip-back-sub">Open the full reasoning behind this property decision.</span>
+                <button
+                  className="pill flip-back-action"
+                  onClick={() => { setContent(explainers.verdict); setShowPanel(true); }}
+                >
+                  Open full verdict
+                </button>
+              </>
+            }
+          />
 
           {/* INSIGHTS */}
           <FlipCard

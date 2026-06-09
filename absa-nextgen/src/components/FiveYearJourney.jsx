@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
 import "../styles/fiveyear.css";
+import NumberCounter from "./NumberCounter";
 
 // Compound interest future value of monthly contributions
 function compoundFV(monthly, annualRate, years) {
@@ -139,7 +140,7 @@ export default function FiveYearJourney({ trackKey, monthlyAmount, currentSaved 
                     {nodeCleared ? "Gone ✓" : `R${yearValues[i].toLocaleString("en-ZA")} left`}
                   </p>
                 ) : (
-                  <p className="fy-value">R{yearValues[i].toLocaleString("en-ZA")}</p>
+                  <p className="fy-value"><NumberCounter value={yearValues[i]} prefix="R" /></p>
                 )}
               </div>
             );
@@ -155,11 +156,11 @@ export default function FiveYearJourney({ trackKey, monthlyAmount, currentSaved 
                 <p className="fy-outcome-number" style={{ color: "#2a9d8f" }}>Debt Free ✓</p>
               ) : (
                 <p className="fy-outcome-number" style={{ color: "#ff8a80" }}>
-                  R{year5Value.toLocaleString("en-ZA")} left
+                  <NumberCounter value={year5Value} prefix="R" /> left
                 </p>
               )
             ) : (
-              <p className="fy-outcome-number">R{year5Value.toLocaleString("en-ZA")}</p>
+              <p className="fy-outcome-number"><NumberCounter value={year5Value} prefix="R" /></p>
             )}
             {isCatchup ? (
               <p className="fy-outcome-sub">

@@ -96,8 +96,8 @@ export default function Register() {
           <div className="brand-box">
             <img src={planet} alt="planet" className="planet" />
 
-            <h2>ABSA NextGen Wealth</h2>
-            <p>First Five Years Financial Studio</p>
+            <h2>ABSA WEALTH STUDIO</h2>
+            <p>Plant · Nurture · Grow your first 5 years</p>
           </div>
         </div>
 
