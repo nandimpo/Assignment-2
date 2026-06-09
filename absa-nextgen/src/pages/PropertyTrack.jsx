@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import rootsImg from "../assets/roots.png";
 import { useState } from "react";
 import AppNav from "../components/AppNav";
 import "../styles/track.css";
@@ -11,6 +10,7 @@ import Typewriter from "../components/Typewriter";
 import useProgress from "../hooks/useProgress";
 import { getTrackMonthlyAmount } from "../utils/trackAmounts";
 import { getPropertyFeasibility } from "../utils/propertyFeasibility";
+import { getCompletedLogMonths } from "../utils/projections";
 import {
   Target, TrendingUp, AlertTriangle, BookOpen, Lightbulb,
   FileText, GraduationCap, Check, ChevronDown, Home, Shield,
@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import FiveYearJourney from "../components/FiveYearJourney";
 import SimNudge from "../components/SimNudge";
+import MilestoneChecklist from "../components/MilestoneChecklist";
 
 // ─── Track static data ────────────────────────────────────────────────────────
 
@@ -94,13 +95,14 @@ export default function PropertyTrack() {
   // ── Monthly tracker state ──────────────────────────────────────────────────
   const [partialAmount, setPartialAmount] = useState("");
   const [showRecovery, setShowRecovery]   = useState(false);
+  const [missedFlash, setMissedFlash]     = useState(false);
 
   const log          = user?.savingsLog || [];
   const now          = new Date();
   const thisMonth    = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
   const thisEntry    = log.find(e => e.month === thisMonth);
   const alreadyLogged = !!thisEntry;
-  const savedMonths  = log.filter(e => !e.missed).length;
+  const savedMonths  = getCompletedLogMonths(log);
   const missedMonths = log.filter(e => e.missed).length;
 
   const formatMonth = (str) => {
@@ -111,7 +113,7 @@ export default function PropertyTrack() {
   const confirmSaved = (amount) => {
     if (alreadyLogged) return;
     const amt    = amount ?? monthlyContribution;
-    const newLog = [...log, { month: thisMonth, amount: Number(amt), missed: false }];
+    const newLog = [...log, { month: thisMonth, amount: Number(amt), missed: false, partial: false }];
     updateUser({ savingsLog: newLog });
     setShowRecovery(false);
   };
@@ -121,6 +123,11 @@ export default function PropertyTrack() {
     const newLog = [...log, { month: thisMonth, amount: 0, missed: true }];
     updateUser({ savingsLog: newLog });
     setShowRecovery(true);
+    setMissedFlash(false);
+    window.requestAnimationFrame(() => {
+      setMissedFlash(true);
+      window.setTimeout(() => setMissedFlash(false), 2400);
+    });
   };
 
   const removeEntry = (month) => {
@@ -145,6 +152,22 @@ export default function PropertyTrack() {
     });
   };
 
+  // ── Milestone checklist — independent 6-item state ────────────────────────
+  const [milestonesDone, setMilestonesDone] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("propertyMilestones") || "null");
+      return saved && saved.length === MILESTONES_DETAIL.length ? saved : new Array(MILESTONES_DETAIL.length).fill(false);
+    } catch { return new Array(MILESTONES_DETAIL.length).fill(false); }
+  });
+
+  const toggleMilestone = (i) => {
+    setMilestonesDone(prev => {
+      const updated = prev.map((v, idx) => idx === i ? !v : v);
+      localStorage.setItem("propertyMilestones", JSON.stringify(updated));
+      return updated;
+    });
+  };
+
   const stagesDoneCount = stagesDone.filter(Boolean).length;
   const stagesPct       = Math.round((stagesDoneCount / STAGES.length) * 100);
 
@@ -157,18 +180,18 @@ export default function PropertyTrack() {
   const monthlyContribution = getTrackMonthlyAmount(user, "property");
   const housePrice  = Number(user?.housePrice) || 1000000;
   const goal        = Number(user?.depositAmount) || Number(user?.depositGoal) || Math.round(housePrice * 0.1);
-  const savingsRate = income > 0 ? Math.round((savings / income) * 100) : 0;
+  const savingsRate = income > 0 ? Math.round((monthlyContribution / income) * 100) : 0;
 
   const savingsMultiplier = 1 + (savingFocus - 50) / 100 - (lifestyle - 50) / 120;
   const adjustedSavings   = Math.max(0, Math.round(savings * savingsMultiplier));
-  const remainingAmount   = Math.max(goal - savings, 0);
-  const monthsToGoal      = adjustedSavings > 0 ? Math.ceil(remainingAmount / adjustedSavings) : null;
-  const yearsToGoal       = monthsToGoal !== null ? (monthsToGoal / 12).toFixed(1) : null;
 
   // Deposit progress uses savingsLogTotal from user
   const savingsLogTotal = (user?.savingsLog || [])
-    .filter(e => e.status !== "missed")
+    .filter(e => !e.missed && e.status !== "missed")
     .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+  const remainingAmount   = Math.max(goal - savingsLogTotal, 0);
+  const monthsToGoal      = monthlyContribution > 0 ? Math.ceil(remainingAmount / monthlyContribution) : null;
+  const yearsToGoal       = monthsToGoal !== null ? (monthsToGoal / 12).toFixed(1) : null;
   const depositProgress = goal > 0 ? Math.min(100, Math.round((savingsLogTotal / goal) * 100)) : 0;
 
   // ── Plan logic from Setup ─────────────────────────────────────────────────
@@ -183,6 +206,7 @@ export default function PropertyTrack() {
     housePrice,
     monthlyContribution,
     currentSaved: savingsLogTotal,
+    elapsedMonths: savedMonths,
   });
 
   const insights = [];
@@ -217,6 +241,7 @@ export default function PropertyTrack() {
   return (
     <div className="track-page">
       <AppNav />
+      {missedFlash && <div className="mst-flash" />}
 
       <div className="track-container">
 
@@ -286,11 +311,13 @@ export default function PropertyTrack() {
           trackKey="property"
           monthlyAmount={monthlyContribution}
           currentSaved={savingsLogTotal}
-          fiveYearTarget={Number(user?.fiveYearGoal) || Number(user?.depositAmount) || 0}
+          fiveYearTarget={goal}
+          elapsedMonths={savedMonths}
         />
 
         {/* 2 ── STAGE TIMELINE ── most important: where you are in the journey */}
-        <div className="track-card">
+        <div className="property-overview-grid">
+        <div className="track-card property-journey-card">
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
             <h3 style={{ margin: 0 }}>Property Journey — 4 Stages</h3>
             <span style={{ fontSize: "0.75rem", color: "#84a794", fontWeight: 600, whiteSpace: "nowrap", marginLeft: 12 }}>{stagesDoneCount}/{STAGES.length} complete</span>
@@ -351,7 +378,7 @@ export default function PropertyTrack() {
         </div>
 
         {/* 2+3 ── DEPOSIT DASHBOARD ── progress + timeline + monthly tracker merged */}
-        <div className="track-card" style={{ padding: 0, overflow: "hidden" }}>
+        <div className="track-card property-deposit-card" style={{ padding: 0, overflow: "hidden" }}>
 
           {/* ── TOP: stats strip ── */}
           <div style={{
@@ -361,7 +388,7 @@ export default function PropertyTrack() {
             {[
               { label: "Saved",       value: `R${savingsLogTotal.toLocaleString("en-ZA")}`, color: "#84a794" },
               { label: "Target",      value: `R${goal.toLocaleString("en-ZA")}`,            color: "#c0ccc8" },
-              { label: "Monthly",     value: `R${savings.toLocaleString("en-ZA")}`,         color: "#d6a85a" },
+              { label: "Monthly",     value: `R${monthlyContribution.toLocaleString("en-ZA")}`, color: "#d6a85a" },
               { label: "Timeline",    value: monthsToGoal ? `${monthsToGoal} mo` : "—",     color: "#4facfe" },
             ].map(({ label, value, color }, i) => (
               <div key={label} style={{
@@ -378,7 +405,7 @@ export default function PropertyTrack() {
           <div style={{ padding: "16px 20px 0" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 7 }}>
               <p style={{ fontSize: "0.72rem", color: "#667c74", margin: 0 }}>
-                Deposit progress · R{(goal - savingsLogTotal).toLocaleString("en-ZA")} remaining
+                Deposit progress · R{remainingAmount.toLocaleString("en-ZA")} remaining
               </p>
               <p style={{ fontSize: "0.72rem", fontWeight: 700, color: "#d6a85a", margin: 0 }}>{depositProgress}%</p>
             </div>
@@ -403,7 +430,7 @@ export default function PropertyTrack() {
             {/* streak pills */}
             <div style={{ display: "flex", gap: 8, marginTop: 10, marginBottom: 14 }}>
               <span style={{ display: "flex", alignItems: "center", gap: 4, fontSize: "0.68rem", fontWeight: 600, color: "#84a794", background: "rgba(132,167,148,0.1)", border: "1px solid rgba(132,167,148,0.2)", borderRadius: 20, padding: "3px 10px" }}>
-                <CheckCircle size={11} /> {savedMonths} saved
+                <CheckCircle size={11} /> {savedMonths} logged
               </span>
               {missedMonths > 0 && (
                 <span style={{ display: "flex", alignItems: "center", gap: 4, fontSize: "0.68rem", fontWeight: 600, color: "#d6a85a", background: "rgba(214,168,90,0.08)", border: "1px solid rgba(214,168,90,0.2)", borderRadius: 20, padding: "3px 10px" }}>
@@ -427,7 +454,7 @@ export default function PropertyTrack() {
                 <Circle size={18} color="#667c74" style={{ flexShrink: 0 }} />
                 <div style={{ flex: 1 }}>
                   <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 600, color: "#c0ccc8" }}>
-                    {formatMonth(thisMonth)} — did you save R{savings.toLocaleString("en-ZA")}?
+                    {formatMonth(thisMonth)} — did you save R{monthlyContribution.toLocaleString("en-ZA")}?
                   </p>
                   <p style={{ margin: "2px 0 0", fontSize: "0.7rem", color: "#556660" }}>Track honestly — missed months help you recover faster</p>
                 </div>
@@ -455,8 +482,12 @@ export default function PropertyTrack() {
               <div style={{ display: "flex", alignItems: "center", gap: 12, background: "rgba(132,167,148,0.06)", border: "1px solid rgba(132,167,148,0.2)", borderRadius: 10, padding: "12px 14px" }}>
                 <CheckCircle size={18} color="#84a794" style={{ flexShrink: 0 }} />
                 <div style={{ flex: 1 }}>
-                  <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 600, color: "#84a794" }}>Saved in {formatMonth(thisMonth)}</p>
-                  <p style={{ margin: "2px 0 0", fontSize: "0.7rem", color: "#556660" }}>R{thisEntry?.amount?.toLocaleString("en-ZA")} logged — great work!</p>
+                  <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 600, color: "#84a794" }}>
+                    {thisEntry?.partial ? "Partial save" : "Saved"} in {formatMonth(thisMonth)}
+                  </p>
+                  <p style={{ margin: "2px 0 0", fontSize: "0.7rem", color: "#556660" }}>
+                    R{thisEntry?.amount?.toLocaleString("en-ZA")} logged{thisEntry?.partial ? ` of R${monthlyContribution.toLocaleString("en-ZA")}` : " — great work!"}
+                  </p>
                 </div>
                 <button onClick={() => removeEntry(thisMonth)} style={{ fontSize: "0.72rem", color: "#667c74", background: "none", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 6, padding: "4px 10px", cursor: "pointer" }}>Undo</button>
               </div>
@@ -467,7 +498,7 @@ export default function PropertyTrack() {
               <div style={{ marginTop: 12, background: "rgba(214,168,90,0.05)", border: "1px solid rgba(214,168,90,0.15)", borderRadius: 10, padding: "12px 14px" }}>
                 <p style={{ fontSize: "0.72rem", fontWeight: 700, color: "#d6a85a", margin: "0 0 10px" }}>Recovery plan</p>
                 <p style={{ fontSize: "0.76rem", color: "#c0ccc8", margin: "0 0 10px", lineHeight: 1.5 }}>
-                  Save <strong>R{Math.round(savings * 1.5).toLocaleString("en-ZA")}</strong> next month to stay on track (your normal + 50% catch-up).
+                  Save <strong>R{Math.round(monthlyContribution * 1.5).toLocaleString("en-ZA")}</strong> next month to stay on track (your normal + 50% catch-up).
                 </p>
                 <div style={{ display: "flex", gap: 8 }}>
                   <input
@@ -479,9 +510,10 @@ export default function PropertyTrack() {
                   />
                   <button
                     onClick={() => {
-                      const amt = Math.min(Number(partialAmount), savings);
+                      const targetAmount = monthlyContribution || savings;
+                      const amt = Math.min(Number(partialAmount), targetAmount);
                       if (!amt || amt <= 0) return;
-                      const newLog = [...log.filter(e => e.month !== thisMonth), { month: thisMonth, amount: amt, missed: false }];
+                      const newLog = [...log.filter(e => e.month !== thisMonth), { month: thisMonth, amount: amt, missed: false, partial: amt < targetAmount }];
                       updateUser({ savingsLog: newLog });
                       setPartialAmount(""); setShowRecovery(false);
                     }}
@@ -512,7 +544,7 @@ export default function PropertyTrack() {
                       : <CheckCircle size={13} color="#84a794" />}
                     <span style={{ fontSize: "0.76rem", color: "#8a9a96", flex: 1 }}>{formatMonth(entry.month)}</span>
                     <span style={{ fontSize: "0.76rem", fontWeight: 600, color: entry.missed ? "#d6a85a" : "#84a794" }}>
-                      {entry.missed ? "Missed" : `+R${entry.amount.toLocaleString("en-ZA")}`}
+                      {entry.missed ? "Missed" : `${entry.partial ? "Partial " : ""}+R${entry.amount.toLocaleString("en-ZA")}`}
                     </span>
                     <button onClick={() => removeEntry(entry.month)}
                       style={{ width: 18, height: 18, borderRadius: 4, background: "none", border: "none", color: "#445550", cursor: "pointer", fontSize: "0.8rem", display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
@@ -524,11 +556,13 @@ export default function PropertyTrack() {
         </div>
 
         {/* 4 ── MILESTONES + AI INSIGHTS ── compact 2-col row */}
+        </div>
+
         <div className="pt-row">
           <div className="track-card" id="milestones" style={{ flex: 1 }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+            <div className="track-card-header">
               <h3 style={{ margin: 0, fontSize: "0.9rem" }}>Milestones</h3>
-              <span style={{ fontSize: "0.7rem", color: "#84a794", fontWeight: 600 }}>{percent}% complete</span>
+              <span className="track-card-header__meta">{percent}% complete</span>
             </div>
             <div className="ms-track">
               {milestones.map(({ key, label, hint }, index) => {
@@ -582,52 +616,11 @@ export default function PropertyTrack() {
           />
         </div>
 
-        {/* 5 ── MILESTONE CHECKLIST ── standalone main card */}
-        <div className="track-card" style={{ position: "relative", overflow: "hidden" }}>
-          <img src={rootsImg} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 60%", opacity: 0.07, pointerEvents: "none", zIndex: 0 }} />
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-            <h3 style={{ margin: 0, display: "flex", alignItems: "center", gap: 8 }}>
-              <ClipboardCheck size={17} color="#84a794" /> Milestone Checklist
-            </h3>
-            <span style={{ fontSize: "0.72rem", color: "#84a794", fontWeight: 600, whiteSpace: "nowrap", marginLeft: 12 }}>
-              {stagesDone.filter(Boolean).length}/{STAGES.length} done
-            </span>
-          </div>
-          <p style={{ fontSize: "0.73rem", color: "#667c74", margin: "0 0 14px", lineHeight: 1.5 }}>
-            Tick off each milestone as you complete it — progress saves automatically.
-          </p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {MILESTONES_DETAIL.map((m, i) => {
-              const stageIdx = Math.min(i, STAGES.length - 1);
-              const done = stagesDone[stageIdx];
-              return (
-                <div key={i} onClick={() => toggleStage(stageIdx)}
-                  style={{
-                    display: "flex", gap: 12, alignItems: "center",
-                    padding: "10px 14px", borderRadius: 10, cursor: "pointer",
-                    background: done ? "rgba(132,167,148,0.07)" : "rgba(255,255,255,0.02)",
-                    border: `1px solid ${done ? "rgba(132,167,148,0.22)" : "rgba(255,255,255,0.06)"}`,
-                    transition: "background 0.2s, border-color 0.2s",
-                  }}>
-                  <div style={{
-                    width: 20, height: 20, borderRadius: 5, flexShrink: 0,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    background: done ? "rgba(132,167,148,0.22)" : "#0e1512",
-                    border: `2px solid ${done ? "#84a794" : "#2a3530"}`,
-                    transition: "all 0.2s",
-                  }}>
-                    {done && <Check size={11} color="#84a794" />}
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <p style={{ margin: 0, fontSize: "0.8rem", fontWeight: 600, color: done ? "#84a794" : "#c0ccc8", textDecoration: done ? "line-through" : "none" }}>{m.label}</p>
-                    <p style={{ margin: "2px 0 0", fontSize: "0.7rem", color: "#556660", lineHeight: 1.4 }}>{m.tip}</p>
-                  </div>
-                  {done && <Check size={14} color="#84a794" style={{ flexShrink: 0 }} />}
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        <MilestoneChecklist
+          items={MILESTONES_DETAIL}
+          doneItems={milestonesDone}
+          onToggle={toggleMilestone}
+        />
 
         {/* ── TOOLS & EDUCATION ── (reference + deep-dive content lives here) */}
         <div className="bl-tools-section">

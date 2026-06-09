@@ -3,12 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
 import "../styles/fiveyear.css";
 import NumberCounter from "./NumberCounter";
-
-// Compound interest future value of monthly contributions
-function compoundFV(monthly, annualRate, years) {
-  const r = annualRate / 12;
-  return monthly * ((Math.pow(1 + r, years * 12) - 1) / r);
-}
+import { projectCompoundFixedWindow, projectLinearFixedWindow } from "../utils/projections";
 
 // Track-specific config: milestone labels per year + growth model
 const trackConfig = {
@@ -17,16 +12,16 @@ const trackConfig = {
     rate: 0.10,
     valueLabel: "portfolio",
     verb: "invested & grown",
-    compute: (monthly, currentSaved, year) =>
-      Math.round(currentSaved + compoundFV(monthly, 0.10, year)),
+    compute: (monthly, currentSaved, year, elapsedMonths = 0) =>
+      projectCompoundFixedWindow({ monthly, currentSaved, elapsedMonths, totalMonths: year * 12, annualRate: 0.10 }),
   },
   property: {
     yearLabels: ["Saving Starts", "10% Deposit", "Pre-Approval Ready", "Strong Offer", "Keys in Hand"],
     rate: 0,
     valueLabel: "deposit saved",
     verb: "saved toward deposit",
-    compute: (monthly, currentSaved, year) =>
-      Math.round(currentSaved + monthly * 12 * year),
+    compute: (monthly, currentSaved, year, elapsedMonths = 0) =>
+      projectLinearFixedWindow({ monthly, currentSaved, elapsedMonths, totalMonths: year * 12 }),
   },
   catchup: {
     yearLabels: ["Debt Audit", "Halfway Clear", "Debt Free", "Building Wealth", "Fully Caught Up"],
@@ -42,18 +37,19 @@ const trackConfig = {
     rate: 0,
     valueLabel: "savings built",
     verb: "saved & corrected",
-    compute: (monthly, currentSaved, year) =>
-      Math.round(currentSaved + monthly * 12 * year),
+    compute: (monthly, currentSaved, year, elapsedMonths = 0) =>
+      projectLinearFixedWindow({ monthly, currentSaved, elapsedMonths, totalMonths: year * 12 }),
   },
 };
 
-export default function FiveYearJourney({ trackKey, monthlyAmount, currentSaved = 0, fiveYearTarget = 0 }) {
+export default function FiveYearJourney({ trackKey, monthlyAmount, currentSaved = 0, fiveYearTarget = 0, elapsedMonths = 0 }) {
   const navigate = useNavigate();
   const { updateUser } = useUser();
   const cfg = trackConfig[trackKey] || trackConfig.balanced;
   const monthly = Math.max(monthlyAmount || 0, 0);
+  const monthsElapsed = Math.max(0, Number(elapsedMonths) || 0);
 
-  const yearValues = [1, 2, 3, 4, 5].map((y) => cfg.compute(monthly, currentSaved, y));
+  const yearValues = [1, 2, 3, 4, 5].map((y) => cfg.compute(monthly, currentSaved, y, monthsElapsed));
   const year5Value = yearValues[4];
 
   // For catch-up track, lower is better (debt going to 0). Invert on-track logic.
@@ -79,15 +75,16 @@ export default function FiveYearJourney({ trackKey, monthlyAmount, currentSaved 
   const badgeRef = useRef(null);
 
   // Required monthly to hit current target (compound for balanced, linear otherwise)
+  const remainingProjectionMonths = Math.max(1, 60 - monthsElapsed);
   const requiredMonthly = fiveYearTarget > 0
     ? trackKey === "balanced"
       ? (() => {
           // Solve PMT from FV: PMT = FV * r / ((1+r)^n - 1)
           const r = 0.10 / 12;
-          const n = 60;
+          const n = remainingProjectionMonths;
           return Math.round((fiveYearTarget - currentSaved) * r / (Math.pow(1 + r, n) - 1));
         })()
-      : Math.round((fiveYearTarget - currentSaved) / 60)
+      : Math.round((fiveYearTarget - currentSaved) / remainingProjectionMonths)
     : 0;
 
   const handleGapClick = () => {
@@ -130,9 +127,12 @@ export default function FiveYearJourney({ trackKey, monthlyAmount, currentSaved 
             // For other tracks: a year is "done" when you've already saved past that milestone
             const isFuture = isCatchup ? yearValues[i] > 0 : currentSaved < yearValues[i];
             const nodeCleared = isCatchup && yearValues[i] === 0;
+            const prevFuture = i === 0 ? true : (isCatchup ? yearValues[i - 1] > 0 : currentSaved < yearValues[i - 1]);
+            const isCurrentNode = isFuture && !prevFuture;
             return (
-              <div key={y} className={`fy-node ${!isFuture ? "fy-node--done" : ""} ${y === 5 ? "fy-node--end" : ""}`}>
+              <div key={y} className={`fy-node ${!isFuture ? "fy-node--done" : ""} ${y === 5 ? "fy-node--end" : ""} ${isCurrentNode ? "fy-node--current" : ""}`}>
                 <div className="fy-dot">{!isFuture ? "✓" : y}</div>
+                {isCurrentNode && <span className="fy-you-are-here">▲ You are here</span>}
                 <p className="fy-year-label">Year {y}</p>
                 <p className="fy-milestone">{cfg.yearLabels[i]}</p>
                 {isCatchup ? (

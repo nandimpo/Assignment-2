@@ -13,7 +13,7 @@ function AnimatedCalloutValue({ value }) {
   return (
     <>
       <NumberCounter value={amount} prefix="R" />
-      {match[2]}
+      {match[2] && <> {match[2].trim()}</>}
     </>
   );
 }

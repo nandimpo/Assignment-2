@@ -9,6 +9,7 @@ import AppNav from "../components/AppNav";
 import SlideIn from "../components/SlideIn";
 import { useUser } from "../context/UserContext";
 import { getTrackMonthlyAmount } from "../utils/trackAmounts";
+import { getCompletedLogMonths, projectCompoundFixedWindow, projectLinearFixedWindow } from "../utils/projections";
 import "../styles/simulation.css";
 import "../styles/fiveyear.css";
 
@@ -18,9 +19,23 @@ export default function SimulationLab() {
   const userTrack  = user?.strategy || "property";
 
   const monthlyInvest  = getTrackMonthlyAmount(user, userTrack);
-  const r              = 0.10 / 12;
+  const savingsLogTotal = (user?.savingsLog || [])
+    .filter(e => !e.missed && e.status !== "missed")
+    .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+  const elapsedSavingsMonths = getCompletedLogMonths(user?.savingsLog || []);
   const year5Portfolio = monthlyInvest > 0
-    ? Math.round((Number(user?.savings) || 0) + monthlyInvest * ((Math.pow(1 + r, 60) - 1) / r))
+    ? userTrack === "balanced"
+      ? projectCompoundFixedWindow({
+          monthly: monthlyInvest,
+          currentSaved: savingsLogTotal,
+          elapsedMonths: elapsedSavingsMonths,
+          annualRate: 0.10,
+        })
+      : projectLinearFixedWindow({
+          monthly: monthlyInvest,
+          currentSaved: savingsLogTotal,
+          elapsedMonths: elapsedSavingsMonths,
+        })
     : 0;
 
   const [tourStep, setTourStep] = useState(0);

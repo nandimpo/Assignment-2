@@ -38,16 +38,16 @@ export default function MoneySnapshot() {
   const safeIncome = income > 0 ? income : 1;
 
   const savingsLogTotal = (user?.savingsLog || [])
-    .filter(e => !e.missed)
-    .reduce((sum, e) => sum + (e.amount || 0), 0);
+    .filter(e => !e.missed && e.status !== "missed")
+    .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
 
   const catchupLogTotal = (user?.catchupLog || [])
-    .filter(e => !e.missed)
-    .reduce((sum, e) => sum + (e.amount || 0), 0);
+    .filter(e => !e.missed && e.status !== "missed")
+    .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
 
   const correctionLogTotal = (user?.correctionLog || [])
-    .filter(e => !e.missed)
-    .reduce((sum, e) => sum + (e.amount || 0), 0);
+    .filter(e => !e.missed && e.status !== "missed")
+    .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
 
   const trackStrategy = ["property", "balanced", "catchup", "correction"].includes(user?.strategy) ? user.strategy : "balanced";
   const goalMonthly = getTrackMonthlyAmount(user, trackStrategy);

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import rootsImg from "../assets/roots.png";
 import { useUser } from "../context/UserContext";
 import useProgress from "../hooks/useProgress";
 import AppNav from "../components/AppNav";
@@ -7,7 +6,7 @@ import SimNudge from "../components/SimNudge";
 import ExplainerPanel from "../components/ExplainerPanel";
 import "../styles/track.css";
 import "../styles/money.css";
-import { Wallet, TrendingUp, PiggyBank, BookOpen, AlertTriangle, ChevronDown, ClipboardCheck, Check } from "lucide-react";
+import { Wallet, TrendingUp, PiggyBank, BookOpen, AlertTriangle, ChevronDown, Check } from "lucide-react";
 
 const MILESTONES_DETAIL = [
   { label: "Emergency fund (3× expenses) built",       tip: "Your safety net before anything else — prevents pulling from investments." },
@@ -19,9 +18,11 @@ const MILESTONES_DETAIL = [
 ];
 import MonthlySavingsTracker from "../components/MonthlySavingsTracker";
 import FiveYearJourney from "../components/FiveYearJourney";
+import MilestoneChecklist from "../components/MilestoneChecklist";
 import SlideIn from "../components/SlideIn";
 import NumberCounter from "../components/NumberCounter";
 import { getTrackMonthlyAmount } from "../utils/trackAmounts";
+import { getCompletedLogMonths, projectCompoundFixedWindow } from "../utils/projections";
 
 // ── All explainer content for this track ──
 const EXPLAINERS = {
@@ -109,6 +110,10 @@ export default function BalancedLifestyleTrack() {
   const surplus  = Math.max(0, income - expenses);
 
   const goalMonthly = getTrackMonthlyAmount(user, "balanced");
+  const savingsLogTotal = (user?.savingsLog || [])
+    .filter(e => !e.missed && e.status !== "missed")
+    .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+  const elapsedSavingsMonths = getCompletedLogMonths(user?.savingsLog || []);
 
   const setupPct = surplus > 0 ? Math.round((goalMonthly / surplus) * 100) : 20;
   const [investmentPct, setInvestmentPct] = useState(Math.min(90, Math.max(10, setupPct)));
@@ -123,12 +128,18 @@ export default function BalancedLifestyleTrack() {
   const investingPct = (scenarioInvesting / totalFlow) * 100;
   const savingPct    = (scenarioSaved     / totalFlow) * 100;
 
-  function compoundFV(pmt, rate, years) {
-    const r = rate / 12;
-    return Math.round(pmt * ((Math.pow(1 + r, years * 12) - 1) / r));
-  }
-  const scenarioY5 = compoundFV(scenarioInvesting, 0.10, 5);
-  const setupY5    = compoundFV(goalMonthly, 0.10, 5);
+  const scenarioY5 = projectCompoundFixedWindow({
+    monthly: scenarioInvesting,
+    currentSaved: savingsLogTotal,
+    elapsedMonths: elapsedSavingsMonths,
+    annualRate: 0.10,
+  });
+  const setupY5 = projectCompoundFixedWindow({
+    monthly: goalMonthly,
+    currentSaved: savingsLogTotal,
+    elapsedMonths: elapsedSavingsMonths,
+    annualRate: 0.10,
+  });
 
   // ── Plan logic from Setup ────────────────────────────────────────────────────
   const balPlanGoal   = Number(user?.fiveYearGoal) || 0;
@@ -215,11 +226,13 @@ export default function BalancedLifestyleTrack() {
         )}
 
         {/* ── 1. 5-YEAR JOURNEY — big picture, where you're headed ── */}
+        <div className="track-overview-grid">
         <FiveYearJourney
           trackKey="balanced"
           monthlyAmount={goalMonthly}
-          currentSaved={Number(user?.savings) || 0}
+          currentSaved={savingsLogTotal}
           fiveYearTarget={Number(user?.fiveYearGoal) || 0}
+          elapsedMonths={elapsedSavingsMonths}
         />
 
         {/* ── 2. MONTHLY SAVINGS TRACKER — primary action ── */}
@@ -236,6 +249,8 @@ export default function BalancedLifestyleTrack() {
         </div>
 
         {/* ── 3. MILESTONES — where you are on the journey ── */}
+        </div>
+
         <div className="track-card">
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
             <h3>Milestones <Info id="milestones" /></h3>
@@ -510,44 +525,11 @@ export default function BalancedLifestyleTrack() {
           </div>
         </div>
 
-        {/* MILESTONE CHECKLIST */}
-        <div className="track-card" style={{ position:"relative", overflow:"hidden" }}>
-          <img src={rootsImg} alt="" style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover", objectPosition:"center 60%", opacity:0.07, pointerEvents:"none", zIndex:0 }} />
-          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16 }}>
-            <h3 style={{ margin:0, display:"flex", alignItems:"center", gap:8 }}>
-              <ClipboardCheck size={17} color="#84a794" /> Milestone Checklist
-            </h3>
-            <span style={{ fontSize:"0.72rem", color:"#84a794", fontWeight:600, whiteSpace:"nowrap", marginLeft:12 }}>
-              {stagesDone.filter(Boolean).length}/{MILESTONES_DETAIL.length} done
-            </span>
-          </div>
-          <p style={{ fontSize:"0.73rem", color:"#667c74", margin:"0 0 14px", lineHeight:1.5 }}>
-            Tick off each milestone as you complete it — progress saves automatically.
-          </p>
-          <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-            {MILESTONES_DETAIL.map((m, i) => {
-              const done = stagesDone[i];
-              return (
-                <div key={i} onClick={() => toggleStage(i)}
-                  style={{ display:"flex", gap:12, alignItems:"center", padding:"10px 14px", borderRadius:10, cursor:"pointer",
-                    background: done ? "rgba(132,167,148,0.07)" : "rgba(255,255,255,0.02)",
-                    border:`1px solid ${done ? "rgba(132,167,148,0.22)" : "rgba(255,255,255,0.06)"}`,
-                    transition:"background 0.2s, border-color 0.2s" }}>
-                  <div style={{ width:20, height:20, borderRadius:5, flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center",
-                    background: done ? "rgba(132,167,148,0.22)" : "#0e1512",
-                    border:`2px solid ${done ? "#84a794" : "#2a3530"}`, transition:"all 0.2s" }}>
-                    {done && <Check size={11} color="#84a794" />}
-                  </div>
-                  <div style={{ flex:1 }}>
-                    <p style={{ margin:0, fontSize:"0.8rem", fontWeight:600, color: done?"#84a794":"#c0ccc8", textDecoration: done?"line-through":"none" }}>{m.label}</p>
-                    <p style={{ margin:"2px 0 0", fontSize:"0.7rem", color:"#556660", lineHeight:1.4 }}>{m.tip}</p>
-                  </div>
-                  {done && <Check size={14} color="#84a794" style={{ flexShrink:0 }} />}
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        <MilestoneChecklist
+          items={MILESTONES_DETAIL}
+          doneItems={stagesDone}
+          onToggle={toggleStage}
+        />
 
       </div>
 

@@ -15,6 +15,7 @@ import treeImg from "../assets/tree.png";
 import leafImg from "../assets/leaf.png";
 import { getTrackMonthlyAmount } from "../utils/trackAmounts";
 import { getPropertyFeasibility } from "../utils/propertyFeasibility";
+import { getCompletedLogMonths, projectCompoundFixedWindow, projectLinearFixedWindow } from "../utils/projections";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -78,10 +79,10 @@ export default function Home() {
     { tag: "Investing", text: "Compound interest is most powerful early. Every month you delay costs more than you think." },
   ];
 
-  const r = 0.10 / 12;
   const savingsLogTotal = (user?.savingsLog || [])
-    .filter(e => e.status !== "missed")
+    .filter(e => !e.missed && e.status !== "missed")
     .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+  const elapsedSavingsMonths = getCompletedLogMonths(user?.savingsLog || []);
   const trackIs = user?.strategy;
 
   const totalDebt      = Number(user?.debt || user?.goalAmount) || 0;
@@ -90,23 +91,40 @@ export default function Home() {
 
   const y5Values = [1, 2, 3, 4, 5].map((y) => {
     if (trackIs === "catchup") return Math.max(0, totalDebt - catchupMonthly * 12 * y);
-    if (trackIs === "balanced") return Math.round(savingsLogTotal + monthlyInvest * ((Math.pow(1 + r, y * 12) - 1) / r));
-    return Math.round(savingsLogTotal + monthlyInvest * 12 * y);
+    if (trackIs === "balanced") {
+      return projectCompoundFixedWindow({
+        monthly: monthlyInvest,
+        currentSaved: savingsLogTotal,
+        elapsedMonths: elapsedSavingsMonths,
+        totalMonths: y * 12,
+        annualRate: 0.10,
+      });
+    }
+    return projectLinearFixedWindow({
+      monthly: monthlyInvest,
+      currentSaved: savingsLogTotal,
+      elapsedMonths: elapsedSavingsMonths,
+      totalMonths: y * 12,
+    });
   });
   const propertyFeasibility = getPropertyFeasibility({
     strategy: user?.strategy,
     housePrice: user?.housePrice,
     monthlyContribution: monthlyInvest,
     currentSaved: savingsLogTotal,
+    elapsedMonths: elapsedSavingsMonths,
   });
   const formatCompactRand = (value) => `R${Math.round(value / 1000).toLocaleString("en-ZA")}k`;
 
   const goalLabels = { property: "Deposit Target", balanced: "5-Year Portfolio Goal", catchup: "Debt to Clear", correction: "Correction Goal" };
   const goalLabel  = goalLabels[user?.strategy] || "Financial Goal";
+  const propertyMonthsRemaining = user?.strategy === "property" && Number(user?.depositAmount) > 0 && monthlyInvest > 0
+    ? Math.ceil(Math.max(0, Number(user.depositAmount) - savingsLogTotal) / monthlyInvest)
+    : null;
   let displayAmount, goalSubLine;
   if (user?.strategy === "property") {
     displayAmount = user?.depositAmount;
-    goalSubLine = user?.monthsToGoal ? `${user.monthsToGoal} months to deposit` : "Set your house price in Setup";
+    goalSubLine = propertyMonthsRemaining !== null ? `${propertyMonthsRemaining} months to deposit` : "Set your house price in Setup";
   } else if (user?.strategy === "balanced") {
     displayAmount = user?.fiveYearGoal || null;
     goalSubLine = user?.goalAmount ? `Investing R${Number(user.goalAmount).toLocaleString("en-ZA")}/month` : "Set monthly target in Setup";

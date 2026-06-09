@@ -118,6 +118,9 @@ export default function Setup() {
       fiveYearGoal:       user.fiveYearGoal || "",
       catchupMonthly:     user.catchupMonthly || "",
       catchupTargetMonths: user.catchupTargetMonths || "",
+      propertyTargetMonths: user.propertyTargetMonths || "",
+      correctionTargetMonths: user.correctionTargetMonths || "",
+      monthlyContribution: user.monthlyContribution || "",
     });
 
     setSelectedTrack(user.strategy || "property");
@@ -157,9 +160,12 @@ export default function Setup() {
     : rawGoal;
 
   const monthlySavings = income - expenses;
+  const goalMonthlyAmount = selectedTrack === "property"
+    ? Number(form.monthlyContribution) || monthlySavings
+    : monthlySavings;
 
-  const monthsToGoal = monthlySavings > 0
-    ? Math.ceil(depositAmount / monthlySavings)
+  const monthsToGoal = goalMonthlyAmount > 0
+    ? Math.ceil(depositAmount / goalMonthlyAmount)
     : 0;
 
   // ── Catch-Up specific calculations ──────────────────────────────────────────

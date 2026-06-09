@@ -6,6 +6,26 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.fy-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('../assets/grass.gif');
+  background-size: cover;
+  background-position: center bottom;
+  background-repeat: no-repeat;
+  opacity: 0.08;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.fy-wrap > * {
+  position: relative;
+  z-index: 1;
 }
 
 .fy-eyebrow {
@@ -59,13 +79,31 @@
   opacity: 1;
 }
 
+.fy-node--current {
+  opacity: 1;
+}
+
+.fy-you-are-here {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #84a794;
+  background: rgba(132, 167, 148, 0.12);
+  border: 1px solid rgba(132, 167, 148, 0.3);
+  border-radius: 4px;
+  padding: 2px 7px;
+  white-space: nowrap;
+  order: -1;
+  margin-bottom: 2px;
+}
+
 .fy-dot {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: #1a1f1e;
-  border: 2px solid #2a3530;
-  color: #667c74;
+  background: rgba(132, 167, 148, 0.08);
+  border: 2px solid rgba(132, 167, 148, 0.4);
+  color: #c0ccc8;
   font-size: 0.8rem;
   font-weight: 700;
   display: flex;

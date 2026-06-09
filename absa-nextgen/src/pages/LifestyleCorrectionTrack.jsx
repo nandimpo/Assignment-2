@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import rootsImg from "../assets/roots.png";
 import AppNav from "../components/AppNav";
 import "../styles/track.css";
 import SlideIn from "../components/SlideIn";
@@ -9,11 +8,13 @@ import SimNudge from "../components/SimNudge";
 import { useUser } from "../context/UserContext";
 import useProgress from "../hooks/useProgress";
 import { getTrackMonthlyAmount } from "../utils/trackAmounts";
+import { getCompletedLogMonths } from "../utils/projections";
 import {
-  RefreshCw, AlertTriangle, BookOpen, ChevronDown, ClipboardCheck, Check,
+  RefreshCw, AlertTriangle, BookOpen, ChevronDown, Check,
   Shield, Target, Rocket, Info, ArrowRight, Minus, Scale, TriangleAlert,
 } from "lucide-react";
 import MonthlySavingsTracker from "../components/MonthlySavingsTracker";
+import MilestoneChecklist from "../components/MilestoneChecklist";
 
 /* ─── Stage Journey ───────────────────────────────────────────────────────── */
 const STAGES = [
@@ -150,6 +151,10 @@ export default function LifestyleCorrectionTrack() {
   const corrAnnualSaving = corrOverspend * 12;
   const corrTotalReclaim = corrOverspend * corrPlanTarget;
   const corrOnTrack      = corrPlanTarget >= 12 ? true : corrPlanTarget > 0 ? false : null;
+  const correctionLogTotal = (user?.correctionLog || [])
+    .filter(e => !e.missed && e.status !== "missed")
+    .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+  const elapsedCorrectionMonths = getCompletedLogMonths(user?.correctionLog || []);
 
   const baseDebtPayment    = 4000;
   const newExpenses        = expenses - expenseCut;
@@ -351,6 +356,7 @@ export default function LifestyleCorrectionTrack() {
         </div>
 
         {/* ── MONTHLY TRACKER ── */}
+        <div className="track-overview-grid">
         {corrOverspend > 0 && (
           <MonthlySavingsTracker
             logKey="correctionLog"
@@ -366,48 +372,19 @@ export default function LifestyleCorrectionTrack() {
         <FiveYearJourney
           trackKey="correction"
           monthlyAmount={corrMonthly}
-          currentSaved={Number(user?.savings) || 0}
+          currentSaved={correctionLogTotal}
           fiveYearTarget={Number(user?.fiveYearGoal) || 0}
+          elapsedMonths={elapsedCorrectionMonths}
         />
 
         {/* ── MILESTONE CHECKLIST ── */}
-        <div className="track-card" style={{ position:"relative", overflow:"hidden" }}>
-          <img src={rootsImg} alt="" style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover", objectPosition:"center 60%", opacity:0.07, pointerEvents:"none", zIndex:0 }} />
-          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:16 }}>
-            <h3 style={{ margin:0, display:"flex", alignItems:"center", gap:8 }}>
-              <ClipboardCheck size={17} color="#84a794" /> Milestone Checklist
-            </h3>
-            <span style={{ fontSize:"0.72rem", color:"#84a794", fontWeight:600, whiteSpace:"nowrap", marginLeft:12 }}>
-              {stagesDone.filter(Boolean).length}/{MILESTONES_DETAIL.length} done
-            </span>
-          </div>
-          <p style={{ fontSize:"0.73rem", color:"#667c74", margin:"0 0 14px", lineHeight:1.5 }}>
-            Tick off each milestone as you complete it — progress saves automatically.
-          </p>
-          <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-            {MILESTONES_DETAIL.map((m, i) => {
-              const done = stagesDone[i];
-              return (
-                <div key={i} onClick={() => toggleStage(i)}
-                  style={{ display:"flex", gap:12, alignItems:"center", padding:"10px 14px", borderRadius:10, cursor:"pointer",
-                    background: done ? "rgba(132,167,148,0.07)" : "rgba(255,255,255,0.02)",
-                    border:`1px solid ${done ? "rgba(132,167,148,0.22)" : "rgba(255,255,255,0.06)"}`,
-                    transition:"background 0.2s, border-color 0.2s" }}>
-                  <div style={{ width:20, height:20, borderRadius:5, flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center",
-                    background: done ? "rgba(132,167,148,0.22)" : "#0e1512",
-                    border:`2px solid ${done ? "#84a794" : "#2a3530"}`, transition:"all 0.2s" }}>
-                    {done && <Check size={11} color="#84a794" />}
-                  </div>
-                  <div style={{ flex:1 }}>
-                    <p style={{ margin:0, fontSize:"0.8rem", fontWeight:600, color: done?"#84a794":"#c0ccc8", textDecoration: done?"line-through":"none" }}>{m.label}</p>
-                    <p style={{ margin:"2px 0 0", fontSize:"0.7rem", color:"#556660", lineHeight:1.4 }}>{m.tip}</p>
-                  </div>
-                  {done && <Check size={14} color="#84a794" style={{ flexShrink:0 }} />}
-                </div>
-              );
-            })}
-          </div>
         </div>
+
+        <MilestoneChecklist
+          items={MILESTONES_DETAIL}
+          doneItems={stagesDone}
+          onToggle={toggleStage}
+        />
 
         {/* ── TOOLS & EDUCATION ── */}
         <div className="bl-tools-section">

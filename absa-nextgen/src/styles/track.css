@@ -73,6 +73,242 @@ h1 {
   background: rgba(132, 167, 148, 0.08);
 }
 
+.property-overview-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(420px, 1.08fr);
+  gap: 20px;
+  align-items: stretch;
+}
+
+.track-overview-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(420px, 1.08fr);
+  gap: 20px;
+  align-items: stretch;
+}
+
+.property-overview-grid > .track-card {
+  min-height: 0;
+}
+
+.track-overview-grid > * {
+  min-width: 0;
+}
+
+.property-journey-card {
+  justify-content: space-between;
+}
+
+.property-deposit-card {
+  justify-content: flex-start;
+}
+
+.property-overview-grid .track-card h3 {
+  font-size: 1rem;
+}
+
+.track-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.track-card-header h3 {
+  margin: 0;
+  min-width: 0;
+  line-height: 1.15;
+}
+
+.track-card-header__meta {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  color: #84a794;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.milestone-dropdown {
+  position: relative;
+  padding: 0;
+  overflow: hidden;
+}
+
+.milestone-dropdown::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('../assets/roots.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.08;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.milestone-dropdown__header {
+  width: 100%;
+  border: 0;
+  background:
+    linear-gradient(135deg, rgba(132, 167, 148, 0.1), transparent 50%),
+    rgba(255, 255, 255, 0.02);
+  color: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 18px 20px;
+  cursor: pointer;
+  position: relative;
+}
+
+.milestone-dropdown__icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px 4px 10px 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #84a794;
+  background: rgba(132, 167, 148, 0.12);
+  border: 1px solid rgba(132, 167, 148, 0.22);
+}
+
+.milestone-dropdown__main {
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.milestone-dropdown__title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #f4f6fc;
+}
+
+.milestone-dropdown__meta {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #84a794;
+  white-space: nowrap;
+}
+
+.milestone-dropdown__chevron {
+  color: #84a794;
+  transition: transform 0.2s ease;
+  position: absolute;
+  right: 20px;
+}
+
+.milestone-dropdown--open .milestone-dropdown__chevron {
+  transform: rotate(180deg);
+}
+
+.milestone-dropdown__progress {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.milestone-dropdown__progress span {
+  display: block;
+  height: 100%;
+  border-radius: 0 999px 999px 0;
+  background: linear-gradient(90deg, #d6a85a, #84a794);
+  transition: width 0.35s ease;
+}
+
+.milestone-dropdown__summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 20px;
+  color: #667c74;
+  font-size: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.milestone-dropdown__body {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 16px 20px 20px;
+}
+
+.milestone-dropdown__item {
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.025);
+  color: inherit;
+  border-radius: 12px 4px 12px 4px;
+  padding: 11px 12px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+}
+
+.milestone-dropdown__item:hover {
+  border-color: rgba(132, 167, 148, 0.3);
+  background: rgba(132, 167, 148, 0.06);
+  transform: translateY(-1px);
+}
+
+.milestone-dropdown__item--done {
+  border-color: rgba(132, 167, 148, 0.24);
+  background: rgba(132, 167, 148, 0.07);
+}
+
+.milestone-dropdown__check {
+  width: 22px;
+  height: 22px;
+  border-radius: 7px 3px 7px 3px;
+  border: 2px solid #2a3530;
+  background: #0e1512;
+  color: #84a794;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.milestone-dropdown__item--done .milestone-dropdown__check {
+  border-color: #84a794;
+  background: rgba(132, 167, 148, 0.18);
+}
+
+.milestone-dropdown__copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.milestone-dropdown__copy span {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #c0ccc8;
+}
+
+.milestone-dropdown__item--done .milestone-dropdown__copy span {
+  color: #84a794;
+  text-decoration: line-through;
+}
+
+.milestone-dropdown__copy small {
+  color: #556660;
+  font-size: 0.7rem;
+  line-height: 1.35;
+}
+
+.milestone-dropdown__done-icon {
+  color: #84a794;
+}
+
 /* POPUP */
 .popup-overlay {
   position: fixed;
@@ -1641,6 +1877,48 @@ h1 {
   color: #b2c8bc;
   background: rgba(132, 167, 148, 0.1);
   transform: translateY(-1px);
+}
+
+@media (max-width: 1120px) {
+  .track-overview-grid,
+  .property-overview-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .track-card-header {
+    align-items: flex-start;
+  }
+
+  .milestone-dropdown__header {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    padding: 16px;
+  }
+
+  .milestone-dropdown__main {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+  }
+
+  .milestone-dropdown__summary {
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 16px;
+  }
+
+  .milestone-dropdown__body {
+    grid-template-columns: 1fr;
+    padding: 14px 16px 16px;
+  }
+}
+
+@media (max-width: 720px) {
+  .track-overview-grid,
+  .property-overview-grid {
+    gap: 14px;
+  }
 }
 
 
