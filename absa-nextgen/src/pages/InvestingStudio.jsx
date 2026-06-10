@@ -320,7 +320,7 @@ The after-tax estimate shown assumes a simplified top-bracket CGT rate and does 
 
           {/* ACTIONS */}
           <div className="sim-actions">
-            <button className="pill">Apply insights to my strategy</button>
+            <button className="pill" onClick={() => navigate("/balanced")}>Apply insights to my strategy</button>
             <button
               className={`pill outline reset-btn${resetting ? " resetting" : ""}`}
               onClick={handleReset}

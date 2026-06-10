@@ -68,8 +68,11 @@ export default function Tour({ steps = [], storageKey }) {
 
     const scrollToTarget = () => {
       const rect = getVisibleRect();
-      const top = window.scrollY + rect.top - window.innerHeight / 2 + rect.height / 2;
-      window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+      // Centre the target, but never scroll its top edge out of view
+      // (tall sections like the Home hero would otherwise appear cut off)
+      const centered = window.scrollY + rect.top - window.innerHeight / 2 + rect.height / 2;
+      const topAligned = window.scrollY + rect.top - 90;
+      window.scrollTo({ top: Math.max(0, Math.min(centered, topAligned)), behavior: "smooth" });
     };
 
     setSpotlight(null);

@@ -295,7 +295,7 @@ Net worth = portfolio value minus remaining debt at each point in time. The winn
 
           {/* ACTIONS */}
           <div className="sim-actions">
-            <button className="pill">Apply insights to my strategy</button>
+            <button className="pill" onClick={() => navigate("/catchup")}>Apply insights to my strategy</button>
             <button
               className={`pill outline reset-btn${resetting ? " resetting" : ""}`}
               onClick={handleReset}
