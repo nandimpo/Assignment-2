@@ -185,6 +185,62 @@ export default function CatchUpTrack() {
   const catchDebt  = getCatchupDebtRemaining(user);
   const catchPaid  = getLogPaidTotal(user?.catchupLog || []);
   const catchMonthly = getTrackMonthlyAmount(user, "catchup");
+  const catchLog = user?.catchupLog || [];
+  const catchPaidMonths = catchLog.filter(e => !e?.missed && e?.status !== "missed").length;
+  const catchMissedMonths = catchLog.filter(e => e?.missed || e?.status === "missed").length;
+  const catchTargetMonths = Number(user?.catchupTargetMonths) || 0;
+  const catchMonthsToClear = catchMonthly > 0 && catchDebt > 0 ? Math.ceil(catchDebt / catchMonthly) : null;
+  const catchRequiredMonthly = catchTargetMonths > 0 && catchDebt > 0 ? Math.ceil(catchDebt / catchTargetMonths) : null;
+  const catchMonthlyShortfall = catchRequiredMonthly && catchMonthly ? Math.max(0, catchRequiredMonthly - catchMonthly) : 0;
+  const catchOnTrack = catchMonthsToClear !== null && catchTargetMonths > 0 ? catchMonthsToClear <= catchTargetMonths : null;
+  const currentJourneyIndex = journeyDone.findIndex(done => !done);
+  const nextJourneyStage = STAGES[currentJourneyIndex === -1 ? STAGES.length - 1 : currentJourneyIndex];
+  const checklistDoneCount = stagesDone.filter(Boolean).length;
+  const catchProgressPct = catchDebtTotal > 0 ? Math.min(100, Math.round((catchPaid / catchDebtTotal) * 100)) : 0;
+  const catchupInsights = (() => {
+    const items = [];
+    const add = (title, text, Icon, tone = "") => items.push({ title, text, Icon, tone });
+
+    if (!catchDebt) {
+      add("Debt cleared", "Your debt balance is at zero. Redirect the same monthly attack into emergency savings or investing next.", CheckCircle2, "is-good");
+    } else if (!catchMonthly) {
+      add("Set the attack amount", "Add a monthly debt payment target in Setup so this track can calculate your recovery timeline.", Target, "is-warning");
+    } else if (catchOnTrack === false && catchMonthlyShortfall > 0) {
+      add("Timeline pressure", `You need about R${catchMonthlyShortfall.toLocaleString("en-ZA")} more per month to clear the remaining debt in ${catchTargetMonths} months.`, AlertTriangle, "is-warning");
+    } else if (catchOnTrack === true) {
+      add("Timeline is matched", `At R${catchMonthly.toLocaleString("en-ZA")}/month, the remaining debt clears in ${catchMonthsToClear} months against your ${catchTargetMonths}-month target.`, CheckCircle2, "is-good");
+    } else {
+      add("Recovery timeline", `At R${catchMonthly.toLocaleString("en-ZA")}/month, the remaining debt clears in about ${catchMonthsToClear || 0} months.`, Target);
+    }
+
+    if (catchMissedMonths > 0) {
+      add("Missed month logged", `${catchMissedMonths} missed month${catchMissedMonths === 1 ? "" : "s"} logged. Recovery should focus on one extra payment or an expense cut before investing.`, RefreshCw, "is-warning");
+    } else if (catchPaidMonths > 0) {
+      add("Payment momentum", `${catchPaidMonths} month${catchPaidMonths === 1 ? "" : "s"} paid and R${catchPaid.toLocaleString("en-ZA")} removed from the debt total.`, CheckCircle2, "is-good");
+    }
+
+    if (nextJourneyStage && journeyPct < 100) {
+      add("Next best move", `${nextJourneyStage.label}: ${nextJourneyStage.hint}.`, Target);
+    } else if (journeyPct === 100) {
+      add("Journey complete", "All catch-up stages are checked. Keep the payment habit and move the freed cash into wealth building.", Rocket, "is-good");
+    }
+
+    if (savingsRate < 20) {
+      add("Savings-rate risk", `Your savings rate is ${savingsRate}%. Push toward 20% so debt payoff does not rely on willpower alone.`, AlertTriangle, "is-warning");
+    } else if (savingsRate >= 40) {
+      add("Strong cash flow", `${savingsRate}% savings rate gives you room to attack debt faster without breaking the plan.`, TrendingUp, "is-good");
+    }
+
+    if (checklistDoneCount > 0) {
+      add("Proof is building", `${checklistDoneCount}/${MILESTONES_DETAIL.length} checklist items are complete. Keep checking off real-world proof points.`, CheckCircle2, "is-good");
+    }
+
+    if (catchProgressPct > 0 && catchProgressPct < 100) {
+      add("Debt reduction visible", `${catchProgressPct}% of the starting debt is paid. Keep the tracker updated so Home and Snapshot stay accurate.`, Scale, "is-good");
+    }
+
+    return items.slice(0, 3);
+  })();
 
   return (
     <div className="track-page">
@@ -444,34 +500,22 @@ export default function CatchUpTrack() {
                 </div>
 
                 <div className="catchup-ai-list">
-                  <div className="catchup-ai-item is-good">
-                    <CheckCircle2 size={16} />
-                    <div>
-                      <strong>Timeline is matched</strong>
-                      <span>Your R{catchMonthly.toLocaleString("en-ZA")}/month attack clears the debt in line with your target.</span>
+                  {catchupInsights.map(({ title, text, Icon, tone }, i) => (
+                    <div key={`${title}-${i}`} className={`catchup-ai-item ${tone}`}>
+                      <Icon size={16} />
+                      <div>
+                        <strong>{title}</strong>
+                        <span>{text}</span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="catchup-ai-item">
-                    <Target size={16} />
-                    <div>
-                      <strong>Next best move</strong>
-                      <span>Complete the debt audit first so high-interest balances are attacked in the right order.</span>
-                    </div>
-                  </div>
-                  <div className="catchup-ai-item is-warning">
-                    <AlertTriangle size={16} />
-                    <div>
-                      <strong>Risk to watch</strong>
-                      <span>Do not redirect this payment into investing until high-interest debt is fully cleared.</span>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
             }
             back={
               <>
                 <span className="flip-back-label">AI Insights</span>
-                <span className="flip-back-count">3</span>
+                <span className="flip-back-count">{catchupInsights.length}</span>
                 <span className="flip-back-sub">recovery signals for your catch-up plan</span>
               </>
             }

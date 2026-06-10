@@ -195,17 +195,56 @@ export default function BalancedLifestyleTrack() {
   const steps = ["emergencyFund", "deposit", "purchase"];
   const stepLabels = { emergencyFund: "Emergency Fund", deposit: "Consistent Investing", purchase: "Financial Independence" };
 
-  let insight1 = "", insight2 = "";
-  if (investmentPct >= 60) {
-    insight1 = "Strong allocation toward investing — you're building wealth aggressively.";
-    insight2 = "Make sure you still have a liquid buffer for emergencies.";
-  } else if (investmentPct >= 30) {
-    insight1 = "Balanced split — good mix of investing and liquid savings.";
-    insight2 = "Pushing above 40% toward investing could significantly accelerate your portfolio.";
-  } else {
-    insight1 = "Low investing allocation — most of your surplus stays liquid.";
-    insight2 = "Consider increasing your investing percentage to build long-term wealth faster.";
-  }
+  const savingsLog = user?.savingsLog || [];
+  const savedMonths = savingsLog.filter(e => !e?.missed && e?.status !== "missed").length;
+  const missedMonths = savingsLog.filter(e => e?.missed || e?.status === "missed").length;
+  const emergencyDone = Boolean(progress.emergencyFund);
+  const investingDone = Boolean(progress.deposit);
+  const foundationDone = stagesDone.filter(Boolean).length;
+
+  const balancedInsights = (() => {
+    const items = [];
+    const add = (text, tone = "neutral") => items.push({ text, tone });
+
+    if (!goalMonthly) {
+      add("Set your monthly investment target in Setup so the tracker can judge your plan accurately.", "warning");
+    } else if (balOnTrack === false && balShortfall > 0) {
+      add(`Your current R${goalMonthly.toLocaleString("en-ZA")}/month target is short by about R${balShortfall.toLocaleString("en-ZA")}/month for your 5-year goal.`, "warning");
+    } else if (balOnTrack === true) {
+      add(`Your setup target is on track for your R${balPlanGoal.toLocaleString("en-ZA")} 5-year goal, with roughly R${Math.max(0, balSurplusAmt).toLocaleString("en-ZA")} room.`, "good");
+    }
+
+    if (missedMonths > 0) {
+      add(`${missedMonths} missed month${missedMonths === 1 ? "" : "s"} logged. Keep the log honest and recover by nudging next month's contribution above target.`, "warning");
+    } else if (savedMonths > 0) {
+      add(`${savedMonths} month${savedMonths === 1 ? "" : "s"} logged and R${savingsLogTotal.toLocaleString("en-ZA")} invested. Your habit is now visible in the journey.`, "good");
+    }
+
+    if (isAboveSetup) {
+      add(`This allocation invests R${(scenarioInvesting - goalMonthly).toLocaleString("en-ZA")} more than setup and lifts Year 5 by R${Math.max(0, scenarioY5 - setupY5).toLocaleString("en-ZA")}.`, "good");
+    } else if (isBelowSetup) {
+      add(`This allocation invests R${(goalMonthly - scenarioInvesting).toLocaleString("en-ZA")} less than setup, reducing the Year 5 projection by R${Math.max(0, setupY5 - scenarioY5).toLocaleString("en-ZA")}.`, "warning");
+    } else if (investmentPct >= 60) {
+      add("Strong allocation toward investing. Keep a liquid buffer so emergencies don't force you to sell investments.", "good");
+    } else if (investmentPct < 30) {
+      add("Most of your surplus is staying liquid. Increase the investing percentage when your emergency fund is stable.", "warning");
+    }
+
+    if (!emergencyDone) {
+      add("Next milestone: finish the emergency fund first, then unlock consistent investing.", "neutral");
+    } else if (!investingDone) {
+      add("Emergency fund is marked done. The next useful move is automating the monthly investment.", "good");
+    } else if (progressPercent < 100) {
+      add("Your investing rhythm is in place. Now scale toward financial independence without lifestyle creep.", "good");
+    }
+
+    if (foundationDone > 0) {
+      add(`${foundationDone}/${MILESTONES_DETAIL.length} checklist items are complete, so your track is moving from plan to proof.`, "good");
+    }
+
+    if (!items.length) add("Balanced split — good mix of investing and liquid savings.", "neutral");
+    return items.slice(0, 3);
+  })();
 
   const milestoneInsight =
     progressPercent === 0  ? "Start by building your emergency fund." :
@@ -358,9 +397,9 @@ export default function BalancedLifestyleTrack() {
                   <Lightbulb size={15} /> AI Insights
                 </h3>
                 <div className="balanced-ai-list">
-                  {[insight1, insight2].map((item, i) => (
-                    <div key={i} className="insight">
-                      <Typewriter text={item} speed={14} delay={i * 180} />
+                  {balancedInsights.map((item, i) => (
+                    <div key={i} className={`insight ${item.tone === "good" ? "positive" : item.tone === "warning" ? "warning" : "neutral"}`}>
+                      <Typewriter text={item.text} speed={14} delay={i * 180} />
                     </div>
                   ))}
                 </div>
@@ -369,7 +408,7 @@ export default function BalancedLifestyleTrack() {
             back={
               <>
                 <span className="flip-back-label">AI Insights</span>
-                <span className="flip-back-count">2</span>
+                <span className="flip-back-count">{balancedInsights.length}</span>
                 <span className="flip-back-sub">personalised insights for your balanced lifestyle path</span>
               </>
             }
@@ -498,8 +537,11 @@ export default function BalancedLifestyleTrack() {
                   <div>
                     <p className="bl-tile-section-label">AI Insights</p>
                     <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 8 }}>
-                      <div className="insight"><p>{insight1}</p></div>
-                      <div className="insight"><p>{insight2}</p></div>
+                      {balancedInsights.slice(0, 2).map((item, i) => (
+                        <div key={i} className={`insight ${item.tone === "good" ? "positive" : item.tone === "warning" ? "warning" : "neutral"}`}>
+                          <p>{item.text}</p>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>

@@ -12,9 +12,12 @@ import { getCompletedLogMonths } from "../utils/projections";
 import {
   RefreshCw, AlertTriangle, BookOpen, ChevronDown, Check,
   Shield, Target, Rocket, Info, ArrowRight, Minus, Scale, TriangleAlert,
+  Lightbulb, CheckCircle2, TrendingUp,
 } from "lucide-react";
 import MonthlySavingsTracker from "../components/MonthlySavingsTracker";
 import MilestoneChecklist from "../components/MilestoneChecklist";
+import FlipCard from "../components/FlipCard";
+import Typewriter from "../components/Typewriter";
 
 /* ─── Stage Journey ───────────────────────────────────────────────────────── */
 const STAGES = [
@@ -110,6 +113,14 @@ export default function LifestyleCorrectionTrack() {
   const [openCards, setOpenCards]     = useState({ adjuster: false, rationale: false, guide: false, concepts: false });
   const toggleCard = (key) => setOpenCards(prev => ({ ...prev, [key]: !prev[key] }));
   const [tooltip, setTooltip]         = useState(null);
+  const MilestoneInfo = () => (
+    <button type="button" className="catchup-info-btn correction-info-btn" aria-label="Explain correction milestones">
+      <Info size={13} strokeWidth={2.2} />
+      <span className="catchup-info-pop correction-info-pop">
+        Milestones show the correction habits to complete in order: audit spending, stop leaks, clear high-interest debt, then lock in the new budget habits.
+      </span>
+    </button>
+  );
 
   // Stage journey — localStorage
   const [journeyDone, setJourneyDone] = useState(() => {
@@ -162,6 +173,59 @@ export default function LifestyleCorrectionTrack() {
   const monthsToDebtFree   = Math.ceil(debt / (newDebtPayment || 1));
   const journeyDoneCount   = journeyDone.filter(Boolean).length;
   const journeyPct         = Math.round((journeyDoneCount / STAGES.length) * 100);
+  const correctionLog = user?.correctionLog || [];
+  const correctionLoggedMonths = correctionLog.filter(e => !e?.missed && e?.status !== "missed").length;
+  const correctionMissedMonths = correctionLog.filter(e => e?.missed || e?.status === "missed").length;
+  const checklistDoneCount = stagesDone.filter(Boolean).length;
+  const currentJourneyIndex = journeyDone.findIndex(done => !done);
+  const nextJourneyStage = STAGES[currentJourneyIndex === -1 ? STAGES.length - 1 : currentJourneyIndex];
+  const correctionProgressPct = corrTotalReclaim > 0 ? Math.min(100, Math.round((correctionLogTotal / corrTotalReclaim) * 100)) : 0;
+  const lifestyleLoadPct = income > 0 ? Math.round((expenses / income) * 100) : 0;
+  const correctionInsights = (() => {
+    const items = [];
+    const add = (text, tone = "neutral") => items.push({ text, tone });
+
+    if (!corrOverspend) {
+      add("Set your monthly correction target in Setup so the track can measure what you are reclaiming.", "warning");
+    } else if (corrOnTrack === false) {
+      add(`${corrPlanTarget} months is an aggressive correction window. Aim for 12+ months so the habit change has time to stick.`, "warning");
+    } else if (corrOnTrack === true) {
+      add(`Your plan can reclaim R${corrTotalReclaim.toLocaleString("en-ZA")} over ${corrPlanTarget} months if you keep reducing R${corrOverspend.toLocaleString("en-ZA")}/month.`, "good");
+    }
+
+    if (correctionMissedMonths > 0) {
+      add(`${correctionMissedMonths} missed month${correctionMissedMonths === 1 ? "" : "s"} logged. Review the spending audit before increasing debt payments.`, "warning");
+    } else if (correctionLoggedMonths > 0) {
+      add(`${correctionLoggedMonths} month${correctionLoggedMonths === 1 ? "" : "s"} logged and R${correctionLogTotal.toLocaleString("en-ZA")} reclaimed. Your correction is showing up in the numbers.`, "good");
+    }
+
+    if (savingsRate < 20) {
+      add(`Your savings rate is ${savingsRate}%. The next target is 20% so correction turns into lasting surplus.`, "warning");
+    } else if (savingsRate >= 30) {
+      add(`${savingsRate}% savings rate is strong. Protect it by locking the new budget before lifestyle spend creeps back.`, "good");
+    }
+
+    if (lifestyleLoadPct > 70) {
+      add(`Lifestyle expenses are about ${lifestyleLoadPct}% of income. Bring this below 70% to create reliable breathing room.`, "warning");
+    }
+
+    if (nextJourneyStage && journeyPct < 100) {
+      add(`Next milestone: ${nextJourneyStage.label}. ${nextJourneyStage.hint}.`, "neutral");
+    } else if (journeyPct === 100) {
+      add("All correction stages are complete. You are ready to move toward Balanced Lifestyle habits.", "good");
+    }
+
+    if (checklistDoneCount > 0) {
+      add(`${checklistDoneCount}/${MILESTONES_DETAIL.length} checklist items are complete. Keep turning the plan into proof.`, "good");
+    }
+
+    if (correctionProgressPct > 0 && correctionProgressPct < 100) {
+      add(`${correctionProgressPct}% of your correction target is logged. Keep the monthly tracker updated so Snapshot stays accurate.`, "good");
+    }
+
+    if (!items.length) add("Start with the spending audit. You cannot correct what you have not measured.", "neutral");
+    return items.slice(0, 3);
+  })();
 
   return (
     <div className="track-page">
@@ -196,7 +260,7 @@ export default function LifestyleCorrectionTrack() {
         )}
 
         {/* ── TOP 2-COL: YOUR PLAN + STAGE JOURNEY ── */}
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:24, alignItems:"start" }}>
+        <div className="correction-plan-strip">
 
           {/* YOUR PLAN */}
           {corrOverspend > 0 ? (
@@ -250,7 +314,7 @@ export default function LifestyleCorrectionTrack() {
           )}
 
           {/* STAGE JOURNEY */}
-          <div className="track-card" style={{ padding:"22px 24px" }}>
+          <div className="track-card correction-stage-list-card" style={{ padding:"22px 24px" }}>
             <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:14 }}>
               <div>
                 <p style={{ margin:0, fontSize:"0.6rem", fontWeight:700, color:"#445550", textTransform:"uppercase", letterSpacing:"0.12em" }}>Journey</p>
@@ -299,7 +363,7 @@ export default function LifestyleCorrectionTrack() {
         </div>
 
         {/* ── VISUAL TIMELINE ── */}
-        <div className="track-card" style={{ padding:"22px 24px" }}>
+        <div className="track-card" style={{ display:"none", padding:"22px 24px" }}>
           <p style={{ margin:"0 0 4px", fontSize:"0.6rem", fontWeight:700, color:"#445550", textTransform:"uppercase", letterSpacing:"0.12em" }}>Progress Timeline</p>
           <p style={{ margin:"0 0 20px", fontSize:"0.82rem", color:"#667c74" }}>Your correction journey at a glance — click stages above to advance</p>
           {/* Horizontal timeline */}
@@ -356,7 +420,17 @@ export default function LifestyleCorrectionTrack() {
         </div>
 
         {/* ── MONTHLY TRACKER ── */}
-        <div className="track-overview-grid">
+        <div className="correction-fiveyear-row">
+          <FiveYearJourney
+            trackKey="correction"
+            monthlyAmount={corrMonthly}
+            currentSaved={correctionLogTotal}
+            fiveYearTarget={Number(user?.fiveYearGoal) || 0}
+            elapsedMonths={elapsedCorrectionMonths}
+          />
+        </div>
+
+        <div className="track-overview-grid correction-tracker-journey-row">
         {corrOverspend > 0 && (
           <MonthlySavingsTracker
             logKey="correctionLog"
@@ -369,15 +443,74 @@ export default function LifestyleCorrectionTrack() {
         )}
 
         {/* ── 5-YEAR JOURNEY ── */}
-        <FiveYearJourney
-          trackKey="correction"
-          monthlyAmount={corrMonthly}
-          currentSaved={correctionLogTotal}
-          fiveYearTarget={Number(user?.fiveYearGoal) || 0}
-          elapsedMonths={elapsedCorrectionMonths}
-        />
+          <FlipCard
+            className="sim-card-flip balanced-ai-flip correction-ai-flip"
+            front={
+              <div className="track-card balanced-ai-card" id="correction-insights">
+                <h3>
+                  <Lightbulb size={15} /> AI Insights
+                </h3>
+                <div className="balanced-ai-list">
+                  {correctionInsights.map((item, i) => (
+                    <div key={i} className={`insight ${item.tone === "good" ? "positive" : item.tone === "warning" ? "warning" : "neutral"}`}>
+                      <Typewriter text={item.text} speed={14} delay={i * 180} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            }
+            back={
+              <>
+                <span className="flip-back-label">AI Insights</span>
+                <span className="flip-back-count">{correctionInsights.length}</span>
+                <span className="flip-back-sub">live signals for your lifestyle correction plan</span>
+              </>
+            }
+          />
 
         {/* ── MILESTONE CHECKLIST ── */}
+        </div>
+
+        <div className="correction-milestones-row">
+          <div className="track-card balanced-milestones-card">
+            <div className="balanced-milestones-header">
+              <div className="balanced-milestones-title">
+                <h3>Milestones <MilestoneInfo /></h3>
+                <span className="milestones-hint">Track your progress</span>
+              </div>
+              <div className="balanced-milestones-status">
+                <span>{journeyPct}% complete</span>
+                <small>{journeyPct === 0 ? "Start with the spending audit." : journeyPct < 100 ? `${nextJourneyStage?.label || "Next step"} is next.` : "Correction stages complete."}</small>
+              </div>
+            </div>
+
+            <div className="correction-stepper">
+              {STAGES.map((stage, index) => {
+                const isCompleted = journeyDone[index];
+                const isCurrent = !isCompleted && (index === 0 || journeyDone[index - 1]);
+                const isLocked = index > 0 && !journeyDone[index - 1];
+                return (
+                  <div className="correction-step" key={stage.key}>
+                    <button
+                      type="button"
+                      className={`step ${isCompleted ? "completed" : ""} ${isCurrent ? "current" : ""} ${isLocked ? "locked" : ""}`}
+                      onClick={() => !isLocked && toggleJourney(index)}
+                      disabled={isLocked}
+                      title={isCompleted ? "Achieved" : isLocked ? "Complete previous stage first" : stage.hint}
+                    >
+                      {isCompleted ? <Check size={16} /> : index + 1}
+                    </button>
+                    <div className="bl-step-text">
+                      <span className="step-label">{stage.label}</span>
+                      {isCurrent && <span className="step-cta">{stage.hint}</span>}
+                      {isLocked && <span className="step-locked-label">Locked</span>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
         </div>
 
         <MilestoneChecklist
