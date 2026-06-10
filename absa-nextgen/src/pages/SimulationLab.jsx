@@ -43,7 +43,7 @@ export default function SimulationLab() {
   const [spotlight, setSpotlight] = useState(null);
 
   const tourSteps = [
-    { text: "Welcome 👋 Explore simulations to test financial decisions.", target: "header" },
+    { text: "Welcome! Explore simulations to test financial decisions.", target: "header" },
     { text: "Start here — this is your recommended simulation.",           target: "sim-step-0" },
     { text: "Click 'Open Studio' to run the simulation.",                  target: "sim-btn-0" },
     { text: "Compare scenarios and learn from outcomes.",                  target: "sim-step-2" },

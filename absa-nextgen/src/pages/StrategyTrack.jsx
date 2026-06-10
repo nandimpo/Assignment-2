@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
 import AppNav from "../components/AppNav";
-import { Home, TrendingUp, Scale, Zap, ArrowRight, AlertTriangle, CheckCircle, Info } from "lucide-react";
+import { Home, TrendingUp, Scale, Zap, ArrowRight, AlertTriangle, CheckCircle, Info, BarChart3 } from "lucide-react";
 import "../styles/simulation.css";
 import SlideIn from "../components/SlideIn";
 import { useEffect, useRef, useState } from "react";
@@ -557,11 +557,11 @@ export default function StrategyTrack() {
                       {isExpanded && (
                         <div style={{ marginBottom: 16, display: "flex", flexDirection: "column", gap: 10 }}>
                           <div className="strategy-detail-leaf strategy-detail-leaf--trade">
-                            <p style={{ fontSize: "0.72rem", fontWeight: 700, color: "#d6a85a", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 4px" }}>⚖ Trade-off</p>
+                            <p style={{ fontSize: "0.72rem", fontWeight: 700, color: "#d6a85a", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 4px", display: "flex", alignItems: "center", gap: 5 }}><Scale size={11} /> Trade-off</p>
                             <p style={{ fontSize: "0.8rem", color: "#c0ccc8", margin: 0, lineHeight: 1.5 }}>{track.tradeoffs}</p>
                           </div>
                           <div className="strategy-detail-leaf strategy-detail-leaf--warning">
-                            <p style={{ fontSize: "0.7rem", fontWeight: 700, color: "#ff9898", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>⚠ Warnings</p>
+                            <p style={{ fontSize: "0.7rem", fontWeight: 700, color: "#ff9898", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px", display: "flex", alignItems: "center", gap: 5 }}><AlertTriangle size={11} /> Warnings</p>
                             {track.warnings.map((w, i) => (
                               <div key={i} style={{ display: "flex", gap: 7, alignItems: "flex-start", marginBottom: 6 }}>
                                 <AlertTriangle size={12} color="#ff9898" style={{ flexShrink: 0, marginTop: 2 }} />
@@ -570,7 +570,7 @@ export default function StrategyTrack() {
                             ))}
                           </div>
                           <div className="strategy-detail-leaf strategy-detail-leaf--example">
-                            <p style={{ fontSize: "0.72rem", fontWeight: 700, color: "#4facfe", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 4px" }}>📊 Real example</p>
+                            <p style={{ fontSize: "0.72rem", fontWeight: 700, color: "#4facfe", textTransform: "uppercase", letterSpacing: "0.08em", margin: "0 0 4px", display: "flex", alignItems: "center", gap: 5 }}><BarChart3 size={11} /> Real example</p>
                             <p style={{ fontSize: "0.8rem", color: "#c0ccc8", margin: 0, lineHeight: 1.5 }}>{track.example}</p>
                           </div>
                         </div>

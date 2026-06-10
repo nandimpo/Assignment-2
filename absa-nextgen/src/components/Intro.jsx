@@ -2,27 +2,32 @@ import { useEffect, useState, useRef } from "react";
 import logo from "../assets/logo.png";
 import WaveCanvas from "./WaveCanvas";
 
-/* ── main intro ── */
+//main into : logo etc
 export default function Intro({ onEnter, fadeOut }) {
-  const [showLogo,   setShowLogo]   = useState(false);
-  const [showText,   setShowText]   = useState(false);
-  const [showLine,   setShowLine]   = useState(false);
+  const [showLogo, setShowLogo] = useState(false);
+  const [showText, setShowText] = useState(false);
+  const [showLine, setShowLine] = useState(false);
   const [showButton, setShowButton] = useState(false);
   const bgRef = useRef(null);
 
   useEffect(() => {
-    const t1 = setTimeout(() => setShowLogo(true),   400);
-    const t2 = setTimeout(() => setShowText(true),   1200);
-    const t3 = setTimeout(() => setShowLine(true),   3900); // after typing finishes
+    const t1 = setTimeout(() => setShowLogo(true), 400);
+    const t2 = setTimeout(() => setShowText(true), 1200);
+    const t3 = setTimeout(() => setShowLine(true), 3900); // after typing finishes
     const t4 = setTimeout(() => setShowButton(true), 4200);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      clearTimeout(t4);
+    };
   }, []);
 
   /* gentle mouse parallax on dreamy orbs */
   useEffect(() => {
     const handleMove = (e) => {
       if (!bgRef.current) return;
-      const x = (e.clientX / window.innerWidth  - 0.5) * 20;
+      const x = (e.clientX / window.innerWidth - 0.5) * 20;
       const y = (e.clientY / window.innerHeight - 0.5) * 20;
       bgRef.current.style.transform = `translate(${x}px, ${y}px)`;
     };
@@ -32,7 +37,6 @@ export default function Intro({ onEnter, fadeOut }) {
 
   return (
     <div className={`intro ${fadeOut ? "fade-out" : "show"}`}>
-
       {/* ── WAVE BACKGROUND ── */}
       <WaveCanvas />
 
@@ -56,7 +60,9 @@ export default function Intro({ onEnter, fadeOut }) {
             ABSA NextGen Wealth Studio
           </h1>
           {/* animated underline */}
-          <div className={`intro-underline ${showLine ? "intro-underline--show" : ""}`}></div>
+          <div
+            className={`intro-underline ${showLine ? "intro-underline--show" : ""}`}
+          ></div>
         </div>
       )}
 

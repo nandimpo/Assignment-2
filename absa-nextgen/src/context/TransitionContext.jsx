@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
+// TransitionContext manages page transition states and provides trigger functions for initiating transitions.
 const TransitionContext = createContext();
 
 export function TransitionProvider({ children }) {
@@ -11,32 +12,47 @@ export function TransitionProvider({ children }) {
   const [variant, setVariant] = useState("green");
   const [message, setMessage] = useState(null);
 
-  const trigger = useCallback((to, v = "green", msg = null) => {
-    setVariant(v);
-    setMessage(msg);
-    setActive(true);
-    setPhase("in");
+  const trigger = useCallback(
+    (to, v = "green", msg = null) => {
+      setVariant(v);
+      setMessage(msg);
+      setActive(true);
+      setPhase("in");
 
-    // Navigate as vortex fill covers screen
-    setTimeout(() => navigate(to), 2800);
-    setTimeout(() => setPhase("out"), 3200);
-    setTimeout(() => { setActive(false); setPhase("idle"); setMessage(null); }, 3700);
-  }, [navigate]);
+      // Navigate as vortex fill covers screen
+      setTimeout(() => navigate(to), 2800);
+      setTimeout(() => setPhase("out"), 3200);
+      setTimeout(() => {
+        setActive(false);
+        setPhase("idle");
+        setMessage(null);
+      }, 3700);
+    },
+    [navigate],
+  );
 
   // Fast nav transition — simple fade/slide, no vortex
-  const navTrigger = useCallback((to) => {
-    setVariant("nav");
-    setMessage(null);
-    setActive(true);
-    setPhase("in");
+  const navTrigger = useCallback(
+    (to) => {
+      setVariant("nav");
+      setMessage(null);
+      setActive(true);
+      setPhase("in");
 
-    setTimeout(() => navigate(to), 180);
-    setTimeout(() => setPhase("out"), 200);
-    setTimeout(() => { setActive(false); setPhase("idle"); }, 500);
-  }, [navigate]);
+      setTimeout(() => navigate(to), 180);
+      setTimeout(() => setPhase("out"), 200);
+      setTimeout(() => {
+        setActive(false);
+        setPhase("idle");
+      }, 500);
+    },
+    [navigate],
+  );
 
   return (
-    <TransitionContext.Provider value={{ active, phase, variant, message, trigger, navTrigger }}>
+    <TransitionContext.Provider
+      value={{ active, phase, variant, message, trigger, navTrigger }}
+    >
       {children}
     </TransitionContext.Provider>
   );

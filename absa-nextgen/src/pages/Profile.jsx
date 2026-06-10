@@ -8,6 +8,7 @@ import tree2Img from "../assets/tree2.png";
 import FlipCard from "../components/FlipCard";
 import NumberCounter from "../components/NumberCounter";
 import "../styles/money.css";
+import { GraduationCap } from "lucide-react";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -394,7 +395,7 @@ export default function Profile() {
         onClick={() => navigate("/learn")}
         title="Go to Finance School"
       >
-        🎓
+        <GraduationCap size={24} />
       </div>
 
       {/* ── Tour overlay ── */}

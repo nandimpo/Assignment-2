@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { BarChart2, Cpu, HelpCircle } from "lucide-react";
+import { BarChart2, Cpu, HelpCircle, GraduationCap } from "lucide-react";
 import growthImg from "../assets/growth.png.gif";
 import SlideIn from "../components/SlideIn";
 import "../styles/simulation.css";
@@ -22,6 +22,15 @@ const DEFAULTS = {
 };
 
 const BAR_MAX_PX = 128; // pixel ceiling for bars
+
+function calculateTransferDuty(value) {
+  if (value <= 1210000) return 0;
+  if (value <= 1663800) return (value - 1210000) * 0.03;
+  if (value <= 2329300) return 13614 + (value - 1663800) * 0.06;
+  if (value <= 2994800) return 53544 + (value - 2329300) * 0.08;
+  if (value <= 13310000) return 106784 + (value - 2994800) * 0.11;
+  return 1241456 + (value - 13310000) * 0.13;
+}
 
 export default function SimulationLab() {
   const navigate = useNavigate();
@@ -64,7 +73,12 @@ export default function SimulationLab() {
         )
       : Math.round(price / n);
 
-  const buyTotal = bondMonthly * 12 * years;
+  const transferDuty = Math.round(calculateTransferDuty(price));
+  const transferAttorneyFee = Math.round(Math.max(18000, price * 0.0075));
+  const bondRegistrationFee = Math.round(Math.max(16000, price * 0.0055));
+  const upfrontPurchaseCosts = transferDuty + transferAttorneyFee + bondRegistrationFee;
+  const bondPaidTotal = bondMonthly * 12 * years;
+  const buyTotal = bondPaidTotal + upfrontPurchaseCosts;
   const difference = rentTotal - buyTotal;
 
   /* Bar heights — always at least 8 px so bars are visible */
@@ -78,10 +92,10 @@ export default function SimulationLab() {
   /* ── VERDICT ── */
   let verdict, tone;
   if (difference > 0) {
-    verdict = `Based on your current inputs, renting is the more cost-efficient option, saving approximately R${Math.abs(difference).toLocaleString()} over ${years} years.`;
+    verdict = `Based on your current inputs, renting is the more cost-efficient option, saving approximately R${Math.abs(difference).toLocaleString()} over ${years} years after estimated SA transfer duty and legal costs.`;
     tone = "positive";
   } else if (difference < 0) {
-    verdict = `Buying results in a higher short-term cost of approximately R${Math.abs(difference).toLocaleString()}, however it contributes toward long-term asset ownership and equity growth.`;
+    verdict = `Buying results in a higher short-term cash cost of approximately R${Math.abs(difference).toLocaleString()}, including estimated transfer duty and bond/transfer legal fees, but it contributes toward long-term asset ownership and equity growth.`;
     tone = "neutral";
   } else {
     verdict = `Both renting and buying result in a similar financial outcome over ${years} years, suggesting that non-financial factors should guide your decision.`;
@@ -102,6 +116,14 @@ export default function SimulationLab() {
     insights.push(
       "Your rental cost exceeds 40% of your income, which may limit your ability to save effectively.",
     );
+  if (upfrontPurchaseCosts > salary * 3)
+    insights.push(
+      `Estimated upfront buying costs are about R${upfrontPurchaseCosts.toLocaleString("en-ZA")} — more than three months of your income. Build this cash buffer before making an offer.`,
+    );
+  if (transferDuty > 0)
+    insights.push(
+      `Transfer duty alone is estimated at R${transferDuty.toLocaleString("en-ZA")}. This is a once-off SARS cost on resale property, separate from your bond repayment.`,
+    );
   if (salary > 60000 && difference < 0)
     insights.push(
       "Your income level suggests you may be well-positioned to absorb higher bond costs and transition into ownership.",
@@ -117,7 +139,9 @@ This simulation compares the total cost of renting versus buying over a selected
 
 Renting provides flexibility and lower upfront costs, while buying introduces interest expenses but enables long-term asset accumulation.
 
-The outcome is highly sensitive to interest rates, time horizon, and your income-to-expense ratio.
+The buying estimate includes a simplified South African upfront-cost model: transfer duty on resale property, transfer attorney fees, and bond registration fees. Transfer duty is modelled as a progressive SARS-style estimate with no transfer duty below R1.21m. VAT-registered new developments may work differently because VAT can replace transfer duty.
+
+The outcome is highly sensitive to interest rates, time horizon, property price, upfront costs, and your income-to-expense ratio.
   `.trim();
 
   const explainers = {
@@ -186,33 +210,45 @@ The outcome is highly sensitive to interest rates, time horizon, and your income
           </div>
 
           {/* GRAPH */}
-          <div className="sim-card graph-card">
-            <h3 className="graph-title">Cost Comparison</h3>
+          <div className="sim-card graph-card property-graph-card">
+            <h3 className="graph-title">Total Cost Over {years} {years === 1 ? "Year" : "Years"}</h3>
+            <p className="graph-subtitle">
+              Everything you'd pay in total over {years} {years === 1 ? "year" : "years"} — not per month
+            </p>
 
             <div className="bars">
               <div className="bar-container">
                 <div className="bar rent" style={{ height: `${rentBarPx}px` }}>
                   <span className="bar-tooltip">
-                    R{rentTotal.toLocaleString()}
+                    R{rentTotal.toLocaleString()} total
                   </span>
                 </div>
-                <span>Rent</span>
+                <span>Rent ({years}yr total)</span>
               </div>
 
               <div className="bar-container">
                 <div className="bar buy" style={{ height: `${buyBarPx}px` }}>
                   <span className="bar-tooltip">
-                    R{buyTotal.toLocaleString()}
+                    R{buyTotal.toLocaleString()} total
                   </span>
                 </div>
-                <span>Buy</span>
+                <span>Buy ({years}yr total)</span>
               </div>
             </div>
 
             <p className="graph-values">
-              Rent: R{rentTotal.toLocaleString()} <span>|</span> Buy: R
+              Rent: R{rent.toLocaleString()}/mo × {years * 12} months = R
+              {rentTotal.toLocaleString()} <span>|</span> Buy: R
+              {bondMonthly.toLocaleString()}/mo bond + R
+              {upfrontPurchaseCosts.toLocaleString()} once-off costs = R
               {buyTotal.toLocaleString()}
             </p>
+
+            <div className="property-cost-breakdown">
+              <span>Transfer duty: <strong>R{transferDuty.toLocaleString("en-ZA")}</strong></span>
+              <span>Transfer fees: <strong>R{transferAttorneyFee.toLocaleString("en-ZA")}</strong></span>
+              <span>Bond fees: <strong>R{bondRegistrationFee.toLocaleString("en-ZA")}</strong></span>
+            </div>
 
             <p className="graph-impact">{verdict}</p>
           </div>
@@ -220,18 +256,22 @@ The outcome is highly sensitive to interest rates, time horizon, and your income
 
         {/* ── YEAR 5 CALLOUT ── */}
         <YearFiveCallout
-          label="At the end of your first 5 years"
+          label={`At the end of ${years} ${years === 1 ? "year" : "years"}`}
           items={[
             {
               name: "Total rent paid",
-              value: `R${(rent * 12 * 5).toLocaleString("en-ZA")}`,
+              value: `R${rentTotal.toLocaleString("en-ZA")}`,
             },
             {
               name: "Total bond paid",
-              value: `R${(bondMonthly * 12 * 5).toLocaleString("en-ZA")}`,
+              value: `R${bondPaidTotal.toLocaleString("en-ZA")}`,
             },
             {
-              name: "5-Year difference",
+              name: "Upfront SA buying costs",
+              value: `R${upfrontPurchaseCosts.toLocaleString("en-ZA")}`,
+            },
+            {
+              name: `${years}-Year difference`,
               value: `R${Math.abs(difference).toLocaleString("en-ZA")} ${difference > 0 ? "saved renting" : "extra buying"}`,
               highlight: true,
             },
@@ -304,8 +344,8 @@ The outcome is highly sensitive to interest rates, time horizon, and your income
               </h4>
               <p>
                 This simulation compares the total cost of renting versus buying
-                over a selected time horizon. The outcome is highly sensitive to
-                interest rates, time horizon, and your income-to-expense ratio.
+                over a selected time horizon, including estimated SA transfer
+                duty and legal fees.
               </p>
               <span>Click to read full breakdown →</span>
             </div>
@@ -342,7 +382,7 @@ The outcome is highly sensitive to interest rates, time horizon, and your income
         onClick={() => navigate("/learn")}
         title="Go to Finance School"
       >
-        🎓
+        <GraduationCap size={24} />
       </div>
     </div>
   );

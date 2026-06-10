@@ -6,6 +6,7 @@ import { useUser } from "../context/UserContext";
 import Tour from "../components/Tour";
 import FlipCard from "../components/FlipCard";
 import seedsImg from "../assets/seeds.png";
+import { Flame, Lightbulb, CheckCircle, XCircle, Trophy } from "lucide-react";
 
 /* ─── LESSONS ────────────────────────────────────────────── */
 
@@ -335,8 +336,6 @@ export default function FinanceSchool() {
   const [feedback,      setFeedback]      = useState(null);
   const [feedbackVisible, setFeedbackVisible] = useState(false);
   const [questionIndex, setQuestionIndex] = useState(0);
-  const [showLevelUp,   setShowLevelUp]   = useState(false);
-  const [levelUpPending, setLevelUpPending] = useState(false);
   const [activeTab,     setActiveTab]     = useState(0);
 
   const feedbackTimer = useRef(null);
@@ -393,8 +392,6 @@ export default function FinanceSchool() {
     setSelected(null);
     setFeedback(null);
     setFeedbackVisible(false);
-    setShowLevelUp(false);
-    setLevelUpPending(false);
     setQuestionIndex(0);
   };
 
@@ -426,11 +423,8 @@ export default function FinanceSchool() {
     if (selected === currentQ.answer) {
       showFeedback("correct");
       const updated = { ...learning, xp: learning.xp + 50 };
-      let didLevelUp = false;
       if (updated.xp >= updated.level * 100) {
         updated.level += 1;
-        didLevelUp = true;
-        setLevelUpPending(true);
       }
       saveLearning(updated);
       confetti({ particleCount: 80, spread: 60 });
@@ -451,12 +445,6 @@ export default function FinanceSchool() {
           setFeedback(null);
           setFeedbackVisible(false);
           setSelected(null);
-          if (didLevelUp || levelUpPending) {
-            setTimeout(() => {
-              setShowLevelUp(true);
-              setLevelUpPending(false);
-            }, 250);
-          }
         }
       }, 1800);
     } else {
@@ -471,8 +459,10 @@ export default function FinanceSchool() {
 
   const resumeLearning = () => {
     const next = lessons.find(l => !learning.completed.includes(l.id));
-    if (next) openLesson(next);
+    openLesson(next || lessons[0]);
   };
+
+  const allComplete = learning.completed.length === lessons.length;
 
   const tags = ["All", ...Array.from(new Set(lessons.map(l => l.tag)))];
   const [filterTag, setFilterTag] = useState("All");
@@ -482,7 +472,7 @@ export default function FinanceSchool() {
     : lessons.filter(l => l.tag === filterTag);
 
   const schoolTourSteps = [
-    { text: "Welcome to Finance School 🎓 — learn SA finance concepts and earn XP as you go.", target: "school-header" },
+    { text: "Welcome to Finance School — learn SA finance concepts and earn XP as you go.", target: "school-header" },
     { text: "Your level and XP progress is tracked here. Keep your streak going daily.", target: "school-progress" },
     { text: "Pick any module to start. Complete the lesson then pass the quiz to earn XP.", target: "school-modules" },
   ];
@@ -498,7 +488,9 @@ export default function FinanceSchool() {
           <div>
             <p className="sim-eyebrow">Finance School · SA Financial Literacy</p>
             <h1>Learn. Earn XP. Build wealth.</h1>
-            <p className="subtitle">🔥 {learning.streak}-day streak · {learning.completed.length}/{lessons.length} modules complete</p>
+            <p className="subtitle" style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <Flame size={14} color="#d6a85a" /> {learning.streak}-day streak · {learning.completed.length}/{lessons.length} modules complete
+            </p>
           </div>
           <button className="resume-btn" onClick={resumeLearning}>
             {learning.completed.length === lessons.length ? "Review lessons" : "Resume →"}
@@ -506,14 +498,16 @@ export default function FinanceSchool() {
         </div>
 
         {/* PROGRESS */}
-        <div className="card" id="school-progress" style={{ display: "flex", gap: 24, alignItems: "center", flexWrap: "wrap" }}>
-          <div style={{ flex: 1 }}>
+        <div className="card" id="school-progress" style={{ display: "flex", flexDirection: "row", gap: 24, alignItems: "center", flexWrap: "wrap" }}>
+          <div style={{ flex: "1 1 260px", minWidth: 0 }}>
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
               <p style={{ margin: 0, fontSize: "0.78rem", color: "#8a9a96" }}>Level {learning.level}</p>
-              <p style={{ margin: 0, fontSize: "0.78rem", color: "#8a9a96" }}>{learning.xp % 100}/100 XP</p>
+              <p style={{ margin: 0, fontSize: "0.78rem", color: "#8a9a96", display: "flex", alignItems: "center", gap: 5 }}>
+                {allComplete ? <><Trophy size={13} color="#d6a85a" /> All modules complete</> : `${learning.xp % 100}/100 XP`}
+              </p>
             </div>
             <div className="progress">
-              <div className="progress-fill" style={{ width: `${learning.xp % 100}%` }} />
+              <div className="progress-fill" style={{ width: allComplete ? "100%" : `${learning.xp % 100}%` }} />
             </div>
           </div>
           <div style={{ display: "flex", gap: 12, flexShrink: 0 }}>
@@ -707,8 +701,8 @@ export default function FinanceSchool() {
             {/* explanation shown after correct answer */}
             {feedback === "correct" && activeLesson.quiz[questionIndex].explanation && (
               <div style={{ padding: "12px 14px", background: "rgba(132,167,148,0.08)", border: "1px solid rgba(132,167,148,0.2)", borderRadius: 10, marginTop: 12 }}>
-                <p style={{ margin: 0, fontSize: "0.8rem", color: "#84a794", lineHeight: 1.5 }}>
-                  💡 {activeLesson.quiz[questionIndex].explanation}
+                <p style={{ margin: 0, fontSize: "0.8rem", color: "#84a794", lineHeight: 1.5, display: "flex", alignItems: "flex-start", gap: 6 }}>
+                  <Lightbulb size={14} style={{ flexShrink: 0, marginTop: 2 }} /> {activeLesson.quiz[questionIndex].explanation}
                 </p>
               </div>
             )}
@@ -716,11 +710,11 @@ export default function FinanceSchool() {
             <div className={`feedback-toast ${feedback === "wrong" ? "feedback-wrong" : "feedback-correct"} ${feedbackVisible ? "feedback-show" : ""}`}>
               {feedback === "wrong" ? (
                 <>
-                  <span>❌ Incorrect — try again</span>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><XCircle size={15} /> Incorrect — try again</span>
                   <button className="try-again-btn" onClick={tryAgain}>Try Again</button>
                 </>
               ) : (
-                <span>✅ Correct! +50 XP</span>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><CheckCircle size={15} /> Correct! +50 XP</span>
               )}
             </div>
 
@@ -734,17 +728,7 @@ export default function FinanceSchool() {
           </div>
         )}
 
-        {/* LEVEL UP OVERLAY */}
-        {showLevelUp && view !== "quiz" && (
-          <div className="level-overlay">
-            <div className="level-popup">
-              <p className="level-emoji">🎉</p>
-              <h2>Level Up!</h2>
-              <p>You are now Level {learning.level}</p>
-              <button className="pill" onClick={() => setShowLevelUp(false)}>Continue</button>
-            </div>
-          </div>
-        )}
+
       </div>
 
       <Tour steps={schoolTourSteps} storageKey="schoolTour" />

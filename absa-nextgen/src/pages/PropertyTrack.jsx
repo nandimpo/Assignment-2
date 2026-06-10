@@ -15,6 +15,7 @@ import {
   Target, TrendingUp, AlertTriangle, BookOpen, Lightbulb,
   FileText, GraduationCap, Check, ChevronDown, Home, Shield,
   Info, Key, ClipboardCheck, CheckCircle, XCircle, Circle,
+  Scale, Calculator, BarChart3, Zap,
 } from "lucide-react";
 import FiveYearJourney from "../components/FiveYearJourney";
 import SimNudge from "../components/SimNudge";
@@ -270,7 +271,13 @@ export default function PropertyTrack() {
             </div>
             <div style={{ padding: "12px 18px 14px", display: "flex", gap: 10, alignItems: "flex-start",
               background: planOnTrack === true ? "rgba(132,167,148,0.05)" : planOnTrack === false ? "rgba(214,168,90,0.05)" : "rgba(79,172,254,0.04)" }}>
-              <span style={{ fontSize: "1rem", flexShrink: 0 }}>{planOnTrack === true ? "🎯" : planOnTrack === false ? "⚡" : "💡"}</span>
+              <span style={{ flexShrink: 0, display: "inline-flex", marginTop: 2 }}>
+                {planOnTrack === true
+                  ? <Target size={16} color="#84a794" />
+                  : planOnTrack === false
+                  ? <Zap size={16} color="#d6a85a" />
+                  : <Lightbulb size={16} color="#4facfe" />}
+              </span>
               <div>
                 <p style={{ margin: "0 0 3px", fontSize: "0.78rem", fontWeight: 700,
                   color: planOnTrack === true ? "#84a794" : planOnTrack === false ? "#d6a85a" : "#4facfe" }}>
@@ -743,7 +750,7 @@ export default function PropertyTrack() {
                   {/* Trade-offs */}
                   <div className="grid-2" style={{ gap: 12 }}>
                     <div style={{ background: "rgba(214,168,90,0.05)", border: "1px solid rgba(214,168,90,0.15)", borderRadius: 10, padding: "10px 12px" }}>
-                      <p style={{ fontSize: "0.65rem", fontWeight: 700, color: "#d6a85a", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>⚖ Trade-offs</p>
+                      <p style={{ fontSize: "0.65rem", fontWeight: 700, color: "#d6a85a", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px", display: "flex", alignItems: "center", gap: 5 }}><Scale size={11} /> Trade-offs</p>
                       {TRADEOFFS.map(({ pro, text }, i) => (
                         <div key={i} style={{ display: "flex", gap: 6, alignItems: "flex-start", marginBottom: 5 }}>
                           <span style={{ color: pro ? "#84a794" : "#d6a85a", fontWeight: 700, fontSize: "0.8rem", flexShrink: 0 }}>{pro ? "✓" : "✗"}</span>
@@ -752,7 +759,7 @@ export default function PropertyTrack() {
                       ))}
                     </div>
                     <div style={{ background: "rgba(79,172,254,0.05)", border: "1px solid rgba(79,172,254,0.15)", borderRadius: 10, padding: "10px 12px" }}>
-                      <p style={{ fontSize: "0.65rem", fontWeight: 700, color: "#4facfe", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>📐 Numbers</p>
+                      <p style={{ fontSize: "0.65rem", fontWeight: 700, color: "#4facfe", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px", display: "flex", alignItems: "center", gap: 5 }}><Calculator size={11} /> Numbers</p>
                       {[
                         ["10% deposit on R1.8M","R180,000",true],
                         ["At R15k/month","12 months",false],
@@ -768,7 +775,7 @@ export default function PropertyTrack() {
                   </div>
                   {/* Warnings */}
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                    <p style={{ fontSize: "0.65rem", fontWeight: 700, color: "#ff9898", textTransform: "uppercase", letterSpacing: "0.1em", margin: 0 }}>⚠ Warnings</p>
+                    <p style={{ fontSize: "0.65rem", fontWeight: 700, color: "#ff9898", textTransform: "uppercase", letterSpacing: "0.1em", margin: 0, display: "flex", alignItems: "center", gap: 5 }}><AlertTriangle size={11} /> Warnings</p>
                     {WARNINGS.map((w, i) => (
                       <div key={i} style={{ display: "flex", gap: 7, alignItems: "flex-start" }}>
                         <AlertTriangle size={12} color="#ff9898" style={{ flexShrink: 0, marginTop: 2 }} />
@@ -818,7 +825,7 @@ export default function PropertyTrack() {
                   </div>
                   {/* Real example */}
                   <div style={{ background: "rgba(79,172,254,0.05)", border: "1px solid rgba(79,172,254,0.15)", borderRadius: 10, padding: "10px 12px" }}>
-                    <p style={{ fontSize: "0.65rem", fontWeight: 700, color: "#4facfe", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>📊 Real example — Thabo</p>
+                    <p style={{ fontSize: "0.65rem", fontWeight: 700, color: "#4facfe", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px", display: "flex", alignItems: "center", gap: 5 }}><BarChart3 size={11} /> Real example — Thabo</p>
                     <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                       {[["Monthly saving","R12,000","#84a794"],["Deposit target","R150,000","#d6a85a"],["Timeline","~13 months","#4facfe"],["Total incl. fees","R186,250","#c084fc"]].map(([l,v,c]) => (
                         <div key={l} style={{ background:"rgba(255,255,255,0.03)", borderRadius:7, padding:"6px 10px", minWidth:100 }}>

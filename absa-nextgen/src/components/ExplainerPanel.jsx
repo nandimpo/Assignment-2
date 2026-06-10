@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { X } from "lucide-react";
 import "../styles/explainer.css";
 import Typewriter from "./Typewriter";
-
+// This is the explainer panel that shows up when users click on the "Learn More" links in the app. It provides additional context , education on financial concepts.
 export default function ExplainerPanel({ show, onClose, content }) {
   useEffect(() => {
     const handleEsc = (e) => {
@@ -24,7 +24,11 @@ export default function ExplainerPanel({ show, onClose, content }) {
   return (
     <div className="overlay" onClick={handleOverlayClick}>
       <div className="explainer-panel">
-        <button className="close-btn" onClick={onClose} aria-label="Close explainer">
+        <button
+          className="close-btn"
+          onClick={onClose}
+          aria-label="Close explainer"
+        >
           <X size={18} strokeWidth={2} />
         </button>
 

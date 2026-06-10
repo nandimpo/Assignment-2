@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import useTransitionNavigate from "../hooks/useTransitionNavigate";
 import "../styles/nav.css";
 import logo from "../assets/logo.png";
-
+// LandingNav component: top navigation bar with logo and links. Highlights active section based on scroll position. Changes style on scroll. Provides smooth scrolling to sections and transitions to login/register pages.
 export default function LandingNav() {
   const navigate = useNavigate();
   const transitionTo = useTransitionNavigate();
@@ -30,8 +30,10 @@ export default function LandingNav() {
       const el = document.getElementById(id);
       if (!el) return;
       const obs = new IntersectionObserver(
-        ([entry]) => { if (entry.isIntersecting) setActiveSection(id); },
-        { threshold: 0.4 }
+        ([entry]) => {
+          if (entry.isIntersecting) setActiveSection(id);
+        },
+        { threshold: 0.4 },
       );
       obs.observe(el);
       observers.push(obs);

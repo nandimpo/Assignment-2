@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { BarChart2, Cpu, HelpCircle } from "lucide-react";
+import { BarChart2, Cpu, HelpCircle, GraduationCap } from "lucide-react";
 import growthImg from "../assets/growth.png.gif";
 import AppNav from "../components/AppNav";
 import FlipCard from "../components/FlipCard";
@@ -22,45 +22,49 @@ import "../styles/simulation.css";
 import "../styles/fiveyear.css";
 
 const DEFAULTS = {
-  carPrice:   350000,
-  deposit:    50000,
-  loanRate:   13,
+  carPrice: 350000,
+  deposit: 50000,
+  loanRate: 13,
   investRate: 10,
-  years:      5,
+  years: 5,
 };
 
 export default function CarStudio() {
   const navigate = useNavigate();
   const { user } = useUser();
 
-  const [carPrice,   setCarPrice]   = useState(DEFAULTS.carPrice);
-  const [deposit,    setDeposit]    = useState(DEFAULTS.deposit);
-  const [loanRate,   setLoanRate]   = useState(DEFAULTS.loanRate);
+  const [carPrice, setCarPrice] = useState(DEFAULTS.carPrice);
+  const [deposit, setDeposit] = useState(DEFAULTS.deposit);
+  const [loanRate, setLoanRate] = useState(DEFAULTS.loanRate);
   const [investRate, setInvestRate] = useState(DEFAULTS.investRate);
-  const [years,      setYears]      = useState(DEFAULTS.years);
+  const [years, setYears] = useState(DEFAULTS.years);
 
   const [showPanel, setShowPanel] = useState(false);
-  const [content,   setContent]   = useState(null);
+  const [content, setContent] = useState(null);
   const [resetting, setResetting] = useState(false);
 
   /* ── CALCULATIONS ─────────────────────────────── */
 
-  const loanAmount   = Math.max(0, carPrice - deposit);
-  const months       = years * 12;
-  const monthlyRate  = loanRate / 100 / 12;
+  const loanAmount = Math.max(0, carPrice - deposit);
+  const months = years * 12;
+  const monthlyRate = loanRate / 100 / 12;
 
-  // Amortising monthly bond/loan repayment (standard SA vehicle finance formula)
-  const monthlyPayment = loanAmount > 0 && monthlyRate > 0
-    ? Math.round(loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1))
-    : Math.round(loanAmount / months);
+  //  monthly bond/loan repayment (standard SA vehicle finance formula)
+  const monthlyPayment =
+    loanAmount > 0 && monthlyRate > 0
+      ? Math.round(
+          (loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, months))) /
+            (Math.pow(1 + monthlyRate, months) - 1),
+        )
+      : Math.round(loanAmount / months);
 
-  const totalCarCost   = deposit + monthlyPayment * months;
-  const totalInterest  = totalCarCost - carPrice;
+  const totalCarCost = deposit + monthlyPayment * months;
+  const totalInterest = totalCarCost - carPrice;
 
   // Depreciation: SA cars typically lose ~15% yr1, ~10%/yr after
   let carValue = carPrice;
   for (let y = 0; y < years; y++) {
-    carValue = Math.round(carValue * (y === 0 ? 0.85 : 0.90));
+    carValue = Math.round(carValue * (y === 0 ? 0.85 : 0.9));
   }
   const equityAtEnd = Math.max(0, carValue);
 
@@ -78,12 +82,12 @@ export default function CarStudio() {
 
   const data = [];
   let chartPortfolio = deposit;
-  let outstanding    = loanAmount;
+  let outstanding = loanAmount;
 
   for (let y = 1; y <= years; y++) {
     // car equity at this year
     let cv = carPrice;
-    for (let i = 0; i < y; i++) cv = Math.round(cv * (i === 0 ? 0.85 : 0.90));
+    for (let i = 0; i < y; i++) cv = Math.round(cv * (i === 0 ? 0.85 : 0.9));
     const carEquity = Math.max(0, cv - outstanding);
 
     for (let m = 0; m < 12; m++) {
@@ -93,8 +97,8 @@ export default function CarStudio() {
     }
 
     data.push({
-      year:      `Year ${y}`,
-      invest:    Math.round(chartPortfolio),
+      year: `Year ${y}`,
+      invest: Math.round(chartPortfolio),
       carEquity: Math.max(0, cv - outstanding),
     });
   }
@@ -156,7 +160,7 @@ SA context: Vehicle finance rates in South Africa are typically prime + 1–3% (
 `;
 
   const explainers = {
-    verdict: { title: "AI Financial Verdict",    text: verdict },
+    verdict: { title: "AI Financial Verdict", text: verdict },
     concept: { title: "Understanding the Model", text: explainerText },
   };
 
@@ -183,24 +187,84 @@ SA context: Vehicle finance rates in South Africa are typically prime + 1–3% (
       <div className="sim-container">
         <p className="sim-eyebrow">Simulation Lab · 5-Year Journey</p>
         <SlideIn tag="h1" text="Car vs Invest Studio" />
-        <SlideIn tag="p" className="subtitle" delay={120}
-          text="Model the true cost of vehicle finance vs investing the same money — see the Year 5 wealth gap." />
+        <SlideIn
+          tag="p"
+          className="subtitle"
+          delay={120}
+          text="Model the true cost of vehicle finance vs investing the same money — see the Year 5 wealth gap."
+        />
 
         <div className="sim-grid">
           {/* INPUTS */}
           <div className="sim-card">
-            <Slider label="Vehicle Price"         value={carPrice}   set={setCarPrice}   min={80000}  max={1000000} step={10000} prefix="R" />
-            <Slider label="Deposit"               value={deposit}    set={setDeposit}    min={0}      max={300000}  step={5000}  prefix="R" />
-            <Slider label="Finance Interest Rate" value={loanRate}   set={setLoanRate}   min={8}      max={22}      suffix="%" />
-            <Slider label="Investment Return"     value={investRate} set={setInvestRate} min={4}      max={18}      suffix="%" />
-            <Slider label="Time Horizon"          value={years}      set={setYears}      min={1}      max={7}       suffix=" years" />
+            <Slider
+              label="Vehicle Price"
+              value={carPrice}
+              set={setCarPrice}
+              min={80000}
+              max={1000000}
+              step={10000}
+              prefix="R"
+            />
+            <Slider
+              label="Deposit"
+              value={deposit}
+              set={setDeposit}
+              min={0}
+              max={300000}
+              step={5000}
+              prefix="R"
+            />
+            <Slider
+              label="Finance Interest Rate"
+              value={loanRate}
+              set={setLoanRate}
+              min={8}
+              max={22}
+              suffix="%"
+            />
+            <Slider
+              label="Investment Return"
+              value={investRate}
+              set={setInvestRate}
+              min={4}
+              max={18}
+              suffix="%"
+            />
+            <Slider
+              label="Time Horizon"
+              value={years}
+              set={setYears}
+              min={1}
+              max={7}
+              suffix=" years"
+            />
 
-            <div className="sim-derived" style={{ marginTop: 12, padding: "12px 0", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-              <p style={{ fontSize: "0.78rem", color: "#8a9a96", margin: "0 0 6px" }}>
-                Monthly payment: <strong style={{ color: "#c0ccc8" }}>R{monthlyPayment.toLocaleString("en-ZA")}</strong>
+            <div
+              className="sim-derived"
+              style={{
+                marginTop: 12,
+                padding: "12px 0",
+                borderTop: "1px solid rgba(255,255,255,0.06)",
+              }}
+            >
+              <p
+                style={{
+                  fontSize: "0.78rem",
+                  color: "#8a9a96",
+                  margin: "0 0 6px",
+                }}
+              >
+                Monthly payment:{" "}
+                <strong style={{ color: "#c0ccc8" }}>
+                  R{monthlyPayment.toLocaleString("en-ZA")}
+                </strong>
               </p>
               <p style={{ fontSize: "0.78rem", color: "#8a9a96", margin: 0 }}>
-                Total interest: <strong style={{ color: "#d6a85a" }}>R{totalInterest.toLocaleString("en-ZA")}</strong>
+                Total interest:{" "}
+                <strong style={{ color: "#d6a85a" }}>
+                  R{totalInterest.toLocaleString("en-ZA")}
+                </strong>
               </p>
             </div>
           </div>
@@ -210,22 +274,45 @@ SA context: Vehicle finance rates in South Africa are typically prime + 1–3% (
             <h3 className="graph-title">Investment Portfolio vs Car Equity</h3>
             <ResponsiveContainer width="100%" height={220}>
               <LineChart data={data}>
-                <XAxis dataKey="year" tick={{ fill: "#8a9a96", fontSize: 12 }} />
-                <YAxis tick={{ fill: "#8a9a96", fontSize: 11 }}
-                  tickFormatter={(v) => `R${(v / 1000).toFixed(0)}k`} />
+                <XAxis
+                  dataKey="year"
+                  tick={{ fill: "#8a9a96", fontSize: 12 }}
+                />
+                <YAxis
+                  tick={{ fill: "#8a9a96", fontSize: 11 }}
+                  tickFormatter={(v) => `R${(v / 1000).toFixed(0)}k`}
+                />
                 <Tooltip
                   formatter={(v, name) => [
                     `R${Number(v).toLocaleString("en-ZA")}`,
                     name === "invest" ? "Investment portfolio" : "Car equity",
                   ]}
-                  contentStyle={{ background: "#121616", border: "1px solid #2a3a35", color: "white" }}
+                  contentStyle={{
+                    background: "#121616",
+                    border: "1px solid #2a3a35",
+                    color: "white",
+                  }}
                 />
                 <Legend
-                  formatter={(v) => v === "invest" ? "Investment portfolio" : "Car equity"}
+                  formatter={(v) =>
+                    v === "invest" ? "Investment portfolio" : "Car equity"
+                  }
                   wrapperStyle={{ fontSize: "0.78rem", color: "#8a9a96" }}
                 />
-                <Line type="monotone" dataKey="invest"    stroke="#84a794" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="carEquity" stroke="#d6a85a" strokeWidth={2} dot={false} />
+                <Line
+                  type="monotone"
+                  dataKey="invest"
+                  stroke="#84a794"
+                  strokeWidth={2}
+                  dot={false}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="carEquity"
+                  stroke="#d6a85a"
+                  strokeWidth={2}
+                  dot={false}
+                />
               </LineChart>
             </ResponsiveContainer>
             <p className="graph-impact">{verdict}</p>
@@ -236,9 +323,19 @@ SA context: Vehicle finance rates in South Africa are typically prime + 1–3% (
         <YearFiveCallout
           label="At the end of your finance term"
           items={[
-            { name: "Car residual value",   value: `R${equityAtEnd.toLocaleString("en-ZA")}` },
-            { name: "Investment portfolio", value: `R${portfolio.toLocaleString("en-ZA")}` },
-            { name: "Opportunity cost",     value: `R${opportunityCost.toLocaleString("en-ZA")}`, highlight: true },
+            {
+              name: "Car residual value",
+              value: `R${equityAtEnd.toLocaleString("en-ZA")}`,
+            },
+            {
+              name: "Investment portfolio",
+              value: `R${portfolio.toLocaleString("en-ZA")}`,
+            },
+            {
+              name: "Opportunity cost",
+              value: `R${opportunityCost.toLocaleString("en-ZA")}`,
+              highlight: true,
+            },
           ]}
           note={`R${deposit.toLocaleString("en-ZA")} deposit + R${monthlyPayment.toLocaleString("en-ZA")}/month over ${years} years · ${loanRate}% finance vs ${investRate}% invest`}
         />
@@ -250,7 +347,9 @@ SA context: Vehicle finance rates in South Africa are typically prime + 1–3% (
             className="sim-card-flip verdict-flip"
             front={
               <div className="sim-card verdict-card">
-                <h3 className="sim-section-title"><BarChart2 size={16} /> AI Financial Verdict</h3>
+                <h3 className="sim-section-title">
+                  <BarChart2 size={16} /> AI Financial Verdict
+                </h3>
                 <p>{verdict}</p>
               </div>
             }
@@ -258,10 +357,15 @@ SA context: Vehicle finance rates in South Africa are typically prime + 1–3% (
               <>
                 <span className="flip-back-label">AI Financial Verdict</span>
                 <span className="flip-back-count">Verdict</span>
-                <span className="flip-back-sub">Open the full reasoning behind this car finance decision.</span>
+                <span className="flip-back-sub">
+                  Open the full reasoning behind this car finance decision.
+                </span>
                 <button
                   className="pill flip-back-action"
-                  onClick={() => { setContent(explainers.verdict); setShowPanel(true); }}
+                  onClick={() => {
+                    setContent(explainers.verdict);
+                    setShowPanel(true);
+                  }}
                 >
                   Open full verdict
                 </button>
@@ -274,9 +378,13 @@ SA context: Vehicle finance rates in South Africa are typically prime + 1–3% (
             className="sim-card-flip"
             front={
               <div className="sim-card">
-                <h3 className="sim-section-title"><Cpu size={16} /> Smart Insights</h3>
+                <h3 className="sim-section-title">
+                  <Cpu size={16} /> Smart Insights
+                </h3>
                 {insights.map((item, i) => (
-                  <div key={i} className="insight"><Typewriter text={item} speed={14} delay={i * 180} /></div>
+                  <div key={i} className="insight">
+                    <Typewriter text={item} speed={14} delay={i * 180} />
+                  </div>
                 ))}
               </div>
             }
@@ -284,7 +392,9 @@ SA context: Vehicle finance rates in South Africa are typically prime + 1–3% (
               <>
                 <span className="flip-back-label">Smart Insights</span>
                 <span className="flip-back-count">{insights.length}</span>
-                <span className="flip-back-sub">AI-generated insights on your car finance decision</span>
+                <span className="flip-back-sub">
+                  AI-generated insights on your car finance decision
+                </span>
               </>
             }
           />
@@ -292,17 +402,43 @@ SA context: Vehicle finance rates in South Africa are typically prime + 1–3% (
           {/* EXPLAINER */}
           <div
             className="sim-card explainer-aside clickable"
-            onClick={() => { setContent(explainers.concept); setShowPanel(true); }}
+            onClick={() => {
+              setContent(explainers.concept);
+              setShowPanel(true);
+            }}
           >
-            <img src={growthImg} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 30%", opacity: 0.07, pointerEvents: "none", zIndex: 0, borderRadius: 22 }} />
+            <img
+              src={growthImg}
+              alt=""
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                objectPosition: "center 30%",
+                opacity: 0.07,
+                pointerEvents: "none",
+                zIndex: 0,
+                borderRadius: 22,
+              }}
+            />
             <div className="hover-preview large">
-              <h4 className="sim-section-title"><HelpCircle size={14} /> Understanding the Model</h4>
-              <p>How SA vehicle finance, depreciation, and compound investing interact over 5 years.</p>
+              <h4 className="sim-section-title">
+                <HelpCircle size={14} /> Understanding the Model
+              </h4>
+              <p>
+                How SA vehicle finance, depreciation, and compound investing
+                interact over 5 years.
+              </p>
               <span>Click to read full breakdown →</span>
             </div>
-            <h3 className="sim-section-title"><HelpCircle size={16} /> How this works</h3>
+            <h3 className="sim-section-title">
+              <HelpCircle size={16} /> How this works
+            </h3>
             <p className="explainer-text">
-              SA vehicle depreciation, amortising finance, and compound investing compared side by side.
+              SA vehicle depreciation, amortising finance, and compound
+              investing compared side by side.
             </p>
             <span className="learn-link">Learn more</span>
           </div>
@@ -331,18 +467,31 @@ SA context: Vehicle finance rates in South Africa are typically prime + 1–3% (
         onClick={() => navigate("/learn")}
         title="Go to Finance School"
       >
-        🎓
+        <GraduationCap size={24} />
       </div>
     </div>
   );
 }
 
-function Slider({ label, value, set, min, max, step = 1, prefix = "", suffix = "" }) {
+function Slider({
+  label,
+  value,
+  set,
+  min,
+  max,
+  step = 1,
+  prefix = "",
+  suffix = "",
+}) {
   return (
     <div className="input-group">
       <div className="input-header">
         <span>{label}</span>
-        <strong>{prefix}{value.toLocaleString()}{suffix}</strong>
+        <strong>
+          {prefix}
+          {value.toLocaleString()}
+          {suffix}
+        </strong>
       </div>
       <input
         type="range"

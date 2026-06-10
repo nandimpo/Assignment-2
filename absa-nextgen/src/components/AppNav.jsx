@@ -5,9 +5,9 @@ import { useUser } from "../context/UserContext";
 import { useTransition } from "../context/TransitionContext";
 
 const TRACK_ROUTES = {
-  property:   "/property",
-  balanced:   "/balanced",
-  catchup:    "/catchup",
+  property: "/property",
+  balanced: "/balanced",
+  catchup: "/catchup",
   correction: "/correction",
 };
 
@@ -28,7 +28,7 @@ export default function AppNav() {
   };
 
   const handleLogout = () => {
-    // Only clear the session token — keep user data so they can log back in
+    // Only clear the session token , keep user data so they can log back in
     localStorage.removeItem("session");
     navigate("/login", { replace: true });
   };
@@ -37,7 +37,7 @@ export default function AppNav() {
 
   const isActive = (path) => location.pathname === path;
 
-  // 🔥 page-based class
+  // page-based classes
   const getPageClass = () => {
     if (location.pathname.includes("learn")) return "nav-learn";
     if (location.pathname.includes("money")) return "nav-money";
@@ -49,7 +49,7 @@ export default function AppNav() {
 
   return (
     <div className={`nav ${getPageClass()}${isSetupPage ? " nav-locked" : ""}`}>
-      {/* ✅ LOGO (UPDATED) */}
+      {/* LOGO (UPDATED) */}
       <div className="logo" onClick={() => go("/home")}>
         <img src={logo} alt="logo" className="logo-img" />
         <span className="logo-text">ABSA Wealth Studio</span>
@@ -65,7 +65,9 @@ export default function AppNav() {
         </button>
 
         <button
-          className={isActive("/money") || isActive("/snapshot") ? "active" : ""}
+          className={
+            isActive("/money") || isActive("/snapshot") ? "active" : ""
+          }
           onClick={() => go("/money")}
           title={isSetupPage ? "Complete setup first" : undefined}
         >
@@ -74,9 +76,14 @@ export default function AppNav() {
 
         <button
           className={
-            ["/strategy", "/property", "/balanced", "/correction", "/catchup", "/tracks"].some(
-              (p) => location.pathname.startsWith(p)
-            )
+            [
+              "/strategy",
+              "/property",
+              "/balanced",
+              "/correction",
+              "/catchup",
+              "/tracks",
+            ].some((p) => location.pathname.startsWith(p))
               ? "active"
               : ""
           }
@@ -87,7 +94,9 @@ export default function AppNav() {
         </button>
 
         <button
-          className={isActive("/simulation") ? "active" : ""}
+          className={
+            location.pathname.startsWith("/simulation") ? "active" : ""
+          }
           onClick={() => go("/simulation")}
           title={isSetupPage ? "Complete setup first" : undefined}
         >

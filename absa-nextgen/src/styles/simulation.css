@@ -587,6 +587,36 @@ input[type="range"] {
   margin: 0 0 8px;
 }
 
+.graph-subtitle {
+  font-size: 12px;
+  color: #8a9a96;
+  margin: -4px 0 12px;
+  align-self: stretch;
+  text-align: left;
+}
+
+.property-graph-card {
+  align-items: center;
+  text-align: center;
+}
+
+.property-graph-card .graph-title {
+  align-self: stretch;
+  text-align: left;
+}
+
+.property-graph-card .bars {
+  width: min(280px, 100%);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.property-graph-card .graph-values,
+.property-graph-card .graph-impact,
+.property-graph-card .property-cost-breakdown {
+  width: min(520px, 100%);
+}
+
 /* ── BARS ── */
 .bars {
   display: flex;
@@ -659,6 +689,30 @@ input[type="range"] {
   margin-top: 12px;
   font-size: 13px;
   color: #d4dbd9;
+}
+
+.property-cost-breakdown {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 12px 0 4px;
+}
+
+.property-cost-breakdown span {
+  padding: 8px 10px;
+  border: 1px solid rgba(132, 167, 148, 0.12);
+  border-radius: 10px 2px 10px 2px;
+  background: rgba(132, 167, 148, 0.045);
+  color: #8a9a96;
+  font-size: 0.68rem;
+  line-height: 1.35;
+}
+
+.property-cost-breakdown strong {
+  display: block;
+  color: #d6a85a;
+  font-size: 0.76rem;
+  margin-top: 2px;
 }
 
 .graph-impact {
@@ -1118,6 +1172,10 @@ input[type="range"] {
   }
 
   .sim-bottom {
+    grid-template-columns: 1fr;
+  }
+
+  .property-cost-breakdown {
     grid-template-columns: 1fr;
   }
 

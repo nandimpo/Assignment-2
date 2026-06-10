@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 
 /* ================= SCROLL FIX ================= */
 import ScrollToTop from "./components/ScrollToTop";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 /* ================= TRANSITION ================= */
 import { TransitionProvider, useTransition } from "./context/TransitionContext";
@@ -94,6 +95,7 @@ function AppOverlay() {
 /* ================= APP ================= */
 export default function App() {
   return (
+    <ErrorBoundary>
     <BrowserRouter basename={import.meta.env.BASE_URL}>
       <TransitionProvider>
         <WaveCanvas
@@ -266,6 +268,7 @@ export default function App() {
       </Routes>
       </TransitionProvider>
     </BrowserRouter>
+    </ErrorBoundary>
   );
 }
 

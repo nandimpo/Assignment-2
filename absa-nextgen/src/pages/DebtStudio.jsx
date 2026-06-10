@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { BarChart2, Cpu, HelpCircle } from "lucide-react";
+import { BarChart2, Cpu, HelpCircle, GraduationCap } from "lucide-react";
 import growthImg from "../assets/growth.png.gif";
 import AppNav from "../components/AppNav";
 import FlipCard from "../components/FlipCard";
@@ -317,7 +317,7 @@ Net worth = portfolio value minus remaining debt at each point in time. The winn
         onClick={() => navigate("/learn")}
         title="Go to Finance School"
       >
-        🎓
+        <GraduationCap size={24} />
       </div>
     </div>
   );
