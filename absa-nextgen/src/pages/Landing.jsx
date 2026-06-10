@@ -85,11 +85,22 @@ export default function Landing() {
 
         {/* MAIN CONTENT */}
         <div className="xapo-layout">
-          <p className="eyebrow" style={{ marginBottom: 18, display: "flex", alignItems: "center", gap: 8 }}><Sprout size={12} /> Plant · Nurture · Grow</p>
+          <p
+            className="eyebrow"
+            style={{
+              marginBottom: 18,
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+            }}
+          >
+            <Sprout size={12} /> Plant · Nurture · Grow
+          </p>
           <h1>Every tree started underground.</h1>
           <p>
-            Wealth isn't built overnight — it grows from small, consistent decisions.
-            ABSA Wealth Studio gives young South Africans the tools to plant their financial roots and watch them compound.
+            Wealth isn't built overnight, it grows from small, consistent
+            decisions. ABSA Wealth Studio gives young South Africans the tools
+            to plant their financial roots and watch them compound.
           </p>
           <button className="cta-btn" onClick={() => transitionTo("/register")}>
             Plant your first seed
@@ -106,22 +117,30 @@ export default function Landing() {
       {/* STATS BAR */}
       <div className="stats-bar container fade-in">
         <div className="stat">
-          <h3>R <NumberCounter value={2.4} decimals={1} suffix="B+" /></h3>
+          <h3>
+            R <NumberCounter value={2.4} decimals={1} suffix="B+" />
+          </h3>
           <p>Wealth nurtured</p>
         </div>
         <div className="stat-divider"></div>
         <div className="stat">
-          <h3><NumberCounter value={47000} suffix="+" /></h3>
+          <h3>
+            <NumberCounter value={47000} suffix="+" />
+          </h3>
           <p>Seeds planted</p>
         </div>
         <div className="stat-divider"></div>
         <div className="stat">
-          <h3><NumberCounter value={92} suffix="%" /></h3>
+          <h3>
+            <NumberCounter value={92} suffix="%" />
+          </h3>
           <p>Reached their harvest</p>
         </div>
         <div className="stat-divider"></div>
         <div className="stat">
-          <h3><NumberCounter value={5} suffix=" Years" /></h3>
+          <h3>
+            <NumberCounter value={5} suffix=" Years" />
+          </h3>
           <p>To financial freedom</p>
         </div>
       </div>
@@ -133,10 +152,13 @@ export default function Landing() {
         <div className="roots-break__content container">
           <Sprout size={36} color="#84a794" strokeWidth={1.5} />
           <blockquote className="roots-break__quote">
-            "The best time to plant a tree was 20 years ago.<br />
+            "The best time to plant a tree was 20 years ago.
+            <br />
             The second best time is now."
           </blockquote>
-          <p className="roots-break__sub">Your financial roots begin with a single decision. This is yours.</p>
+          <p className="roots-break__sub">
+            Your financial roots begin with a single decision. This is yours.
+          </p>
         </div>
       </div>
 
@@ -146,16 +168,18 @@ export default function Landing() {
           <p className="eyebrow">YOUR SOIL</p>
           <TypewriterHeading text="Before you can grow, you need roots." />
           <p>
-            Strong trees don't grow from thin air — they grow from deep, healthy soil.
-            ABSA Wealth Studio is built to give young South Africans that foundation:
-            clarity on where they stand, direction on where to go, and the tools to get there.
+            Strong trees don't grow from thin air , they grow from deep, healthy
+            soil. ABSA Wealth Studio is built to give young South Africans that
+            foundation: clarity on where they stand, direction on where to go,
+            and the tools to get there.
           </p>
           <p>
-            From your first salary to your first property — every decision you make
-            here nourishes your financial future.
+            From your first salary to your first property — every decision you
+            make here nourishes your financial future.
           </p>
           <p className="highlight">
-            Built for young South African professionals planting their first real financial roots.
+            Built for young South African professionals planting their first
+            real financial roots.
           </p>
         </div>
         <div className="image-wrap fade-in">
@@ -217,12 +241,17 @@ export default function Landing() {
           style={{ textAlign: "center", marginBottom: "40px" }}
         />
         <div className="feature-cards">
-          <div className="feature-card" onClick={() => transitionTo("/register")}>
-            <div className="feature-icon"><Sprout size={28} strokeWidth={1.5} color="#84a794" /></div>
+          <div
+            className="feature-card"
+            onClick={() => transitionTo("/register")}
+          >
+            <div className="feature-icon">
+              <Sprout size={28} strokeWidth={1.5} color="#84a794" />
+            </div>
             <h3>Financial Health</h3>
             <p>
               Your financial soil report. See income, expenses, savings rate,
-              and health score — all live, all connected.
+              and health score , all live, all connected.
             </p>
             <span className="feature-link">Check your health &rarr;</span>
           </div>
@@ -230,16 +259,23 @@ export default function Landing() {
             className="feature-card feature-card--accent"
             onClick={() => transitionTo("/register")}
           >
-            <div className="feature-icon"><TreePine size={28} strokeWidth={1.5} color="#84a794" /></div>
+            <div className="feature-icon">
+              <TreePine size={28} strokeWidth={1.5} color="#84a794" />
+            </div>
             <h3>Growth Paths</h3>
             <p>
-              Choose the track that fits your season — property, balanced lifestyle,
-              balanced growth, or course correction.
+              Choose the track that fits your season , property, balanced
+              lifestyle, balanced growth, or course correction.
             </p>
             <span className="feature-link">Find your path &rarr;</span>
           </div>
-          <div className="feature-card" onClick={() => transitionTo("/register")}>
-            <div className="feature-icon"><Leaf size={28} strokeWidth={1.5} color="#84a794" /></div>
+          <div
+            className="feature-card"
+            onClick={() => transitionTo("/register")}
+          >
+            <div className="feature-icon">
+              <Leaf size={28} strokeWidth={1.5} color="#84a794" />
+            </div>
             <h3>Decision Studio</h3>
             <p>
               Model the future before you live it. Simulate rent vs. buy, car
@@ -256,13 +292,19 @@ export default function Landing() {
         <div className="leaf-break__vignette" />
         <div className="leaf-break__content container">
           <div className="leaf-break__pills">
-            <span className="leaf-pill"><Sprout size={12} /> Plant</span>
-            <span className="leaf-pill leaf-pill--active"><Leaf size={12} /> Nurture</span>
-            <span className="leaf-pill"><TreePine size={12} /> Harvest</span>
+            <span className="leaf-pill">
+              <Sprout size={12} /> Plant
+            </span>
+            <span className="leaf-pill leaf-pill--active">
+              <Leaf size={12} /> Nurture
+            </span>
+            <span className="leaf-pill">
+              <TreePine size={12} /> Harvest
+            </span>
           </div>
           <p className="leaf-break__line">
-            Growth isn't a moment — it's a practice. Every session you spend here
-            is a deposit into your future self.
+            Growth isn't a moment , it's a practice. Every session you spend
+            here is a deposit into your future self.
           </p>
         </div>
       </div>
@@ -273,12 +315,12 @@ export default function Landing() {
           <p className="eyebrow">TEND YOUR KNOWLEDGE</p>
           <TypewriterHeading text="Learn what you need, when you need it." />
           <p>
-            Like any living thing, growth needs tending. Finance School gives you
-            structured lessons and real-world insights timed to where you are in
-            your financial journey — not generic theory.
+            Like any living thing, growth needs tending. Finance School gives
+            you structured lessons and real-world insights timed to where you
+            are in your financial journey , not generic theory.
           </p>
           <p>
-            Budgeting, property, investing, tax — knowledge that feeds directly
+            Budgeting, property, investing, tax , knowledge that feeds directly
             back into the decisions you make inside the app.
           </p>
           <p className="highlight">
@@ -296,7 +338,7 @@ export default function Landing() {
           <p className="eyebrow">YOUR GROWTH GUIDE</p>
           <TypewriterHeading text="You're never left to grow alone." />
           <p>
-            A seed needs more than soil — it needs direction, light, and care.
+            A seed needs more than soil, it needs direction, light, and care.
             ABSA Wealth Studio gives you intelligent next steps and personalised
             recommendations based on your actual financial position.
           </p>
