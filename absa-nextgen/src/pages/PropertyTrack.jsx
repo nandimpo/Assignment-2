@@ -19,6 +19,7 @@ import {
 import FiveYearJourney from "../components/FiveYearJourney";
 import SimNudge from "../components/SimNudge";
 import MilestoneChecklist from "../components/MilestoneChecklist";
+import ScreenFlash from "../components/ScreenFlash";
 
 // ─── Track static data ────────────────────────────────────────────────────────
 
@@ -241,7 +242,7 @@ export default function PropertyTrack() {
   return (
     <div className="track-page">
       <AppNav />
-      {missedFlash && <div className="mst-flash" />}
+      {missedFlash && <ScreenFlash />}
 
       <div className="track-container">
 
@@ -837,9 +838,9 @@ export default function PropertyTrack() {
           </div>
         </div>
 
-      </div>
+        <SimNudge track="property" />
 
-      <SimNudge track="property" />
+      </div>
 
       <ExplainerPanel show={showPanel} onClose={() => setShowPanel(false)} content={content} />
 

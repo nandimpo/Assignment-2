@@ -1,28 +1,62 @@
 import { useNavigate } from "react-router-dom";
-import { FlaskConical } from "lucide-react";
+import { ArrowRight, FlaskConical, Home, LineChart, PiggyBank } from "lucide-react";
+
+const studioConfig = {
+  property: {
+    route: "/simulation/property",
+    label: "Property Studio",
+    title: "Property vs Renting",
+    text: "Test whether buying beats renting across your first 5 years.",
+    Icon: Home,
+  },
+  balanced: {
+    route: "/simulation/investing",
+    label: "Investing Studio",
+    title: "Local vs Offshore",
+    text: "Compare portfolio allocations before you commit your monthly investment.",
+    Icon: LineChart,
+  },
+  catchup: {
+    route: "/simulation/debt",
+    label: "Debt Studio",
+    title: "Debt vs Invest",
+    text: "See whether clearing debt or investing first creates the better Year 5 outcome.",
+    Icon: PiggyBank,
+  },
+  correction: {
+    route: "/simulation/debt",
+    label: "Debt Studio",
+    title: "Debt vs Invest",
+    text: "Model your reset plan and see how debt reduction changes your timeline.",
+    Icon: PiggyBank,
+  },
+};
 
 export default function SimNudge({ track }) {
   const navigate = useNavigate();
-
-  const messages = {
-    property:   "Run the Property vs Renting Studio — see if buying actually beats renting over your first 5 years.",
-    balanced:   "Run the Local vs Offshore Studio — see which allocation grows your portfolio fastest over 5 years.",
-    catchup:    "Run the Debt vs Invest Studio — find out whether clearing debt or investing first wins by Year 5.",
-    correction: "Run the Debt vs Invest Studio — model whether paying off debt or investing delivers more by Year 5.",
+  const config = studioConfig[track] || {
+    route: "/simulation",
+    label: "Simulation Lab",
+    title: "Decision Studio",
+    text: "Test your financial decision before you make it.",
+    Icon: FlaskConical,
   };
-
-  const message = messages[track] || "Test financial decisions before you make them — see your 5-year outcome.";
+  const Icon = config.Icon;
 
   return (
-    <div className="sim-nudge" onClick={() => navigate("/simulation")}>
-      <div className="sim-nudge-icon">
-        <FlaskConical size={18} />
-      </div>
-      <div className="sim-nudge-body">
-        <p className="sim-nudge-label">Simulation Lab</p>
-        <p className="sim-nudge-text">{message}</p>
-      </div>
-      <span className="sim-nudge-cta">Try it →</span>
-    </div>
+    <button className="sim-nudge" type="button" onClick={() => navigate(config.route)}>
+      <span className="sim-nudge-glow" />
+      <span className="sim-nudge-icon">
+        <Icon size={17} strokeWidth={1.8} />
+      </span>
+      <span className="sim-nudge-body">
+        <span className="sim-nudge-label">{config.label}</span>
+        <span className="sim-nudge-title">{config.title}</span>
+        <span className="sim-nudge-text">{config.text}</span>
+      </span>
+      <span className="sim-nudge-cta">
+        Try studio <ArrowRight size={14} strokeWidth={2} />
+      </span>
+    </button>
   );
 }

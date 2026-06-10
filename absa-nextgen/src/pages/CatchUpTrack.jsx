@@ -12,6 +12,8 @@ import { TrendingUp, AlertTriangle, BookOpen, ChevronDown, Check,
 import MonthlySavingsTracker from "../components/MonthlySavingsTracker";
 import { getTrackMonthlyAmount } from "../utils/trackAmounts";
 import MilestoneChecklist from "../components/MilestoneChecklist";
+import FlipCard from "../components/FlipCard";
+import { getCatchupDebtRemaining, getLogPaidTotal } from "../utils/projections";
 
 /* ─── Stage Timeline ──────────────────────────────────────────────────────── */
 const STAGES = [
@@ -89,6 +91,26 @@ const EXPLAINERS = {
     title: "Minimum Payment Trap",
     text:  "On a R50 000 balance at 22%, paying only the minimum (~R1 000/month) takes 9+ years to clear and costs R60 000+ in interest. Paying R3 000/month clears it in 2 years, saving R40 000.",
   },
+  catchupPlan: {
+    title: "Your Catch-Up Plan",
+    text: "This compares your total debt, monthly attack amount, and target timeline. If the monthly attack clears the debt within your target months, you are on track.",
+  },
+  catchupJourney: {
+    title: "Catch-Up Journey",
+    text: "These four stages move you from debt clarity to wealth building. Tick each stage when it is actually done so the track reflects your real progress.",
+  },
+  monthlyTracker: {
+    title: "Monthly Payment Tracker",
+    text: "Log what you really paid this month. Partial payments should track actual progress, while missed months help you recover faster next month.",
+  },
+  fiveYearJourney: {
+    title: "5-Year Journey",
+    text: "This shows where the current monthly attack gets you over time. For Catch-Up, the first goal is eliminating debt, then redirecting that payment into wealth building.",
+  },
+  milestoneChecklist: {
+    title: "Milestone Checklist",
+    text: "Use the checklist for practical proof points: high-interest debt cleared, emergency fund built, savings automated, and net worth moving positive.",
+  },
 };
 
 /* ─── Milestones ─────────────────────────────────────────────────────────── */
@@ -110,6 +132,20 @@ export default function CatchUpTrack() {
   const [openCards, setOpenCards] = useState({ engine: false, insights: false, rationale: false, guide: false });
   const toggleCard = (key) => setOpenCards(prev => ({ ...prev, [key]: !prev[key] }));
   const [tooltip, setTooltip] = useState(null); // active explainer key
+  const InfoHint = ({ id, label = "More info" }) => (
+    <button
+      type="button"
+      className="catchup-info-btn"
+      aria-label={label}
+      onClick={(e) => {
+        e.stopPropagation();
+        setTooltip(id);
+      }}
+    >
+      <Info size={13} strokeWidth={2.2} />
+      <span className="catchup-info-pop">{EXPLAINERS[id]?.text}</span>
+    </button>
+  );
 
   // Journey stages (separate from milestones checklist)
   const [journeyDone, setJourneyDone] = useState(() => {
@@ -145,7 +181,9 @@ export default function CatchUpTrack() {
   const expenses   = Number(user?.expenses) || 0;
   const savings    = income - expenses;
   const savingsRate = income > 0 ? Math.round((savings / income) * 100) : 0;
-  const catchDebt  = Number(user?.debt || user?.goalAmount) || 0;
+  const catchDebtTotal = Number(user?.debt || user?.goalAmount) || 0;
+  const catchDebt  = getCatchupDebtRemaining(user);
+  const catchPaid  = getLogPaidTotal(user?.catchupLog || []);
   const catchMonthly = getTrackMonthlyAmount(user, "catchup");
 
   return (
@@ -154,12 +192,12 @@ export default function CatchUpTrack() {
 
       <div className="track-container" style={{ maxWidth: "1100px" }}>
         {/* ================= HEADER ================= */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 28 }}>
-          <span style={{ color: "#84a794", fontWeight: 700, fontSize: "0.78rem", letterSpacing: "0.1em", textTransform: "uppercase", background: "rgba(132,167,148,0.12)", border: "1px solid rgba(132,167,148,0.3)", borderRadius: 6, padding: "3px 10px", display: "inline-block", width: "fit-content" }}>Catch-Up Wealth</span>
+        <div className="catchup-header">
+          <span className="catchup-track-badge">Catch-Up Wealth</span>
           <SlideIn tag="h1" text={`Welcome back, ${user?.name?.split(" ")[0] || "there"}`} style={{ margin: 0 }} />
           <SlideIn tag="p" className="subtitle" delay={120} style={{ margin: 0 }}
             text={catchDebt
-              ? `R${catchDebt.toLocaleString("en-ZA")} debt · R${catchMonthly.toLocaleString("en-ZA")}/month · ${savingsRate}% savings rate`
+              ? `R${catchDebt.toLocaleString("en-ZA")} debt left · R${catchPaid.toLocaleString("en-ZA")} paid · ${savingsRate}% savings rate`
               : `Catch-Up track · ${savingsRate}% savings rate · R${savings.toLocaleString("en-ZA")} monthly surplus`} />
         </div>
 
@@ -181,7 +219,7 @@ export default function CatchUpTrack() {
 
         {/* ── TOP 2-COL: YOUR PLAN + STAGE TIMELINE ── */}
         {(() => {
-          const debt      = Number(user?.debt || user?.goalAmount) || 0;
+          const debt      = getCatchupDebtRemaining(user);
           const monthly   = getTrackMonthlyAmount(user, "catchup");
           const target    = Number(user?.catchupTargetMonths) || 0;
           const actual    = monthly > 0 && debt > 0 ? Math.ceil(debt / monthly) : null;
@@ -190,18 +228,19 @@ export default function CatchUpTrack() {
           const onTrack   = actual !== null && target > 0 ? actual <= target : null;
           const ahead     = onTrack === true ? target - actual : 0;
           return (
-            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:24, alignItems:"start" }}>
+            <div className="catchup-hero-grid">
 
               {/* ── YOUR PLAN ── */}
-              <div className="track-card" style={{ padding:0, overflow:"hidden" }}>
+              <div className="track-card catchup-plan-card" style={{ padding:0, overflow:"hidden" }}>
                 {/* eyebrow */}
-                <div style={{ padding:"12px 16px 10px", borderBottom:"1px solid rgba(255,255,255,0.06)" }}>
+                <div className="catchup-card-kicker">
                   <p style={{ margin:0, fontSize:"0.6rem", fontWeight:700, color:"#445550", textTransform:"uppercase", letterSpacing:"0.12em" }}>Your Plan</p>
+                  <InfoHint id="catchupPlan" label="Explain your catch-up plan" />
                 </div>
                 {/* 2×2 stats */}
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:0 }}>
                   {[
-                    { label:"Total Debt",      value: debt    ? `R${debt.toLocaleString("en-ZA")}`    : "Not set", color: debt    ? "#ff9898" : "#445550" },
+                    { label:"Debt Left",       value: debt    ? `R${debt.toLocaleString("en-ZA")}`    : "Cleared", color: debt    ? "#ff9898" : "#84a794" },
                     { label:"Monthly Attack",  value: monthly ? `R${monthly.toLocaleString("en-ZA")}` : "Not set", color: monthly ? "#d6a85a" : "#445550" },
                     { label:"Months to Clear", value: actual  ? `${actual} mo`                        : "—",       color:"#4facfe" },
                     { label:"Your Target",     value: target  ? `${target} mo`                        : "Not set", color: onTrack === true ? "#84a794" : onTrack === false ? "#ff9898" : "#445550" },
@@ -247,11 +286,11 @@ export default function CatchUpTrack() {
               </div>
 
               {/* ── STAGE TIMELINE ── */}
-              <div className="track-card" style={{ padding:"22px 24px" }}>
-                <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:14 }}>
+              <div className="track-card catchup-journey-card" style={{ padding:"18px 20px" }}>
+                <div className="catchup-journey-head">
                   <div>
                     <p style={{ margin:0, fontSize:"0.6rem", fontWeight:700, color:"#445550", textTransform:"uppercase", letterSpacing:"0.12em" }}>Journey</p>
-                    <p style={{ margin:"2px 0 0", fontSize:"0.88rem", fontWeight:700, color:"#f4f6fc" }}>4 Stages</p>
+                    <p className="catchup-title-with-info">4 Stages <InfoHint id="catchupJourney" label="Explain the catch-up journey" /></p>
                   </div>
                   <span style={{ fontSize:"0.7rem", color:"#d6a85a", fontWeight:600, background:"rgba(214,168,90,0.1)", borderRadius:6, padding:"3px 9px" }}>
                     {journeyDoneCount}/{STAGES.length}
@@ -264,7 +303,7 @@ export default function CatchUpTrack() {
                     const done    = journeyDone[i];
                     const current = !done && (i === 0 || journeyDone[i - 1]);
                     return (
-                      <div key={stage.key} onClick={() => toggleJourney(i)}
+                      <div key={stage.key} className="catchup-stage-row" onClick={() => toggleJourney(i)}
                         style={{ display:"flex", alignItems:"center", gap:12, padding:"12px 14px", borderRadius:10, cursor:"pointer",
                           background: done ? "rgba(132,167,148,0.07)" : current ? "rgba(214,168,90,0.06)" : "rgba(255,255,255,0.02)",
                           border:`1px solid ${done ? "rgba(132,167,148,0.2)" : current ? "rgba(214,168,90,0.25)" : "rgba(255,255,255,0.05)"}`,
@@ -302,47 +341,153 @@ export default function CatchUpTrack() {
           );
         })()}
 
-        <div className="track-overview-grid">
+        <div className="track-overview-grid catchup-overview-grid">
         {/* ================= MONTHLY PAYMENT TRACKER ================= */}
         {(() => {
-          const debt    = Number(user?.debt || user?.goalAmount) || 0;
+          const debt    = catchDebtTotal;
           const monthly = getTrackMonthlyAmount(user, "catchup");
           if (!monthly) return null;
           return (
-            <MonthlySavingsTracker
-              logKey="catchupLog"
-              monthlyTarget={monthly}
-              goalAmount={debt}
-              goalLabel="debt clearance"
-              trackerTitle="Monthly Payment Tracker"
-              verb="paid"
-            />
+            <div className="catchup-panel-with-info">
+              <InfoHint id="monthlyTracker" label="Explain the monthly payment tracker" />
+              <MonthlySavingsTracker
+                logKey="catchupLog"
+                monthlyTarget={monthly}
+                goalAmount={debt}
+                goalLabel="debt clearance"
+                trackerTitle="Monthly Payment Tracker"
+                verb="paid"
+              />
+            </div>
           );
         })()}
 
         {/* ================= 5-YEAR JOURNEY ================= */}
         {(() => {
-          const debt    = Number(user?.debt || user?.goalAmount) || 0;
+          const debt    = getCatchupDebtRemaining(user);
           const monthly = getTrackMonthlyAmount(user, "catchup");
           return (
-            <FiveYearJourney
-              trackKey="catchup"
-              monthlyAmount={monthly}
-              currentSaved={debt}
-              fiveYearTarget={0}
-            />
+            <div className="catchup-panel-with-info">
+              <InfoHint id="fiveYearJourney" label="Explain the 5-year journey" />
+              <FiveYearJourney
+                trackKey="catchup"
+                monthlyAmount={monthly}
+                currentSaved={debt}
+                fiveYearTarget={0}
+              />
+            </div>
           );
         })()}
 
         </div>
 
-        <MilestoneChecklist
-          items={MILESTONES_DETAIL}
-          doneItems={stagesDone}
-          onToggle={toggleStage}
-        />
+        <div className="catchup-lower-grid">
+          <div className="track-card catchup-journey-card catchup-journey-card--lower" style={{ padding:"18px 20px" }}>
+            <div className="catchup-journey-head">
+              <div>
+                <p style={{ margin:0, fontSize:"0.6rem", fontWeight:700, color:"#445550", textTransform:"uppercase", letterSpacing:"0.12em" }}>Journey</p>
+                <p className="catchup-title-with-info">4 Stages <InfoHint id="catchupJourney" label="Explain the catch-up journey" /></p>
+              </div>
+              <span style={{ fontSize:"0.7rem", color:"#d6a85a", fontWeight:600, background:"rgba(214,168,90,0.1)", borderRadius:6, padding:"3px 9px" }}>
+                {journeyDoneCount}/{STAGES.length}
+              </span>
+            </div>
+
+            <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+              {STAGES.map((stage, i) => {
+                const done    = journeyDone[i];
+                const current = !done && (i === 0 || journeyDone[i - 1]);
+                return (
+                  <div key={stage.key} className="catchup-stage-row" onClick={() => toggleJourney(i)}
+                    style={{ display:"flex", alignItems:"center", gap:12, padding:"12px 14px", borderRadius:10, cursor:"pointer",
+                      background: done ? "rgba(132,167,148,0.07)" : current ? "rgba(214,168,90,0.06)" : "rgba(255,255,255,0.02)",
+                      border:`1px solid ${done ? "rgba(132,167,148,0.2)" : current ? "rgba(214,168,90,0.25)" : "rgba(255,255,255,0.05)"}`,
+                      transition:"all 0.2s" }}>
+                    <div style={{ width:28, height:28, borderRadius:"50%", flexShrink:0,
+                      background: done ? "rgba(132,167,148,0.18)" : current ? "rgba(214,168,90,0.15)" : "#111816",
+                      border:`2px solid ${done ? "#84a794" : current ? "#d6a85a" : "#2a3530"}`,
+                      color: done ? "#84a794" : current ? "#d6a85a" : "#4a5c56",
+                      display:"flex", alignItems:"center", justifyContent:"center",
+                      boxShadow: current ? "0 0 10px rgba(214,168,90,0.2)" : "none" }}>
+                      {done ? <Check size={13} /> : stage.icon}
+                    </div>
+                    <div style={{ flex:1, minWidth:0 }}>
+                      <p style={{ margin:0, fontSize:"0.76rem", fontWeight:600,
+                        color: done ? "#84a794" : current ? "#f4f6fc" : "#667c74",
+                        textDecoration: done ? "line-through" : "none" }}>{stage.label}</p>
+                      {current && <p style={{ margin:"1px 0 0", fontSize:"0.66rem", color:"#8a9a96", lineHeight:1.3 }}>{stage.hint}</p>}
+                      {current && stage.why && <p style={{ margin:"4px 0 0", fontSize:"0.63rem", color:"#d6a85a", lineHeight:1.4, fontStyle:"italic" }}>Why: {stage.why}</p>}
+                    </div>
+                    {current && <span style={{ fontSize:"0.6rem", color:"#d6a85a", fontWeight:700, background:"rgba(214,168,90,0.12)", borderRadius:4, padding:"2px 6px", flexShrink:0 }}>Now</span>}
+                    {done && <Check size={12} color="#84a794" style={{ flexShrink:0 }} />}
+                  </div>
+                );
+              })}
+            </div>
+
+            <div style={{ marginTop:12, height:4, background:"#1a1f1e", borderRadius:3, overflow:"hidden" }}>
+              <div style={{ height:"100%", background:"linear-gradient(to right,#d6a85a,#84a794)", width:`${journeyPct}%`, borderRadius:3, transition:"width 0.5s ease" }} />
+            </div>
+            <p style={{ margin:"5px 0 0", fontSize:"0.68rem", color:"#556660" }}>{journeyPct}% complete</p>
+          </div>
+
+          <FlipCard
+            className="sim-card-flip catchup-ai-flip"
+            front={
+              <div className="track-card catchup-ai-card">
+                <div className="catchup-ai-head">
+                  <div>
+                    <p className="catchup-ai-kicker">AI Insights</p>
+                    <h3>Recovery signals</h3>
+                  </div>
+                  <Lightbulb size={18} />
+                </div>
+
+                <div className="catchup-ai-list">
+                  <div className="catchup-ai-item is-good">
+                    <CheckCircle2 size={16} />
+                    <div>
+                      <strong>Timeline is matched</strong>
+                      <span>Your R{catchMonthly.toLocaleString("en-ZA")}/month attack clears the debt in line with your target.</span>
+                    </div>
+                  </div>
+                  <div className="catchup-ai-item">
+                    <Target size={16} />
+                    <div>
+                      <strong>Next best move</strong>
+                      <span>Complete the debt audit first so high-interest balances are attacked in the right order.</span>
+                    </div>
+                  </div>
+                  <div className="catchup-ai-item is-warning">
+                    <AlertTriangle size={16} />
+                    <div>
+                      <strong>Risk to watch</strong>
+                      <span>Do not redirect this payment into investing until high-interest debt is fully cleared.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+            back={
+              <>
+                <span className="flip-back-label">AI Insights</span>
+                <span className="flip-back-count">3</span>
+                <span className="flip-back-sub">recovery signals for your catch-up plan</span>
+              </>
+            }
+          />
+        </div>
 
         {/* ── TOOLS & EDUCATION ── */}
+        <div className="catchup-panel-with-info catchup-milestone-wide">
+          <InfoHint id="milestoneChecklist" label="Explain the milestone checklist" />
+          <MilestoneChecklist
+            items={MILESTONES_DETAIL}
+            doneItems={stagesDone}
+            onToggle={toggleStage}
+          />
+        </div>
+
         <div className="bl-tools-section">
           <p className="bl-tools-label">Tools &amp; Education</p>
           <div className="bl-tools-grid">
@@ -484,7 +629,7 @@ export default function CatchUpTrack() {
                 </>)}
               </button>
               {openCards.engine && (() => {
-                const debt    = Number(user?.debt || user?.goalAmount) || 0;
+                const debt    = getCatchupDebtRemaining(user);
                 const base    = getTrackMonthlyAmount(user, "catchup");
                 const total   = base + extraSaving;
                 const months  = total > 0 && debt > 0 ? Math.ceil(debt / total) : null;
@@ -533,7 +678,7 @@ export default function CatchUpTrack() {
                   <p style={{ fontSize:"0.72rem", color:"#667c74", margin:"0 0 12px", lineHeight:1.5 }}>
                     Tap any term below for a full explanation with real numbers.
                   </p>
-                  <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+                  <div className="concept-grid">
                     {Object.entries(EXPLAINERS).map(([key, { title, text }]) => (
                       <button key={key} onClick={() => setTooltip(key)}
                         style={{ display:"flex", alignItems:"center", justifyContent:"space-between",

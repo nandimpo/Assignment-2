@@ -596,11 +596,11 @@ export default function BalancedLifestyleTrack() {
           </div>
         </div>
 
+        <SimNudge track="balanced" />
+
       </div>
 
       {/* EXPLAINER PANEL */}
-      <SimNudge track="balanced" />
-
       <ExplainerPanel
         show={showPanel}
         onClose={() => setShowPanel(false)}

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useUser } from "../context/UserContext";
 import { CheckCircle, Circle, XCircle, TrendingUp, AlertTriangle, RefreshCw, Lightbulb, CalendarClock, Target, BarChart2 } from "lucide-react";
 import NumberCounter from "./NumberCounter";
+import ScreenFlash from "./ScreenFlash";
 
 export default function MonthlySavingsTracker({
   monthlyTarget,
@@ -75,8 +76,8 @@ export default function MonthlySavingsTracker({
 
   return (
     <>
-    {flashing && <div className="mst-flash" />}
-    {flashGreen && <div className="mst-flash mst-flash--green" />}
+    {flashing && <ScreenFlash />}
+    {flashGreen && <ScreenFlash tone="green" />}
     <div className={`mst-card ${className}`.trim()}>
 
       {/* HEADER */}

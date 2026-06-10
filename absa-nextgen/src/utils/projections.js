@@ -2,6 +2,18 @@ export function getCompletedLogMonths(log = []) {
   return log.filter(entry => !entry?.missed && entry?.status !== "missed").length;
 }
 
+export function getLogPaidTotal(log = []) {
+  return log
+    .filter(entry => !entry?.missed && entry?.status !== "missed")
+    .reduce((sum, entry) => sum + (Number(entry?.amount) || 0), 0);
+}
+
+export function getCatchupDebtRemaining(user = {}) {
+  const totalDebt = Number(user?.debt || user?.goalAmount) || 0;
+  const paid = getLogPaidTotal(user?.catchupLog || []);
+  return Math.max(0, totalDebt - paid);
+}
+
 export function projectLinearFixedWindow({
   monthly = 0,
   currentSaved = 0,

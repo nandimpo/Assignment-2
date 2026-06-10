@@ -33,14 +33,42 @@
   opacity: 0.95;
   transform: rotate(180deg);
   transform-origin: center;
-  filter: drop-shadow(0 0 28px rgba(132, 167, 148, 0.18));
-  animation: planetPulseFloat 5.6s ease-in-out infinite;
+  filter:
+    drop-shadow(0 0 24px rgba(132, 167, 148, 0.16))
+    drop-shadow(0 0 10px rgba(214, 168, 90, 0.08));
+  animation: planetPulseFloat 4.2s ease-in-out infinite;
   transition: 0.4s ease;
+  will-change: transform, filter, opacity;
 }
 
 .planet:hover {
   animation-play-state: paused;
   transform: rotate(180deg) scale(1.06);
+}
+
+@keyframes planetPulseFloat {
+  0% {
+    transform: rotate(180deg) translateY(0) scale(0.985);
+    filter:
+      drop-shadow(0 0 18px rgba(132, 167, 148, 0.12))
+      drop-shadow(0 0 6px rgba(214, 168, 90, 0.05));
+    opacity: 0.88;
+  }
+  50% {
+    transform: rotate(180deg) translateY(-16px) scale(1.085);
+    filter:
+      drop-shadow(0 0 34px rgba(132, 167, 148, 0.28))
+      drop-shadow(0 0 18px rgba(214, 168, 90, 0.16))
+      drop-shadow(0 0 14px rgba(178, 194, 195, 0.08));
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(180deg) translateY(0) scale(0.985);
+    filter:
+      drop-shadow(0 0 18px rgba(132, 167, 148, 0.12))
+      drop-shadow(0 0 6px rgba(214, 168, 90, 0.05));
+    opacity: 0.88;
+  }
 }
 .brand-box h2 {
   font-family: "Montserrat", sans-serif;

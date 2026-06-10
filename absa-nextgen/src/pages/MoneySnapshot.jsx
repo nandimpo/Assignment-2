@@ -388,24 +388,6 @@ export default function MoneySnapshot() {
           <button className="ghost-btn" style={{ marginTop: 8 }} onClick={() => navigate("/strategy")}>Tend your path →</button>
         </div>
 
-        <div className="money-hero__strip">
-          <div className="money-hero__strip-item money-glow">
-            <p className="money-hero__strip-label">Gross Monthly</p>
-            <p className="money-hero__strip-value"><NumberCounter value={grossIncome} prefix="R" /></p>
-          </div>
-          <div className="money-hero__strip-divider" />
-          <div className="money-hero__strip-item money-glow">
-            <p className="money-hero__strip-label">Take-home</p>
-            <p className="money-hero__strip-value"><NumberCounter value={income} prefix="R" /></p>
-          </div>
-          <div className="money-hero__strip-divider" />
-          <div className="money-hero__strip-item money-glow">
-            <p className="money-hero__strip-label">Monthly Surplus</p>
-            <p className="money-hero__strip-value" style={{ color: net >= 0 ? "#84a794" : "#d6765a" }}>
-              <NumberCounter value={net} prefix="R" />
-            </p>
-          </div>
-        </div>
       </div>
 
       <div className="money-container">
@@ -538,6 +520,23 @@ export default function MoneySnapshot() {
                 </>
               }
             />
+
+            <div className="card" id="breakdown">
+              <h3>Your Foundation</h3>
+              <div className="breakdown-grid">
+                {["housing","transport","lifestyle","debt"].map((cat) => (
+                  <div className="breakdown-item" key={cat}>
+                    <p>{cat.charAt(0).toUpperCase() + cat.slice(1)}</p>
+                    <input className="input-number" type="number" name={cat} value={breakdownEdit[cat]} onChange={handleBreakdownChange} />
+                  </div>
+                ))}
+                <div className="breakdown-item">
+                  <p>Savings</p>
+                  <strong>R{breakdown.savings.toLocaleString("en-ZA")}</strong>
+                </div>
+              </div>
+              <button className="pill" style={{ marginTop: 12 }} onClick={() => setBreakdownEdit({ housing: Math.round(expenses * 0.4), transport: Math.round(expenses * 0.2), lifestyle: Math.round(expenses * 0.25), debt: Math.round(expenses * 0.15) })}>Reset to auto</button>
+            </div>
           </div>
 
           {/* RIGHT — progress & tracking */}
@@ -612,22 +611,6 @@ export default function MoneySnapshot() {
               </div>
             </div>
 
-            <div className="card" id="breakdown">
-              <h3>Your Foundation</h3>
-              <div className="breakdown-grid">
-                {["housing","transport","lifestyle","debt"].map((cat) => (
-                  <div className="breakdown-item" key={cat}>
-                    <p>{cat.charAt(0).toUpperCase() + cat.slice(1)}</p>
-                    <input className="input-number" type="number" name={cat} value={breakdownEdit[cat]} onChange={handleBreakdownChange} />
-                  </div>
-                ))}
-                <div className="breakdown-item">
-                  <p>Savings</p>
-                  <strong>R{breakdown.savings.toLocaleString("en-ZA")}</strong>
-                </div>
-              </div>
-              <button className="pill" style={{ marginTop: 12 }} onClick={() => setBreakdownEdit({ housing: Math.round(expenses * 0.4), transport: Math.round(expenses * 0.2), lifestyle: Math.round(expenses * 0.25), debt: Math.round(expenses * 0.15) })}>Reset to auto</button>
-            </div>
           </div>
 
         </div>

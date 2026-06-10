@@ -15,7 +15,7 @@ import treeImg from "../assets/tree.png";
 import leafImg from "../assets/leaf.png";
 import { getTrackMonthlyAmount } from "../utils/trackAmounts";
 import { getPropertyFeasibility } from "../utils/propertyFeasibility";
-import { getCompletedLogMonths, projectCompoundFixedWindow, projectLinearFixedWindow } from "../utils/projections";
+import { getCatchupDebtRemaining, getCompletedLogMonths, projectCompoundFixedWindow, projectLinearFixedWindow } from "../utils/projections";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -86,12 +86,12 @@ export default function Home() {
   const elapsedSavingsMonths = getCompletedLogMonths(user?.savingsLog || []);
   const trackIs = user?.strategy;
 
-  const totalDebt      = Number(user?.debt || user?.goalAmount) || 0;
+  const catchupDebtRemaining = getCatchupDebtRemaining(user);
   const catchupMonthly = getTrackMonthlyAmount(user, "catchup");
   const monthlyInvest  = getTrackMonthlyAmount(user, trackIs);
 
   const y5Values = [1, 2, 3, 4, 5].map((y) => {
-    if (trackIs === "catchup") return Math.max(0, totalDebt - catchupMonthly * 12 * y);
+    if (trackIs === "catchup") return Math.max(0, catchupDebtRemaining - catchupMonthly * 12 * y);
     if (trackIs === "balanced") {
       return projectCompoundFixedWindow({
         monthly: monthlyInvest,
@@ -130,8 +130,8 @@ export default function Home() {
     displayAmount = user?.fiveYearGoal || null;
     goalSubLine = user?.goalAmount ? `Investing R${Number(user.goalAmount).toLocaleString("en-ZA")}/month` : "Set monthly target in Setup";
   } else if (user?.strategy === "catchup") {
-    displayAmount = user?.debt || user?.goalAmount;
-    const cu = Number(user?.catchupMonthly), debt = Number(user?.debt || user?.goalAmount);
+    displayAmount = catchupDebtRemaining;
+    const cu = Number(user?.catchupMonthly), debt = catchupDebtRemaining;
     const mo = cu > 0 && debt > 0 ? Math.ceil(debt / cu) : null;
     goalSubLine = mo ? `${mo} months to clear at R${cu.toLocaleString("en-ZA")}/month` : "Set your debt + contribution in Setup";
   } else {
@@ -236,7 +236,7 @@ export default function Home() {
                   <p className="home-y5-sub">
                     {y5Values[4] === 0
                       ? `Cleared in under 5 yrs at R${catchupMonthly.toLocaleString("en-ZA")}/month`
-                      : `R${totalDebt.toLocaleString("en-ZA")} total · R${catchupMonthly.toLocaleString("en-ZA")}/month attack`}
+                      : `R${catchupDebtRemaining.toLocaleString("en-ZA")} left · R${catchupMonthly.toLocaleString("en-ZA")}/month attack`}
                   </p>
                 </>
               ) : (

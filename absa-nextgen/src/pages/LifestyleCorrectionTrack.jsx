@@ -543,7 +543,7 @@ export default function LifestyleCorrectionTrack() {
                   <p style={{ fontSize:"0.72rem", color:"#667c74", margin:"0 0 12px", lineHeight:1.5 }}>
                     Tap any term for a full explanation with real numbers.
                   </p>
-                  <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+                  <div className="concept-grid">
                     {Object.entries(EXPLAINERS).map(([key, { title, text }]) => (
                       <button key={key} onClick={() => setTooltip(key)}
                         style={{ display:"flex", alignItems:"center", justifyContent:"space-between",
