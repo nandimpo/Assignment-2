@@ -5,62 +5,106 @@ export default function Tour({ steps = [], storageKey }) {
   const [showTour, setShowTour] = useState(false);
   const [spotlight, setSpotlight] = useState(null);
 
-  // START TOUR
   useEffect(() => {
     const seen = localStorage.getItem(storageKey);
     if (!seen) setShowTour(true);
   }, [storageKey]);
 
-  // HANDLE STEP CHANGE
   useEffect(() => {
-    if (!showTour) return;
-    if (tourStep >= steps.length) return;
+    if (!showTour || tourStep >= steps.length) return;
 
     const step = steps[tourStep];
     const el = document.getElementById(step.target);
 
     if (!el) {
-      console.warn("❌ Missing tour target ID:", step.target);
-      return;
+      console.warn("Missing tour target ID:", step.target);
+      setSpotlight(null);
+      const skipTimer = setTimeout(() => {
+        if (tourStep >= steps.length - 1) {
+          localStorage.setItem(storageKey, "true");
+          setShowTour(false);
+          return;
+        }
+        setTourStep((current) => (
+          current === tourStep && current < steps.length - 1 ? current + 1 : current
+        ));
+      }, 80);
+      return () => clearTimeout(skipTimer);
     }
 
-    const measure = () => {
+    const getVisibleRect = () => {
       const rect = el.getBoundingClientRect();
+      if (rect.width > 1 && rect.height > 1) return rect;
+
+      const visibleChild = Array.from(el.querySelectorAll("*")).find((child) => {
+        const childRect = child.getBoundingClientRect();
+        return childRect.width > 1 && childRect.height > 1;
+      });
+
+      return visibleChild?.getBoundingClientRect() || rect;
+    };
+
+    const measure = () => {
+      const rect = getVisibleRect();
+      if (rect.width <= 1 || rect.height <= 1) {
+        setSpotlight(null);
+        return;
+      }
+
       const pad = 12;
+      const top = Math.max(8, rect.top - pad);
+      const left = Math.max(8, rect.left - pad);
+      const right = Math.min(window.innerWidth - 8, rect.right + pad);
+      const bottom = Math.min(window.innerHeight - 8, rect.bottom + pad);
+
       setSpotlight({
-        top:    rect.top    - pad,
-        left:   rect.left   - pad,
-        width:  rect.width  + pad * 2,
-        height: rect.height + pad * 2,
+        top,
+        left,
+        width: Math.max(24, right - left),
+        height: Math.max(24, bottom - top),
       });
     };
 
-    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    const scrollToTarget = () => {
+      const rect = getVisibleRect();
+      const top = window.scrollY + rect.top - window.innerHeight / 2 + rect.height / 2;
+      window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+    };
 
-    // Wait for smooth scroll to finish before measuring
-    const timer = setTimeout(measure, 520);
+    setSpotlight(null);
+    scrollToTarget();
 
-    // Re-measure if user scrolls or window resizes while tour is active
+    const firstMeasure = setTimeout(measure, 560);
+    const settledMeasure = setTimeout(measure, 900);
+
     window.addEventListener("scroll", measure, { passive: true });
     window.addEventListener("resize", measure);
 
     return () => {
-      clearTimeout(timer);
+      clearTimeout(firstMeasure);
+      clearTimeout(settledMeasure);
       window.removeEventListener("scroll", measure);
       window.removeEventListener("resize", measure);
     };
   }, [tourStep, showTour, steps]);
+
+  useEffect(() => {
+    if (!showTour || !steps.length || tourStep < steps.length) return;
+    localStorage.setItem(storageKey, "true");
+    setShowTour(false);
+  }, [showTour, steps.length, storageKey, tourStep]);
 
   const endTour = () => {
     localStorage.setItem(storageKey, "true");
     setShowTour(false);
   };
 
-  if (!showTour || !spotlight) return null;
+  if (!showTour || !spotlight || !steps[tourStep]) return null;
+
+  const step = steps[tourStep];
 
   return (
     <>
-      {/* MASK */}
       <div
         className="tour-mask-top"
         style={{ top: 0, left: 0, right: 0, height: spotlight.top }}
@@ -93,7 +137,6 @@ export default function Tour({ steps = [], storageKey }) {
         }}
       />
 
-      {/* CUTOUT */}
       <div
         className="tour-cutout"
         style={{
@@ -104,23 +147,21 @@ export default function Tour({ steps = [], storageKey }) {
         }}
       />
 
-      {/* BOX */}
       <div className="tour-box">
         <p className="tour-counter">
           Step {tourStep + 1} of {steps.length}
         </p>
 
-        <p className="tour-text">{steps[tourStep].text}</p>
+        <p className="tour-text">{step.text}</p>
 
-        {steps[tourStep].action && (
-          <button className="coach-action" onClick={steps[tourStep].action}>
-            {steps[tourStep].actionLabel}
+        {step.action && (
+          <button className="coach-action" onClick={step.action}>
+            {step.actionLabel}
           </button>
         )}
 
         <div className="tour-actions">
           <button onClick={endTour}>Skip</button>
-
           <button
             onClick={() => {
               if (tourStep < steps.length - 1) {

@@ -1,9 +1,9 @@
 import { useEffect } from "react";
+import { X } from "lucide-react";
 import "../styles/explainer.css";
 import Typewriter from "./Typewriter";
 
 export default function ExplainerPanel({ show, onClose, content }) {
-  /* CLOSE ON ESC */
   useEffect(() => {
     const handleEsc = (e) => {
       if (e.key === "Escape") onClose();
@@ -13,7 +13,6 @@ export default function ExplainerPanel({ show, onClose, content }) {
     return () => window.removeEventListener("keydown", handleEsc);
   }, [onClose]);
 
-  /* CLOSE ON OUTSIDE CLICK */
   const handleOverlayClick = (e) => {
     if (e.target.classList.contains("overlay")) {
       onClose();
@@ -25,8 +24,8 @@ export default function ExplainerPanel({ show, onClose, content }) {
   return (
     <div className="overlay" onClick={handleOverlayClick}>
       <div className="explainer-panel">
-        <button className="close-btn" onClick={onClose}>
-          ✕
+        <button className="close-btn" onClick={onClose} aria-label="Close explainer">
+          <X size={18} strokeWidth={2} />
         </button>
 
         <h2>{content?.title}</h2>
@@ -34,7 +33,11 @@ export default function ExplainerPanel({ show, onClose, content }) {
 
         <div className="why">
           <strong>Why this matters</strong>
-          <Typewriter text="Understanding this helps you make better financial decisions and avoid costly mistakes." speed={14} delay={300} />
+          <Typewriter
+            text="Understanding this helps you make better financial decisions and avoid costly mistakes."
+            speed={14}
+            delay={300}
+          />
         </div>
       </div>
     </div>

@@ -100,13 +100,35 @@ export default function useProgress() {
   const { user, updateUser } = useUser();
 
   const milestoneStatus = calcMilestoneStatus(user);
+  const manualMilestones = user?.manualMilestones || {};
 
-  // Progress is derived from actual financial data — not manually toggled
-  const progress = {
-    emergencyFund: milestoneStatus.emergencyFund.achieved,
-    deposit:       milestoneStatus.deposit.achieved,
-    purchase:      milestoneStatus.purchase.achieved,
+  // Milestones become complete only when the user checks them off. Financially achieved
+  // milestones are surfaced as "ready" nudges so users confirm the step themselves.
+  const rawProgress = {
+    emergencyFund: Boolean(manualMilestones.emergencyFund),
+    deposit:       Boolean(manualMilestones.deposit),
+    purchase:      Boolean(manualMilestones.purchase),
   };
+
+  const progress = {
+    emergencyFund: rawProgress.emergencyFund,
+    deposit:       Boolean(rawProgress.emergencyFund && rawProgress.deposit),
+    purchase:      Boolean(rawProgress.emergencyFund && rawProgress.deposit && rawProgress.purchase),
+  };
+
+  const milestoneKeys = ["emergencyFund", "deposit", "purchase"];
+  const visibleMilestoneStatus = milestoneKeys.reduce((acc, key, index) => {
+    const prevComplete = index === 0 || progress[milestoneKeys[index - 1]];
+    const readyToCheck = Boolean(prevComplete && milestoneStatus[key]?.achieved && !progress[key]);
+    acc[key] = {
+      ...milestoneStatus[key],
+      readyToCheck,
+      hint: readyToCheck
+        ? "Ready - tap to check this off"
+        : milestoneStatus[key]?.hint,
+    };
+    return acc;
+  }, {});
 
   // Persist to user context so snapshot + tracks stay in sync
   const currentStored = JSON.stringify(user?.milestones);
@@ -128,5 +150,15 @@ export default function useProgress() {
   const total     = Object.keys(progress).length;
   const percent   = Math.round((completed / total) * 100);
 
-  return { progress, milestoneStatus, trackRoute, trackName, percent };
+  const toggleMilestone = (key) => {
+    if (!key) return;
+    updateUser({
+      manualMilestones: {
+        ...manualMilestones,
+        [key]: !manualMilestones[key],
+      },
+    });
+  };
+
+  return { progress, milestoneStatus: visibleMilestoneStatus, trackRoute, trackName, percent, toggleMilestone };
 }

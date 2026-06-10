@@ -43,7 +43,7 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding-top: 20px;
+  padding-top: 42px;
 }
 
 .fy-line-bg,
@@ -69,6 +69,7 @@
   align-items: center;
   flex: 1;
   gap: 6px;
+  position: relative;
   z-index: 2;
   opacity: 0.55;
   transition: opacity 0.3s;
@@ -84,17 +85,31 @@
 }
 
 .fy-you-are-here {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
   font-size: 0.6rem;
   font-weight: 700;
   letter-spacing: 0.06em;
-  color: #84a794;
-  background: rgba(132, 167, 148, 0.12);
-  border: 1px solid rgba(132, 167, 148, 0.3);
-  border-radius: 4px;
-  padding: 2px 7px;
+  color: #101413;
+  background: linear-gradient(135deg, #d6a85a, #84a794);
+  border: 1px solid rgba(214, 168, 90, 0.45);
+  border-radius: 999px;
+  padding: 3px 9px;
   white-space: nowrap;
-  order: -1;
-  margin-bottom: 2px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.28);
+}
+
+.fy-you-are-here::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  width: 8px;
+  height: 8px;
+  background: #84a794;
+  transform: translateX(-50%) rotate(45deg);
 }
 
 .fy-dot {
@@ -110,6 +125,25 @@
   align-items: center;
   justify-content: center;
   transition: all 0.3s;
+  transform-origin: center;
+  animation: circlePulseSubtle 2.8s ease-in-out infinite;
+}
+
+@keyframes circlePulseSubtle {
+  0%, 100% {
+    transform: scale(1);
+    filter: brightness(1);
+    box-shadow:
+      0 0 0 0 rgba(132, 167, 148, 0),
+      0 0 6px rgba(132, 167, 148, 0.08);
+  }
+  50% {
+    transform: scale(1.025);
+    filter: brightness(1.03);
+    box-shadow:
+      0 0 0 3px rgba(132, 167, 148, 0.08),
+      0 0 12px rgba(214, 168, 90, 0.12);
+  }
 }
 
 .fy-node--done .fy-dot {

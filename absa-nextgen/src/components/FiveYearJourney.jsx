@@ -51,6 +51,7 @@ export default function FiveYearJourney({ trackKey, monthlyAmount, currentSaved 
 
   const yearValues = [1, 2, 3, 4, 5].map((y) => cfg.compute(monthly, currentSaved, y, monthsElapsed));
   const year5Value = yearValues[4];
+  const currentYearIndex = Math.min(4, Math.max(0, Math.floor(monthsElapsed / 12)));
 
   // For catch-up track, lower is better (debt going to 0). Invert on-track logic.
   const isCatchup = trackKey === "catchup";
@@ -127,8 +128,7 @@ export default function FiveYearJourney({ trackKey, monthlyAmount, currentSaved 
             // For other tracks: a year is "done" when you've already saved past that milestone
             const isFuture = isCatchup ? yearValues[i] > 0 : currentSaved < yearValues[i];
             const nodeCleared = isCatchup && yearValues[i] === 0;
-            const prevFuture = i === 0 ? true : (isCatchup ? yearValues[i - 1] > 0 : currentSaved < yearValues[i - 1]);
-            const isCurrentNode = isFuture && !prevFuture;
+            const isCurrentNode = i === currentYearIndex;
             return (
               <div key={y} className={`fy-node ${!isFuture ? "fy-node--done" : ""} ${y === 5 ? "fy-node--end" : ""} ${isCurrentNode ? "fy-node--current" : ""}`}>
                 <div className="fy-dot">{!isFuture ? "✓" : y}</div>

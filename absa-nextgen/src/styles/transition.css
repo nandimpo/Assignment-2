@@ -150,7 +150,7 @@
 @keyframes pt-scanlines-show { to { opacity: 1; } }
 
 /* ══════════════════════════════
-   VORTEX RINGS — spinning portal
+   VORTEX RINGS — pulsing portal
    ══════════════════════════════ */
 .pt-vortex {
   position: absolute;
@@ -174,37 +174,47 @@
   box-shadow: 0 0 20px rgba(132, 167, 148, 0.2), inset 0 0 20px rgba(132, 167, 148, 0.05);
   animation:
     pt-ring-appear 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.3s forwards,
-    pt-ring-spin-slow 8s linear 0.3s infinite;
+    pt-ring-pulse 2.4s ease-in-out 0.3s infinite;
 }
 .pt-vortex-ring--2 {
   width: 380px; height: 380px;
   border: 1px solid rgba(178, 200, 188, 0.3);
   animation:
     pt-ring-appear 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.42s forwards,
-    pt-ring-spin-slow 12s linear reverse 0.42s infinite;
+    pt-ring-pulse 2.8s ease-in-out 0.42s infinite;
 }
 .pt-vortex-ring--3 {
   width: 540px; height: 540px;
   border: 1px solid rgba(132, 167, 148, 0.18);
   animation:
     pt-ring-appear 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.54s forwards,
-    pt-ring-spin-slow 16s linear 0.54s infinite;
+    pt-ring-pulse 3.2s ease-in-out 0.54s infinite;
 }
 .pt-vortex-ring--4 {
   width: 720px; height: 720px;
   border: 1px solid rgba(214, 168, 90, 0.1);
   animation:
     pt-ring-appear 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.66s forwards,
-    pt-ring-spin-slow 22s linear reverse 0.66s infinite;
+    pt-ring-pulse 3.6s ease-in-out 0.66s infinite;
 }
 
 @keyframes pt-ring-appear {
-  0%   { transform: scale(0) rotate(-180deg); opacity: 0; }
-  100% { transform: scale(1) rotate(0deg);    opacity: 1; }
+  0%   { transform: scale(0); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
 }
-@keyframes pt-ring-spin-slow {
-  from { transform: scale(1) rotate(0deg); }
-  to   { transform: scale(1) rotate(360deg); }
+@keyframes pt-ring-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.72;
+    filter: drop-shadow(0 0 0 rgba(132, 167, 148, 0));
+  }
+  50% {
+    transform: scale(1.12);
+    opacity: 1;
+    filter:
+      drop-shadow(0 0 14px rgba(214, 168, 90, 0.34))
+      drop-shadow(0 0 24px rgba(132, 167, 148, 0.32));
+  }
 }
 
 /* ══════════════════════════════
@@ -384,10 +394,10 @@
    ══════════════════════════════ */
 
 /* Rings tighten inward before the fill */
-.pt-vortex-ring--1 { animation-name: pt-ring-appear, pt-ring-spin-slow, pt-ring-collapse; animation-duration: 0.7s, 8s, 0.5s; animation-delay: 0.3s, 0.3s, 2.3s; animation-fill-mode: forwards, none, forwards; }
-.pt-vortex-ring--2 { animation-name: pt-ring-appear, pt-ring-spin-slow, pt-ring-collapse; animation-duration: 0.7s, 12s, 0.5s; animation-delay: 0.42s, 0.42s, 2.35s; animation-fill-mode: forwards, none, forwards; animation-direction: normal, reverse, normal; }
-.pt-vortex-ring--3 { animation-name: pt-ring-appear, pt-ring-spin-slow, pt-ring-collapse; animation-duration: 0.7s, 16s, 0.5s; animation-delay: 0.54s, 0.54s, 2.4s; animation-fill-mode: forwards, none, forwards; }
-.pt-vortex-ring--4 { animation-name: pt-ring-appear, pt-ring-spin-slow, pt-ring-collapse; animation-duration: 0.7s, 22s, 0.5s; animation-delay: 0.66s, 0.66s, 2.45s; animation-fill-mode: forwards, none, forwards; animation-direction: normal, reverse, normal; }
+.pt-vortex-ring--1 { animation-name: pt-ring-appear, pt-ring-pulse, pt-ring-collapse; animation-duration: 0.7s, 2.4s, 0.5s; animation-delay: 0.3s, 0.3s, 2.3s; animation-fill-mode: forwards, none, forwards; }
+.pt-vortex-ring--2 { animation-name: pt-ring-appear, pt-ring-pulse, pt-ring-collapse; animation-duration: 0.7s, 2.8s, 0.5s; animation-delay: 0.42s, 0.42s, 2.35s; animation-fill-mode: forwards, none, forwards; }
+.pt-vortex-ring--3 { animation-name: pt-ring-appear, pt-ring-pulse, pt-ring-collapse; animation-duration: 0.7s, 3.2s, 0.5s; animation-delay: 0.54s, 0.54s, 2.4s; animation-fill-mode: forwards, none, forwards; }
+.pt-vortex-ring--4 { animation-name: pt-ring-appear, pt-ring-pulse, pt-ring-collapse; animation-duration: 0.7s, 3.6s, 0.5s; animation-delay: 0.66s, 0.66s, 2.45s; animation-fill-mode: forwards, none, forwards; }
 
 @keyframes pt-ring-collapse {
   0%   { transform: scale(1);   opacity: 1; }

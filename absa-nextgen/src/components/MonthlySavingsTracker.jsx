@@ -10,6 +10,7 @@ export default function MonthlySavingsTracker({
   logKey       = "savingsLog",   // separate log per track
   trackerTitle = "Monthly Savings Tracker",
   verb         = "saved",        // "saved" or "paid"
+  className    = "",
 }) {
   const { user, updateUser } = useUser();
   const [showMissedPanel, setShowMissedPanel] = useState(false);
@@ -76,7 +77,7 @@ export default function MonthlySavingsTracker({
     <>
     {flashing && <div className="mst-flash" />}
     {flashGreen && <div className="mst-flash mst-flash--green" />}
-    <div className="mst-card">
+    <div className={`mst-card ${className}`.trim()}>
 
       {/* HEADER */}
       <div className="mst-header">

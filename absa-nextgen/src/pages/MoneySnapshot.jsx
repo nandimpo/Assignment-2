@@ -7,7 +7,7 @@ import useProgress from "../hooks/useProgress";
 import Tour from "../components/Tour";
 import { useUser } from "../context/UserContext";
 import { calcMonthlyTax } from "../utils/tax";
-import { Target, GraduationCap } from "lucide-react";
+import { Target, GraduationCap, Check } from "lucide-react";
 import FlipCard from "../components/FlipCard";
 import Typewriter from "../components/Typewriter";
 import SlideIn from "../components/SlideIn";
@@ -211,7 +211,7 @@ export default function MoneySnapshot() {
     updateUser({ grossSalary: grossIncome, salary: income, expenses, monthsToGoal, breakdown: currentBreakdown });
   }, [grossIncome, income, expenses, breakdownEdit]);
 
-  const { progress: milestoneProgress, milestoneStatus, trackRoute, trackName, percent } = useProgress();
+  const { progress: milestoneProgress, milestoneStatus, trackRoute, trackName, percent, toggleMilestone } = useProgress();
   const strategy = user?.strategy || "property";
 
   const TRACK_CONFIG = {
@@ -555,9 +555,16 @@ export default function MoneySnapshot() {
                     <div key={key} className="ms-step-col">
                       <div className="ms-circle-row">
                         {index > 0 && <div className={`ms-line ${milestoneProgress[keys[index - 1]] ? "filled" : ""}`} />}
-                        <div className={`step ${isCompleted ? "completed" : ""} ${isCurrent ? "current" : ""} ${isLocked ? "locked" : ""}`} title={isCompleted ? "Achieved" : isLocked ? "Complete previous milestone first" : "Not yet reached"}>
+                        <button
+                          type="button"
+                          className={`step ${isCompleted ? "completed" : ""} ${isCurrent ? "current" : ""} ${isLocked ? "locked" : ""}`}
+                          onClick={() => !isLocked && toggleMilestone(key)}
+                          disabled={isLocked}
+                          title={isCompleted ? "Achieved" : isLocked ? "Complete previous milestone first" : milestoneStatus?.[key]?.hint || "Tap to check off"}
+                        >
+                          {isCompleted && <Check size={14} />}
                           {isCompleted ? "✓" : index + 1}
-                        </div>
+                        </button>
                         {index < trackCfg.milestones.length - 1 && <div className={`ms-line ${isCompleted ? "filled" : ""}`} />}
                       </div>
                       <div className="ms-label">

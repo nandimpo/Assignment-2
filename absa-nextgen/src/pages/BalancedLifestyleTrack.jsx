@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { useUser } from "../context/UserContext";
 import useProgress from "../hooks/useProgress";
 import AppNav from "../components/AppNav";
@@ -6,7 +6,23 @@ import SimNudge from "../components/SimNudge";
 import ExplainerPanel from "../components/ExplainerPanel";
 import "../styles/track.css";
 import "../styles/money.css";
-import { Wallet, TrendingUp, PiggyBank, BookOpen, AlertTriangle, ChevronDown, Check } from "lucide-react";
+import {
+  Wallet,
+  TrendingUp,
+  PiggyBank,
+  BookOpen,
+  AlertTriangle,
+  ChevronDown,
+  Check,
+  Info as InfoIcon,
+  LineChart,
+  Zap,
+  Lightbulb,
+  Scale,
+  CheckCircle,
+  XCircle,
+  Calculator,
+} from "lucide-react";
 
 const MILESTONES_DETAIL = [
   { label: "Emergency fund (3× expenses) built",       tip: "Your safety net before anything else — prevents pulling from investments." },
@@ -62,7 +78,7 @@ const EXPLAINERS = {
 
 export default function BalancedLifestyleTrack() {
   const { user } = useUser();
-  const { progress, milestoneStatus, percent: progressPercent } = useProgress();
+  const { progress, milestoneStatus, percent: progressPercent, toggleMilestone } = useProgress();
 
   // ── Collapsible cards (4–7 start closed) ──
   const [openCards, setOpenCards] = useState({ allocation: false, portfolio: false, rationale: false, guide: false });
@@ -86,7 +102,11 @@ export default function BalancedLifestyleTrack() {
   const [activeTooltip, setActiveTooltip] = useState(null);
   const [tooltipPos, setTooltipPos]   = useState({ x: 0, y: 0 });
 
-  const openPanel = (key) => { setPanelContent(EXPLAINERS[key]); setShowPanel(true); };
+  const openPanel = (key) => {
+    setActiveTooltip(null);
+    setPanelContent(EXPLAINERS[key]);
+    setShowPanel(true);
+  };
   const showTip   = (key, e) => {
     const rect = e.currentTarget.getBoundingClientRect();
     setTooltipPos({ x: rect.left, y: rect.bottom + 8 });
@@ -98,13 +118,32 @@ export default function BalancedLifestyleTrack() {
   const Info = ({ id }) => (
     <span
       className="info-icon"
-      onMouseEnter={(e) => showTip(id, e)}
+      onMouseEnter={(e) => !showPanel && showTip(id, e)}
       onMouseLeave={hideTip}
-      onClick={() => openPanel(id)}
+      onClick={(e) => {
+        e.stopPropagation();
+        openPanel(id);
+      }}
     >ⓘ</span>
   );
 
   // ── Financials ──
+  const InfoButton = ({ id }) => (
+    <button
+      type="button"
+      className="info-icon info-icon--button"
+      onMouseEnter={(e) => !showPanel && showTip(id, e)}
+      onMouseLeave={hideTip}
+      onClick={(e) => {
+        e.stopPropagation();
+        openPanel(id);
+      }}
+      aria-label="Open explanation"
+    >
+      <InfoIcon size={15} strokeWidth={2} />
+    </button>
+  );
+
   const income   = Number(user?.netSalary || user?.salary) || 0;
   const expenses = Number(user?.expenses) || 0;
   const surplus  = Math.max(0, income - expenses);
@@ -171,6 +210,9 @@ export default function BalancedLifestyleTrack() {
     progressPercent < 100  ? "You're close — scale up toward financial independence." :
                              "All milestones complete.";
 
+  const PlanStatusIcon = balOnTrack === true ? LineChart : balOnTrack === false ? Zap : Lightbulb;
+  const planStatusValue = balOnTrack === true ? "On Track" : balOnTrack === false ? "Behind" : "Not set";
+
   return (
     <div className="track-page">
       <AppNav />
@@ -194,12 +236,17 @@ export default function BalancedLifestyleTrack() {
               ].map(({ label, value, color }, i) => (
                 <div key={label} style={{ padding: "14px 16px", borderRight: i < 3 ? "1px solid rgba(255,255,255,0.06)" : "none" }}>
                   <p style={{ fontSize: "0.6rem", fontWeight: 700, color: "#445550", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 3px" }}>{label}</p>
-                  <p style={{ fontSize: "0.95rem", fontWeight: 700, color, margin: 0 }}>{value}</p>
+                  <p style={{ fontSize: "0.95rem", fontWeight: 700, color, margin: 0 }}>{label === "Status" ? planStatusValue : value}</p>
                 </div>
               ))}
             </div>
-            <div style={{ padding: "12px 18px 14px", display: "flex", gap: 10, alignItems: "flex-start",
+            <div className="balanced-plan-status-row" style={{ padding: "12px 18px 14px", display: "flex", gap: 10, alignItems: "flex-start",
               background: balOnTrack === true ? "rgba(132,167,148,0.05)" : balOnTrack === false ? "rgba(214,168,90,0.05)" : "rgba(79,172,254,0.04)" }}>
+              <PlanStatusIcon
+                size={18}
+                color={balOnTrack === true ? "#84a794" : balOnTrack === false ? "#d6a85a" : "#4facfe"}
+                style={{ flexShrink: 0, marginTop: 1 }}
+              />
               <span style={{ fontSize: "1rem", flexShrink: 0 }}>{balOnTrack === true ? "📈" : balOnTrack === false ? "⚡" : "💡"}</span>
               <div>
                 <p style={{ margin: "0 0 3px", fontSize: "0.78rem", fontWeight: 700,
@@ -236,12 +283,13 @@ export default function BalancedLifestyleTrack() {
         />
 
         {/* ── 2. MONTHLY SAVINGS TRACKER — primary action ── */}
-        <div className="track-card" style={{ padding: 0, overflow: "visible" }}>
-          <div style={{ padding: "18px 20px 0", display: "flex", alignItems: "center", gap: 6 }}>
-            <h3 style={{ margin: 0 }}>Monthly Savings Tracker</h3>
-            <Info id="savingsTracker" />
+        <div className="track-card balanced-tracker-card">
+          <div className="balanced-tracker-card__header">
+            <h3>Monthly Savings Tracker</h3>
+            <InfoButton id="savingsTracker" />
           </div>
           <MonthlySavingsTracker
+            className="mst-card--embedded"
             monthlyTarget={goalMonthly}
             goalAmount={Number(user?.fiveYearGoal) || goalMonthly * 60 || 1000000}
             goalLabel="investment goal"
@@ -251,10 +299,16 @@ export default function BalancedLifestyleTrack() {
         {/* ── 3. MILESTONES — where you are on the journey ── */}
         </div>
 
-        <div className="track-card">
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
-            <h3>Milestones <Info id="milestones" /></h3>
-            <span className="milestones-hint">Track your progress</span>
+        <div className="track-card balanced-milestones-card">
+          <div className="balanced-milestones-header">
+            <div className="balanced-milestones-title">
+              <h3>Milestones <InfoButton id="milestones" /></h3>
+              <span className="milestones-hint">Track your progress</span>
+            </div>
+            <div className="balanced-milestones-status">
+              <span>{progressPercent}% complete</span>
+              <small>{milestoneInsight}</small>
+            </div>
           </div>
 
           <div className="bl-stepper">
@@ -263,29 +317,40 @@ export default function BalancedLifestyleTrack() {
               const isCurrent   = !progress[step] && (index === 0 || progress[steps[index - 1]]);
               const isLocked    = index > 0 && !progress[steps[index - 1]];
               return (
-                <div key={step} className="bl-step-item">
-                  <div className="bl-step-col">
-                    <div
+                <Fragment key={step}>
+                  {index > 0 && (
+                    <div className={`bl-vline ${progress[steps[index - 1]] ? "filled" : ""}`} />
+                  )}
+                  <button
+                    key={step}
+                    type="button"
+                    className={`bl-step-item ${isCompleted ? "is-completed" : ""} ${isCurrent ? "is-current" : ""}`}
+                    onClick={() => !isLocked && toggleMilestone(step)}
+                    disabled={isLocked}
+                  >
+                    <span
                       className={`step ${isCompleted ? "completed" : ""} ${isCurrent ? "current" : ""} ${isLocked ? "locked" : ""}`}
-                      title={isCompleted ? "Achieved" : isLocked ? "Complete previous milestone first" : "Not yet reached — update your savings"}
+                      title={isCompleted ? "Achieved" : isLocked ? "Complete previous milestone first" : "Click to mark complete"}
                     >
-                      {isCompleted ? "✓" : index + 1}
+                      {isCompleted ? <Check size={16} /> : index + 1}
+                    </span>
+                    <div className="bl-step-text">
+                      <span className="step-label">{milestoneStatus?.[step]?.label || stepLabels[step]}</span>
+                      {isCurrent && <span className="step-cta">{milestoneStatus?.[step]?.hint || "Click to mark complete"}</span>}
+                      {isLocked  && <span className="step-locked-label">Locked</span>}
                     </div>
-                    {index < steps.length - 1 && <div className={`bl-vline ${progress[step] ? "filled" : ""}`} />}
-                  </div>
-                  <div className="bl-step-text">
-                    <span className="step-label">{milestoneStatus?.[step]?.label || stepLabels[step]}</span>
-                    {isCurrent && <span className="step-cta" style={{ fontSize: 10, color: "#84a794" }}>{milestoneStatus?.[step]?.hint || "Update your savings →"}</span>}
-                    {isLocked  && <span className="step-locked-label">Locked</span>}
-                  </div>
-                </div>
+                  </button>
+                </Fragment>
               );
             })}
           </div>
-
-          <p className="muted" style={{ marginTop: 12 }}>{progressPercent}% complete</p>
-          <p className="small" style={{ marginTop: 4, color: "#c8d8d4" }}>{milestoneInsight}</p>
         </div>
+
+        <MilestoneChecklist
+          items={MILESTONES_DETAIL}
+          doneItems={stagesDone}
+          onToggle={toggleStage}
+        />
 
         {/* ── 4–7. TOOLS & EDUCATION — 2×2 grid, each tile expands full-width ── */}
         <div className="bl-tools-section">
@@ -310,14 +375,14 @@ export default function BalancedLifestyleTrack() {
                   <div className="bl-stats">
                     <div className="bl-stat">
                       <TrendingUp size={15} />
-                      <span className="bl-stat-label">Investing <Info id="compoundGrowth" /></span>
+                      <span className="bl-stat-label">Investing <InfoButton id="compoundGrowth" /></span>
                       <strong style={{ color: isAboveSetup ? "#84a794" : isBelowSetup ? "#d6a85a" : "#f4f6fc" }}>
                         <NumberCounter value={scenarioInvesting} prefix="R" />
                       </strong>
                     </div>
                     <div className="bl-stat">
                       <Wallet size={15} />
-                      <span className="bl-stat-label">Liquid savings <Info id="liquidSavings" /></span>
+                      <span className="bl-stat-label">Liquid savings <InfoButton id="liquidSavings" /></span>
                       <strong><NumberCounter value={scenarioSaved} prefix="R" /></strong>
                     </div>
                     <div className="bl-stat">
@@ -334,7 +399,7 @@ export default function BalancedLifestyleTrack() {
                   <div className="bl-bar-labels"><span>Spending</span><span>Investing</span><span>Saving</span></div>
                   <div style={{ marginTop: 16 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                      <label className="bl-slider-label">% of surplus <Info id="surplus" /> to invest</label>
+                      <label className="bl-slider-label">% of surplus <InfoButton id="surplus" /> to invest</label>
                       <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#4facfe" }}>{investmentPct}%</span>
                     </div>
                     <input type="range" min="10" max="90" value={investmentPct} onChange={(e) => setInvestmentPct(Number(e.target.value))} style={{ width: "100%", accentColor: "#4facfe" }} />
@@ -356,7 +421,7 @@ export default function BalancedLifestyleTrack() {
                       </div>
                     )}
                     <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: 8 }}>
-                      <span style={{ fontSize: "0.74rem", color: "#8a9a96" }}>Year 5 portfolio <Info id="compoundGrowth" /></span>
+                      <span style={{ fontSize: "0.74rem", color: "#8a9a96" }}>Year 5 portfolio <InfoButton id="compoundGrowth" /></span>
                       <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#4facfe" }}>R{scenarioY5.toLocaleString()}</span>
                     </div>
                     {scenarioInvesting !== goalMonthly && (
@@ -388,9 +453,9 @@ export default function BalancedLifestyleTrack() {
               {openCards.portfolio && (
                 <div className="bl-tile-body bl-row">
                   <div>
-                    <p className="bl-tile-section-label">Portfolio Mix <Info id="portfolioMix" /></p>
+                    <p className="bl-tile-section-label">Portfolio Mix <InfoButton id="portfolioMix" /></p>
                     <div style={{ display: "flex", gap: 14, alignItems: "center", marginTop: 8 }}>
-                      <div style={{ width: 64, height: 64, borderRadius: "50%", flexShrink: 0, background: `conic-gradient(#84a794 0% ${portfolio.local}%, #d6a85a ${portfolio.local}% 100%)`, display: "flex", alignItems: "center", justifyContent: "center", animation: "pie-spin 12s linear infinite" }}>
+                      <div style={{ width: 64, height: 64, borderRadius: "50%", flexShrink: 0, background: `conic-gradient(#84a794 0% ${portfolio.local}%, #d6a85a ${portfolio.local}% 100%)`, display: "flex", alignItems: "center", justifyContent: "center", animation: "pie-pulse 2.4s ease-in-out infinite" }}>
                         <div style={{ width: 40, height: 40, borderRadius: "50%", background: "#0c1110", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10 }}>{portfolio.local}%</div>
                       </div>
                       <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
@@ -428,6 +493,7 @@ export default function BalancedLifestyleTrack() {
                 <div className="bl-tile-body">
                   <div className="grid-2" style={{ gap: 12 }}>
                     <div style={{ background: "rgba(214,168,90,0.06)", border: "1px solid rgba(214,168,90,0.2)", borderRadius: 10, padding: "12px 14px" }}>
+                      <p className="bl-icon-heading" style={{ color: "#d6a85a" }}><Scale size={13} /> Trade-offs</p>
                       <p style={{ fontSize: "0.7rem", fontWeight: 700, color: "#d6a85a", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>⚖ Trade-offs</p>
                       {[
                         { pro: true,  text: "Enjoy life now while building wealth" },
@@ -438,12 +504,16 @@ export default function BalancedLifestyleTrack() {
                         { pro: false, text: "Major goals take longer" },
                       ].map(({ pro, text }, i) => (
                         <div key={i} style={{ display: "flex", gap: 7, alignItems: "flex-start", marginBottom: 5 }}>
+                          {pro
+                            ? <CheckCircle className="bl-choice-icon" size={13} color="#84a794" style={{ flexShrink: 0, marginTop: 2 }} />
+                            : <XCircle className="bl-choice-icon" size={13} color="#d6a85a" style={{ flexShrink: 0, marginTop: 2 }} />}
                           <span style={{ color: pro ? "#84a794" : "#d6a85a", fontWeight: 700, fontSize: "0.82rem", flexShrink: 0 }}>{pro ? "✓" : "✗"}</span>
                           <p style={{ margin: 0, fontSize: "0.76rem", color: "#c0ccc8", lineHeight: 1.4 }}>{text}</p>
                         </div>
                       ))}
                     </div>
                     <div style={{ background: "rgba(79,172,254,0.06)", border: "1px solid rgba(79,172,254,0.18)", borderRadius: 10, padding: "12px 14px" }}>
+                      <p className="bl-icon-heading" style={{ color: "#4facfe" }}><Calculator size={13} /> By the numbers</p>
                       <p style={{ fontSize: "0.7rem", fontWeight: 700, color: "#4facfe", textTransform: "uppercase", letterSpacing: "0.1em", margin: "0 0 8px" }}>📐 By the numbers</p>
                       {[
                         { label: "R5k/month × 5 yrs", result: "R776k at 10% p.a.", highlight: false },
@@ -459,6 +529,7 @@ export default function BalancedLifestyleTrack() {
                     </div>
                   </div>
                   <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 7 }}>
+                    <p className="bl-icon-heading" style={{ color: "#ff9898", margin: 0 }}><AlertTriangle size={13} /> Watch out for</p>
                     <p style={{ fontSize: "0.7rem", fontWeight: 700, color: "#ff9898", textTransform: "uppercase", letterSpacing: "0.1em", margin: 0 }}>⚠ Watch out for</p>
                     {[
                       { title: "Lifestyle creep", body: "Every R1,000 increase in monthly spending costs you R155,000 in Year 5." },
@@ -483,7 +554,7 @@ export default function BalancedLifestyleTrack() {
               <button className="bl-tile-header" onClick={() => toggleCard("guide")}>
                 <div className="bl-tile-top">
                   <BookOpen size={15} color="#8a9a96" />
-                  <span className="bl-tile-title">Strategy Guide <Info id="strategyGuide" /></span>
+                  <span className="bl-tile-title">Strategy Guide <InfoButton id="strategyGuide" /></span>
                   <ChevronDown size={14} color="#667c74" className={`bl-tile-chevron${openCards.guide ? " rotated" : ""}`} />
                 </div>
                 {!openCards.guide && (<>
@@ -525,12 +596,6 @@ export default function BalancedLifestyleTrack() {
           </div>
         </div>
 
-        <MilestoneChecklist
-          items={MILESTONES_DETAIL}
-          doneItems={stagesDone}
-          onToggle={toggleStage}
-        />
-
       </div>
 
       {/* EXPLAINER PANEL */}
@@ -543,7 +608,7 @@ export default function BalancedLifestyleTrack() {
       />
 
       {/* FLOATING TOOLTIP */}
-      {activeTooltip && EXPLAINERS[activeTooltip] && (
+      {!showPanel && activeTooltip && EXPLAINERS[activeTooltip] && (
         <div
           className="tooltip-advanced"
           style={{ position: "fixed", top: tooltipPos.y, left: tooltipPos.x, zIndex: 9999 }}

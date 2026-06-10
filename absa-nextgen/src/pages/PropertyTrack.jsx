@@ -172,7 +172,7 @@ export default function PropertyTrack() {
   const stagesPct       = Math.round((stagesDoneCount / STAGES.length) * 100);
 
   // ── Financial calculations ─────────────────────────────────────────────────
-  const { progress, milestoneStatus, percent } = useProgress();
+  const { progress, milestoneStatus, percent, toggleMilestone: toggleProgressMilestone } = useProgress();
 
   const income      = Number(user?.netSalary || user?.salary) || 0;
   const expenses    = Number(user?.expenses) || 0;
@@ -574,10 +574,14 @@ export default function PropertyTrack() {
                   <div key={key} className="ms-step-col">
                     <div className="ms-circle-row">
                       {index > 0 && <div className={`ms-line ${progress[milestones[index - 1].key] ? "filled" : ""}`} />}
-                      <div className={`step ${isCompleted ? "completed" : ""} ${isCurrent ? "current" : ""} ${isLocked ? "locked" : ""}`}
+                      <button
+                        type="button"
+                        className={`step ${isCompleted ? "completed" : ""} ${isCurrent ? "current" : ""} ${isLocked ? "locked" : ""}`}
+                        onClick={() => !isLocked && toggleProgressMilestone(key)}
+                        disabled={isLocked}
                         title={isCompleted ? "Achieved" : isLocked ? "Complete previous milestone first" : hint}>
                         {isCompleted ? <Check size={14} /> : index + 1}
-                      </div>
+                      </button>
                       {index < milestones.length - 1 && <div className={`ms-line ${isCompleted ? "filled" : ""}`} />}
                     </div>
                     <div className="ms-label">

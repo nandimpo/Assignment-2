@@ -59,6 +59,7 @@ export default function Home() {
     { id: "property",   Icon: HomeIcon,  name: "First Property Path",            sub: "Save for a home deposit in 3–5 years",         focus: "Saving & Stability" },
     { id: "balanced",   Icon: Scale,     name: "Balanced Lifestyle & Investing", sub: "Maintain your lifestyle while building wealth", focus: "Flexibility & Investing" },
     { id: "correction", Icon: RefreshCw, name: "Lifestyle Correction",           sub: "Rebalance spending and reduce debt",            focus: "Behavioural Change" },
+    { id: "catchup",    Icon: Sprout,    name: "Catch-Up Wealth",                sub: "Clear debt and start building wealth fast",     focus: "Debt Clearance" },
   ];
 
   const tips = [
