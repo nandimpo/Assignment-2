@@ -1744,6 +1744,54 @@ h1 {
   gap: 8px;
 }
 
+.balanced-milestones-insights-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+  gap: 14px;
+  align-items: stretch;
+}
+
+.balanced-milestones-insights-row .balanced-milestones-card,
+.balanced-ai-flip,
+.balanced-ai-flip .flip-card-inner,
+.balanced-ai-flip .flip-card-front,
+.balanced-ai-flip .flip-card-back,
+.balanced-ai-card {
+  height: 100%;
+}
+
+.balanced-ai-card {
+  padding: 16px 18px;
+  justify-content: center;
+  min-height: 210px;
+}
+
+.balanced-ai-card h3 {
+  margin: 0 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.92rem;
+}
+
+.balanced-ai-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.balanced-ai-list .insight {
+  padding: 9px 12px;
+  line-height: 1.45;
+}
+
+@media (max-width: 1000px) {
+  .balanced-milestones-insights-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 .balanced-milestones-header {
   display: flex;
   align-items: center;

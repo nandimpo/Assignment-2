@@ -20,8 +20,11 @@ export function projectLinearFixedWindow({
   elapsedMonths = 0,
   totalMonths = 60,
 } = {}) {
-  const remainingMonths = Math.max(0, totalMonths - elapsedMonths);
-  return Math.round((Number(currentSaved) || 0) + (Number(monthly) || 0) * remainingMonths);
+  const monthlyAmount = Number(monthly) || 0;
+  const savedAmount = Number(currentSaved) || 0;
+  const expectedLogged = monthlyAmount * Math.max(0, Number(elapsedMonths) || 0);
+  const actualVariance = savedAmount - expectedLogged;
+  return Math.round((monthlyAmount * totalMonths) + actualVariance);
 }
 
 export function projectCompoundFixedWindow({
@@ -32,10 +35,15 @@ export function projectCompoundFixedWindow({
   annualRate = 0.1,
 } = {}) {
   const months = Math.max(0, totalMonths - elapsedMonths);
+  const monthlyAmount = Number(monthly) || 0;
+  const savedAmount = Number(currentSaved) || 0;
+  const elapsed = Math.max(0, Number(elapsedMonths) || 0);
   const r = annualRate / 12;
-  if (months === 0) return Math.round(Number(currentSaved) || 0);
-  const futureContributions = r > 0
-    ? (Number(monthly) || 0) * ((Math.pow(1 + r, months) - 1) / r)
-    : (Number(monthly) || 0) * months;
-  return Math.round((Number(currentSaved) || 0) + futureContributions);
+  const fullPlanValue = r > 0
+    ? monthlyAmount * ((Math.pow(1 + r, totalMonths) - 1) / r)
+    : monthlyAmount * totalMonths;
+  const expectedLogged = monthlyAmount * elapsed;
+  const actualVariance = savedAmount - expectedLogged;
+  const varianceValue = r > 0 ? actualVariance * Math.pow(1 + r, months) : actualVariance;
+  return Math.round(fullPlanValue + varianceValue);
 }

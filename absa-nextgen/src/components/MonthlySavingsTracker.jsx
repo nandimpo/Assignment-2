@@ -96,7 +96,7 @@ export default function MonthlySavingsTracker({
           <div className="mst-stat">
             <span className="mst-stat-label">Months left</span>
             <strong className="mst-stat-value">
-              {Number.isFinite(Number(monthsLeft)) ? <NumberCounter value={Number(monthsLeft)} /> : monthsLeft}
+              {Number.isFinite(Number(monthsLeft)) ? Number(monthsLeft).toLocaleString("en-ZA") : monthsLeft}
             </strong>
           </div>
           <div className="mst-stat">

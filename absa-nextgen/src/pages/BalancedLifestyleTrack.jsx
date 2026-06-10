@@ -1,4 +1,5 @@
 import { Fragment, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
 import useProgress from "../hooks/useProgress";
 import AppNav from "../components/AppNav";
@@ -36,7 +37,8 @@ import MonthlySavingsTracker from "../components/MonthlySavingsTracker";
 import FiveYearJourney from "../components/FiveYearJourney";
 import MilestoneChecklist from "../components/MilestoneChecklist";
 import SlideIn from "../components/SlideIn";
-import NumberCounter from "../components/NumberCounter";
+import FlipCard from "../components/FlipCard";
+import Typewriter from "../components/Typewriter";
 import { getTrackMonthlyAmount } from "../utils/trackAmounts";
 import { getCompletedLogMonths, projectCompoundFixedWindow } from "../utils/projections";
 
@@ -78,6 +80,7 @@ const EXPLAINERS = {
 
 export default function BalancedLifestyleTrack() {
   const { user } = useUser();
+  const navigate = useNavigate();
   const { progress, milestoneStatus, percent: progressPercent, toggleMilestone } = useProgress();
 
   // ── Collapsible cards (4–7 start closed) ──
@@ -299,51 +302,78 @@ export default function BalancedLifestyleTrack() {
         {/* ── 3. MILESTONES — where you are on the journey ── */}
         </div>
 
-        <div className="track-card balanced-milestones-card">
-          <div className="balanced-milestones-header">
-            <div className="balanced-milestones-title">
-              <h3>Milestones <InfoButton id="milestones" /></h3>
-              <span className="milestones-hint">Track your progress</span>
+        <div className="balanced-milestones-insights-row">
+          <div className="track-card balanced-milestones-card">
+            <div className="balanced-milestones-header">
+              <div className="balanced-milestones-title">
+                <h3>Milestones <InfoButton id="milestones" /></h3>
+                <span className="milestones-hint">Track your progress</span>
+              </div>
+              <div className="balanced-milestones-status">
+                <span>{progressPercent}% complete</span>
+                <small>{milestoneInsight}</small>
+              </div>
             </div>
-            <div className="balanced-milestones-status">
-              <span>{progressPercent}% complete</span>
-              <small>{milestoneInsight}</small>
+
+            <div className="bl-stepper">
+              {steps.map((step, index) => {
+                const isCompleted = progress[step];
+                const isCurrent   = !progress[step] && (index === 0 || progress[steps[index - 1]]);
+                const isLocked    = index > 0 && !progress[steps[index - 1]];
+                return (
+                  <Fragment key={step}>
+                    {index > 0 && (
+                      <div className={`bl-vline ${progress[steps[index - 1]] ? "filled" : ""}`} />
+                    )}
+                    <button
+                      key={step}
+                      type="button"
+                      className={`bl-step-item ${isCompleted ? "is-completed" : ""} ${isCurrent ? "is-current" : ""}`}
+                      onClick={() => !isLocked && toggleMilestone(step)}
+                      disabled={isLocked}
+                    >
+                      <span
+                        className={`step ${isCompleted ? "completed" : ""} ${isCurrent ? "current" : ""} ${isLocked ? "locked" : ""}`}
+                        title={isCompleted ? "Achieved" : isLocked ? "Complete previous milestone first" : "Click to mark complete"}
+                      >
+                        {isCompleted ? <Check size={16} /> : index + 1}
+                      </span>
+                      <div className="bl-step-text">
+                        <span className="step-label">{milestoneStatus?.[step]?.label || stepLabels[step]}</span>
+                        {isCurrent && <span className="step-cta">{milestoneStatus?.[step]?.hint || "Click to mark complete"}</span>}
+                        {isLocked  && <span className="step-locked-label">Locked</span>}
+                      </div>
+                    </button>
+                  </Fragment>
+                );
+              })}
             </div>
           </div>
 
-          <div className="bl-stepper">
-            {steps.map((step, index) => {
-              const isCompleted = progress[step];
-              const isCurrent   = !progress[step] && (index === 0 || progress[steps[index - 1]]);
-              const isLocked    = index > 0 && !progress[steps[index - 1]];
-              return (
-                <Fragment key={step}>
-                  {index > 0 && (
-                    <div className={`bl-vline ${progress[steps[index - 1]] ? "filled" : ""}`} />
-                  )}
-                  <button
-                    key={step}
-                    type="button"
-                    className={`bl-step-item ${isCompleted ? "is-completed" : ""} ${isCurrent ? "is-current" : ""}`}
-                    onClick={() => !isLocked && toggleMilestone(step)}
-                    disabled={isLocked}
-                  >
-                    <span
-                      className={`step ${isCompleted ? "completed" : ""} ${isCurrent ? "current" : ""} ${isLocked ? "locked" : ""}`}
-                      title={isCompleted ? "Achieved" : isLocked ? "Complete previous milestone first" : "Click to mark complete"}
-                    >
-                      {isCompleted ? <Check size={16} /> : index + 1}
-                    </span>
-                    <div className="bl-step-text">
-                      <span className="step-label">{milestoneStatus?.[step]?.label || stepLabels[step]}</span>
-                      {isCurrent && <span className="step-cta">{milestoneStatus?.[step]?.hint || "Click to mark complete"}</span>}
-                      {isLocked  && <span className="step-locked-label">Locked</span>}
+          <FlipCard
+            className="sim-card-flip balanced-ai-flip"
+            front={
+              <div className="track-card balanced-ai-card" id="balanced-insights">
+                <h3>
+                  <Lightbulb size={15} /> AI Insights
+                </h3>
+                <div className="balanced-ai-list">
+                  {[insight1, insight2].map((item, i) => (
+                    <div key={i} className="insight">
+                      <Typewriter text={item} speed={14} delay={i * 180} />
                     </div>
-                  </button>
-                </Fragment>
-              );
-            })}
-          </div>
+                  ))}
+                </div>
+              </div>
+            }
+            back={
+              <>
+                <span className="flip-back-label">AI Insights</span>
+                <span className="flip-back-count">2</span>
+                <span className="flip-back-sub">personalised insights for your balanced lifestyle path</span>
+              </>
+            }
+          />
         </div>
 
         <MilestoneChecklist
@@ -377,18 +407,18 @@ export default function BalancedLifestyleTrack() {
                       <TrendingUp size={15} />
                       <span className="bl-stat-label">Investing <InfoButton id="compoundGrowth" /></span>
                       <strong style={{ color: isAboveSetup ? "#84a794" : isBelowSetup ? "#d6a85a" : "#f4f6fc" }}>
-                        <NumberCounter value={scenarioInvesting} prefix="R" />
+                        R{scenarioInvesting.toLocaleString("en-ZA")}
                       </strong>
                     </div>
                     <div className="bl-stat">
                       <Wallet size={15} />
                       <span className="bl-stat-label">Liquid savings <InfoButton id="liquidSavings" /></span>
-                      <strong><NumberCounter value={scenarioSaved} prefix="R" /></strong>
+                      <strong>R{scenarioSaved.toLocaleString("en-ZA")}</strong>
                     </div>
                     <div className="bl-stat">
                       <PiggyBank size={15} />
                       <span className="bl-stat-label">Expenses</span>
-                      <strong><NumberCounter value={expenses} prefix="R" /></strong>
+                      <strong>R{expenses.toLocaleString("en-ZA")}</strong>
                     </div>
                   </div>
                   <div className="bl-bar" style={{ marginTop: 14 }}>
@@ -461,7 +491,7 @@ export default function BalancedLifestyleTrack() {
                       <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
                         <p className="small" style={{ display: "flex", alignItems: "center", gap: 5 }}><span style={{ width: 8, height: 8, borderRadius: "50%", background: "#84a794", display: "inline-block" }} />Local: {portfolio.local}%</p>
                         <p className="small" style={{ display: "flex", alignItems: "center", gap: 5 }}><span style={{ width: 8, height: 8, borderRadius: "50%", background: "#d6a85a", display: "inline-block" }} />Offshore: {portfolio.offshore}%</p>
-                        <button className="pill outline" style={{ marginTop: 4, fontSize: "0.68rem" }}>Studio →</button>
+                        <button className="pill outline" style={{ marginTop: 4, fontSize: "0.68rem" }} onClick={() => navigate("/simulation/investing")}>Studio →</button>
                       </div>
                     </div>
                   </div>
