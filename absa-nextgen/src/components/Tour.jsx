@@ -23,6 +23,7 @@ export default function Tour({ steps = [], storageKey }) {
         if (tourStep >= steps.length - 1) {
           localStorage.setItem(storageKey, "true");
           setShowTour(false);
+          window.scrollTo({ top: 0, behavior: "smooth" });
           return;
         }
         setTourStep((current) => (
@@ -92,11 +93,13 @@ export default function Tour({ steps = [], storageKey }) {
     if (!showTour || !steps.length || tourStep < steps.length) return;
     localStorage.setItem(storageKey, "true");
     setShowTour(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, [showTour, steps.length, storageKey, tourStep]);
 
   const endTour = () => {
     localStorage.setItem(storageKey, "true");
     setShowTour(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   if (!showTour || !spotlight || !steps[tourStep]) return null;

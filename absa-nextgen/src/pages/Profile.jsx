@@ -91,6 +91,7 @@ export default function Profile() {
     localStorage.setItem("seenProfileTour", "true");
     setShowTour(false);
     setSpotlight(null);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const nextStep = () => {

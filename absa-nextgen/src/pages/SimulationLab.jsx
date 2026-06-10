@@ -51,7 +51,7 @@ export default function SimulationLab() {
 
   useEffect(() => {
     const seen = localStorage.getItem("seenTour");
-    if (seen) setShowTour(false);
+    if (!seen) setShowTour(true);
   }, []);
 
   useEffect(() => {
@@ -70,7 +70,7 @@ export default function SimulationLab() {
     }
   }, [tourStep, showTour]);
 
-  const endTour = () => { localStorage.setItem("seenTour", "true"); setShowTour(false); };
+  const endTour = () => { localStorage.setItem("seenTour", "true"); setShowTour(false); window.scrollTo({ top: 0, behavior: "smooth" }); };
 
   const simulations = [
     {

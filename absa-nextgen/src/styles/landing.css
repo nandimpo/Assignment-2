@@ -661,6 +661,7 @@ h2 {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 24px;
   padding: 48px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
@@ -866,14 +867,14 @@ h2 {
 
 /* ================= HIGHLIGHT ================= */
 
-.highlight {
+.landing .highlight {
   position: relative;
   background:
     radial-gradient(circle at 12% 82%, rgba(132, 167, 148, 0.08), transparent 34%),
     linear-gradient(135deg, rgba(132, 167, 148, 0.11), rgba(7, 16, 14, 0.72));
   border: 1px solid rgba(132, 167, 148, 0.24);
-  padding: 18px 56px 18px 26px;
-  border-radius: 42px 8px 42px 8px;
+  padding: 20px 60px 20px 36px;
+  border-radius: 999px 10px 999px 10px;
   color: #84a794;
   font-size: 14px;
   line-height: 1.6;
@@ -882,7 +883,7 @@ h2 {
   box-shadow: inset 0 0 22px rgba(132, 167, 148, 0.035);
 }
 
-.highlight::after {
+.landing .highlight::after {
   content: "";
   position: absolute;
   right: 22px;

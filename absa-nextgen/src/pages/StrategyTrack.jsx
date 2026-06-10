@@ -275,7 +275,7 @@ export default function StrategyTrack() {
   };
 
   const trackTourSteps = getFinalSteps();
-  const endTour  = () => { localStorage.setItem("seenTrackTour", "true"); setShowTour(false); setSpotlight(null); };
+  const endTour  = () => { localStorage.setItem("seenTrackTour", "true"); setShowTour(false); setSpotlight(null); window.scrollTo({ top: 0, behavior: "smooth" }); };
   const nextStep = () => { if (tourStep < trackTourSteps.length - 1) setTourStep(s => s + 1); else endTour(); };
 
   useEffect(() => { if (!localStorage.getItem("seenTrackTour")) setShowTour(true); }, []);
