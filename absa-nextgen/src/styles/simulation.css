@@ -1212,4 +1212,23 @@ input[type="range"] {
     grid-column: 1;
     grid-row: 1;
   }
+
+  .hover-preview,
+  .hover-preview.large {
+    width: min(280px, 82vw);
+  }
+
+  .sim-y5-banner {
+    padding: 16px;
+  }
+
+  .sim-y5-banner-title {
+    font-size: 1.4rem;
+  }
+
+  .how-it-works-bar,
+  .how-it-works-bar.interactive {
+    gap: 10px;
+    padding: 14px;
+  }
 }

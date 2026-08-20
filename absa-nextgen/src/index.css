@@ -5,12 +5,31 @@
   box-sizing: border-box;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
 /* BODY FIX */
 body {
   background: #020202;
   color: white;
   font-family: sans-serif;
   cursor: none; /* hide default cursor globally */
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* ================= TOUCH DEVICES =================
+   No mouse => no custom cursor to draw, and cursor:none would
+   leave taps with no visual feedback. Restore native behavior. */
+@media (hover: none) and (pointer: coarse) {
+  body {
+    cursor: auto;
+  }
+
+  .custom-cursor {
+    display: none;
+  }
 }
 
 .money-glow {

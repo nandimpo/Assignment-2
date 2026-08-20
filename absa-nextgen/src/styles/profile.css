@@ -462,3 +462,21 @@ button {
   }
 }
 
+@media (max-width: 480px) {
+  .container {
+    padding: 90px 14px 32px;
+  }
+
+  .goals-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-top {
+    flex-wrap: wrap;
+  }
+
+  .profile-top button {
+    margin-left: 0;
+  }
+}
+

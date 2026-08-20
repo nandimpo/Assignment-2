@@ -1,5 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { Menu, X } from "lucide-react";
 import useTransitionNavigate from "../hooks/useTransitionNavigate";
 import "../styles/nav.css";
 import logo from "../assets/logo.png";
@@ -10,6 +11,7 @@ export default function LandingNav() {
   const location = useLocation();
   const [activeSection, setActiveSection] = useState("hero");
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -17,7 +19,15 @@ export default function LandingNav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [menuOpen]);
+
   const scrollTo = (id) => {
+    setMenuOpen(false);
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: "smooth" });
   };
@@ -44,11 +54,20 @@ export default function LandingNav() {
 
   const isLoginPage = location.pathname === "/login";
   return (
-    <nav className={`nav${scrolled ? " scrolled" : ""}`}>
+    <nav className={`nav${scrolled ? " scrolled" : ""}${menuOpen ? " nav-menu-open" : ""}`}>
       <div className="logo" onClick={() => navigate("/")}>
         <img src={logo} alt="logo" className="logo-img" />
         <span className="logo-text">ABSA Wealth Studio</span>
       </div>
+
+      <button
+        className="nav-burger"
+        aria-label={menuOpen ? "Close menu" : "Open menu"}
+        aria-expanded={menuOpen}
+        onClick={() => setMenuOpen((v) => !v)}
+      >
+        {menuOpen ? <X size={22} /> : <Menu size={22} />}
+      </button>
 
       <div className="nav-links">
         <button
@@ -67,12 +86,12 @@ export default function LandingNav() {
 
         <button
           className={isLoginPage ? "active" : ""}
-          onClick={() => transitionTo("/login")}
+          onClick={() => { setMenuOpen(false); transitionTo("/login"); }}
         >
           Login
         </button>
 
-        <button className="primary" onClick={() => transitionTo("/register")}>
+        <button className="primary" onClick={() => { setMenuOpen(false); transitionTo("/register"); }}>
           Get Started
         </button>
       </div>

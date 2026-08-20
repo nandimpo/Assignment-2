@@ -3045,3 +3045,57 @@ h1 {
     gap: 14px;
   }
 }
+
+/* ── MOBILE CATCH-ALL: remaining fixed/multi-column layouts ── */
+@media (max-width: 760px) {
+  .catchup-lower-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .correction-tracker-journey-row,
+  .correction-journey-compact-list {
+    grid-template-columns: 1fr;
+  }
+
+  .bl-tools-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .track-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .current-track-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .track-container {
+    padding: 70px 14px 48px;
+  }
+}
+
+@media (max-width: 640px) {
+  .catchup-plan-card {
+    grid-template-columns: 1fr !important;
+  }
+
+  .catchup-plan-card .catchup-card-kicker {
+    border-right: 0 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .catchup-plan-card > div:nth-of-type(2) {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .catchup-plan-card > div:nth-of-type(2) > div:nth-child(2n) {
+    border-right: 0 !important;
+  }
+
+  .catchup-plan-card > div:nth-of-type(3) {
+    border-left: 0 !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+    min-width: 0;
+    padding: 12px 16px !important;
+  }
+}

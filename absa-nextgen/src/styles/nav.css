@@ -199,3 +199,90 @@
   font-size: 16px;
   font-weight: 600;
 }
+
+/* ================= HAMBURGER (mobile only) ================= */
+
+.nav-burger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid rgba(132, 167, 148, 0.25);
+  background: rgba(255, 255, 255, 0.05);
+  color: #f4f6fc;
+  cursor: pointer;
+  flex-shrink: 0;
+  z-index: 10001;
+}
+
+.nav-burger:hover {
+  border-color: rgba(132, 167, 148, 0.45);
+  background: rgba(132, 167, 148, 0.1);
+}
+
+/* ================= RESPONSIVE NAV ================= */
+
+@media (max-width: 860px) {
+  .nav {
+    padding: 0 18px;
+    height: 64px;
+  }
+
+  .logo-img {
+    height: 44px;
+  }
+
+  .logo-text {
+    font-size: 13.5px;
+  }
+
+  .nav-burger {
+    display: flex;
+  }
+
+  .nav-links {
+    position: fixed;
+    top: 64px;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    padding: 14px 16px calc(env(safe-area-inset-bottom, 0px) + 20px);
+    max-height: calc(100vh - 64px);
+    overflow-y: auto;
+    background: rgba(2, 2, 2, 0.97);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-bottom: 1px solid rgba(132, 167, 148, 0.18);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+
+    /* hidden by default */
+    transform: translateY(-12px);
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+    transition: transform 0.22s ease, opacity 0.22s ease, visibility 0.22s;
+  }
+
+  .nav-menu-open .nav-links {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+    visibility: visible;
+  }
+
+  .nav-links button {
+    width: 100%;
+    text-align: left;
+    padding: 12px 14px;
+    font-size: 15px;
+    border-radius: 10px;
+  }
+
+  .nav-logout {
+    margin-top: 6px;
+  }
+}
